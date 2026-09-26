@@ -71,7 +71,7 @@ export function ChangePasswordDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-suzuki-navy">
+          <DialogTitle className="flex items-center gap-2 text-suzuki-navy dark:text-foreground">
             <KeyRound className="w-5 h-5 text-suzuki-red" aria-hidden />
             Ganti Password Admin
           </DialogTitle>
@@ -82,10 +82,10 @@ export function ChangePasswordDialog() {
 
         {done ? (
           <div className="py-8 text-center">
-            <div className="w-14 h-14 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-              <ShieldCheck className="w-7 h-7 text-green-600" aria-hidden />
+            <div className="w-14 h-14 mx-auto mb-4 bg-green-100 dark:bg-green-950/70 rounded-full flex items-center justify-center">
+              <ShieldCheck className="w-7 h-7 text-green-600 dark:text-green-300" aria-hidden />
             </div>
-            <p className="font-semibold text-suzuki-navy">Password berhasil diganti!</p>
+            <p className="font-semibold text-suzuki-navy dark:text-foreground">Password berhasil diganti!</p>
             <p className="text-sm text-muted-foreground mt-1">
               Gunakan password baru saat login berikutnya.
             </p>
@@ -93,7 +93,7 @@ export function ChangePasswordDialog() {
         ) : (
           <form onSubmit={submit} className="space-y-4 pt-2" noValidate>
             <div>
-              <label htmlFor="pass-lama" className="block text-sm font-medium mb-1.5 text-suzuki-navy">
+              <label htmlFor="pass-lama" className="block text-sm font-medium mb-1.5 text-suzuki-navy dark:text-foreground">
                 Password Lama
               </label>
               <input
@@ -107,7 +107,7 @@ export function ChangePasswordDialog() {
               />
             </div>
             <div>
-              <label htmlFor="pass-baru" className="block text-sm font-medium mb-1.5 text-suzuki-navy">
+              <label htmlFor="pass-baru" className="block text-sm font-medium mb-1.5 text-suzuki-navy dark:text-foreground">
                 Password Baru
               </label>
               <input
@@ -125,7 +125,7 @@ export function ChangePasswordDialog() {
               </p>
             </div>
             <div>
-              <label htmlFor="pass-konfirmasi" className="block text-sm font-medium mb-1.5 text-suzuki-navy">
+              <label htmlFor="pass-konfirmasi" className="block text-sm font-medium mb-1.5 text-suzuki-navy dark:text-foreground">
                 Konfirmasi Password Baru
               </label>
               <input
@@ -141,7 +141,7 @@ export function ChangePasswordDialog() {
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5" role="alert">
+              <p className="text-sm text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 rounded-lg px-4 py-2.5" role="alert">
                 {error}
               </p>
             )}

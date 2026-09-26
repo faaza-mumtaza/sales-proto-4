@@ -275,7 +275,7 @@ export function ArtikelEditor({ initial }: { initial?: Artikel }) {
         <label className="block text-sm font-medium mb-2">
           Konten Artikel <span className="text-suzuki-red">*</span>
         </label>
-        <div className="border border-input rounded-lg overflow-hidden bg-white">
+        <div className="border border-input rounded-lg overflow-hidden bg-white dark:bg-white/5">
           <div className="flex flex-wrap gap-1 p-2 border-b bg-muted items-center">
             <button
               type="button"
@@ -510,7 +510,7 @@ export function ArtikelEditor({ initial }: { initial?: Artikel }) {
             <span className="inline-block px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full mb-4">
               {form.tipe}
             </span>
-            <h1 className="text-3xl font-bold text-suzuki-navy mb-3 leading-tight">
+            <h1 className="text-3xl font-bold text-suzuki-navy dark:text-foreground mb-3 leading-tight">
               {form.judul || "Judul Artikel"}
             </h1>
             {form.ringkasan && <p className="text-muted-foreground mb-6">{form.ringkasan}</p>}

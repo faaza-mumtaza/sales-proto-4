@@ -40,7 +40,7 @@ export function UspStrip() {
   return (
     <div className="container mx-auto px-4 relative z-10">
       <Reveal variant="up" delay={150}>
-        <div className="bg-white rounded-2xl shadow-xl shadow-suzuki-navy/10 border border-border grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 -mb-10 overflow-hidden">
+        <div className="bg-white dark:bg-card rounded-2xl shadow-xl shadow-suzuki-navy/10 border border-border grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 -mb-10 overflow-hidden">
           {USP_ITEMS.map((item, i) => (
             <Link
               key={item.title}
@@ -53,7 +53,7 @@ export function UspStrip() {
                 <item.icon className="w-5.5 h-5.5 text-suzuki-red transition-colors group-hover:text-white" aria-hidden />
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-bold text-suzuki-navy leading-tight group-hover:text-suzuki-red transition-colors">
+                <span className="block text-sm font-bold text-suzuki-navy dark:text-foreground leading-tight group-hover:text-suzuki-red transition-colors">
                   {item.title}
                 </span>
                 <span className="block text-[11px] sm:text-xs text-muted-foreground truncate">

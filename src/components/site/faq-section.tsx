@@ -82,7 +82,7 @@ export function FaqSection({ compact = false }: { compact?: boolean }) {
                 <button
                   onClick={() => setSearch("")}
                   aria-label="Bersihkan pencarian"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-suzuki-navy transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-suzuki-navy dark:hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -105,7 +105,7 @@ export function FaqSection({ compact = false }: { compact?: boolean }) {
                     className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all active:scale-95 ${
                       aktif
                         ? "bg-suzuki-red text-white border-suzuki-red shadow-sm shadow-suzuki-red/30"
-                        : "bg-card text-muted-foreground border-border hover:border-suzuki-red/40 hover:text-suzuki-navy"
+                        : "bg-card text-muted-foreground border-border hover:border-suzuki-red/40 hover:text-suzuki-navy dark:hover:text-white"
                     }`}
                   >
                     {label}
@@ -127,7 +127,7 @@ export function FaqSection({ compact = false }: { compact?: boolean }) {
           ) : terfilter.length === 0 ? (
             <div className="text-center py-10 rounded-xl border border-dashed border-border bg-card">
               <HelpCircle className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
-              <p className="font-medium text-suzuki-navy mb-1">
+              <p className="font-medium text-suzuki-navy dark:text-foreground mb-1">
                 {faqs.length === 0 ? "Belum ada FAQ yang dipublikasikan" : "Tidak ada pertanyaan yang cocok"}
               </p>
               <p className="text-sm text-muted-foreground">
@@ -151,12 +151,12 @@ export function FaqSection({ compact = false }: { compact?: boolean }) {
                     <AccordionTrigger className="px-5 py-4 text-left hover:no-underline hover:bg-suzuki-red/5 transition-colors group">
                       <span className="flex items-center gap-3">
                         <span
-                          className="shrink-0 w-7 h-7 rounded-full bg-suzuki-navy/5 text-suzuki-navy text-xs font-bold flex items-center justify-center group-hover:bg-suzuki-red/10 group-hover:text-suzuki-red transition-colors"
+                          className="shrink-0 w-7 h-7 rounded-full bg-suzuki-navy/5 dark:bg-white/5 text-suzuki-navy dark:text-foreground text-xs font-bold flex items-center justify-center group-hover:bg-suzuki-red/10 group-hover:text-suzuki-red transition-colors"
                           aria-hidden
                         >
                           {i + 1}
                         </span>
-                        <span className="font-semibold text-suzuki-navy text-sm sm:text-base">{f.pertanyaan}</span>
+                        <span className="font-semibold text-suzuki-navy dark:text-foreground text-sm sm:text-base">{f.pertanyaan}</span>
                       </span>
                     </AccordionTrigger>
                     <AccordionContent className="px-5 pb-5 pt-0 text-sm leading-relaxed text-muted-foreground">

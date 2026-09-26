@@ -72,11 +72,11 @@ export function BandingkanView() {
                 <div className="w-16 h-16 mx-auto mb-5 bg-suzuki-red/10 rounded-full flex items-center justify-center">
                   <Scale className="w-8 h-8 text-suzuki-red" aria-hidden />
                 </div>
-                <h2 className="text-xl font-bold text-suzuki-navy mb-2">
+                <h2 className="text-xl font-bold text-suzuki-navy dark:text-foreground mb-2">
                   {cars.length === 0 ? "Belum ada mobil dipilih" : "Pilih minimal 2 mobil"}
                 </h2>
                 <p className="text-muted-foreground text-sm mb-6">
-                  Buka katalog lalu tekan tombol <span className="font-semibold text-suzuki-navy">“Bandingkan”</span> pada
+                  Buka katalog lalu tekan tombol <span className="font-semibold text-suzuki-navy dark:text-foreground">“Bandingkan”</span> pada
                   kartu mobil untuk menambahkannya ke sini. Anda dapat membandingkan hingga 3 mobil sekaligus.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
@@ -105,14 +105,14 @@ export function BandingkanView() {
               {/* Baris aksi di atas tabel */}
               <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                 <p className="text-sm text-muted-foreground" aria-live="polite">
-                  Membandingkan <span className="font-semibold text-suzuki-navy">{cars.length} mobil</span>
+                  Membandingkan <span className="font-semibold text-suzuki-navy dark:text-foreground">{cars.length} mobil</span>
                   {specHint()}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {cars.length < 3 && (
                     <Link
                       to="/mobil"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-suzuki-navy/30 text-suzuki-navy rounded-full hover:bg-suzuki-navy hover:text-white transition-all active:scale-95"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white rounded-full hover:bg-suzuki-navy dark:hover:bg-white hover:text-white dark:hover:text-suzuki-navy transition-all active:scale-95"
                     >
                       <Plus className="w-4 h-4" aria-hidden />
                       Tambah Mobil
@@ -168,7 +168,7 @@ export function BandingkanView() {
                                 <span className="inline-block px-2.5 py-0.5 bg-suzuki-red/10 text-suzuki-red text-[11px] font-semibold rounded-full mb-2">
                                   {c.kategori_label}
                                 </span>
-                                <h3 className="font-bold text-suzuki-navy text-base leading-snug">{c.nama}</h3>
+                                <h3 className="font-bold text-suzuki-navy dark:text-foreground text-base leading-snug">{c.nama}</h3>
                                 <p className="text-suzuki-red font-bold mt-1.5">
                                   {c.harga_label ?? formatPrice(c.harga_mulai)}
                                 </p>
@@ -269,8 +269,8 @@ export function BandingkanView() {
 
                         {/* Spesifikasi teknis (gabungan label) */}
                         {specLabels.length > 0 && (
-                          <tr className="bg-suzuki-navy/5">
-                            <th scope="colgroup" colSpan={cars.length + 1} className="p-3 text-left text-xs font-bold uppercase tracking-wider text-suzuki-navy">
+                          <tr className="bg-suzuki-navy/5 dark:bg-white/5">
+                            <th scope="colgroup" colSpan={cars.length + 1} className="p-3 text-left text-xs font-bold uppercase tracking-wider text-suzuki-navy dark:text-foreground">
                               Spesifikasi Teknis
                             </th>
                           </tr>
@@ -286,13 +286,13 @@ export function BandingkanView() {
                         ))}
 
                         {/* Deskripsi */}
-                        <tr className="bg-suzuki-navy/5">
-                          <th scope="colgroup" colSpan={cars.length + 1} className="p-3 text-left text-xs font-bold uppercase tracking-wider text-suzuki-navy">
+                        <tr className="bg-suzuki-navy/5 dark:bg-white/5">
+                          <th scope="colgroup" colSpan={cars.length + 1} className="p-3 text-left text-xs font-bold uppercase tracking-wider text-suzuki-navy dark:text-foreground">
                             Ringkasan
                           </th>
                         </tr>
                         <tr>
-                          <th scope="row" className="p-4 text-left align-top text-sm font-medium text-suzuki-navy bg-muted/40 border-b border-border w-40">
+                          <th scope="row" className="p-4 text-left align-top text-sm font-medium text-suzuki-navy dark:text-foreground bg-muted/40 border-b border-border w-40">
                             Deskripsi
                           </th>
                           {cars.map((c) => (
@@ -311,7 +311,7 @@ export function BandingkanView() {
                 <button
                   type="button"
                   onClick={() => navigate("/mobil")}
-                  className="inline-flex items-center gap-2 px-6 py-3 border border-suzuki-navy/30 text-suzuki-navy hover:bg-suzuki-navy hover:text-white rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white hover:bg-suzuki-navy dark:hover:bg-white hover:text-white dark:hover:text-suzuki-navy rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
                 >
                   <ArrowLeft className="w-4 h-4" aria-hidden />
                   Kembali ke Katalog
@@ -340,7 +340,7 @@ function specHint() {
   return (
     <span className="hidden sm:inline">
       {" "}
-      — <span className="inline-flex items-center gap-1 text-amber-600"><Sparkles className="w-3 h-3" aria-hidden /> nilai yang berbeda ditandai</span>
+      — <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-300"><Sparkles className="w-3 h-3" aria-hidden /> nilai yang berbeda ditandai</span>
     </span>
   );
 }
@@ -368,7 +368,7 @@ function CompareRow({
     <tr className={zebra ? "bg-muted/20" : undefined}>
       <th
         scope="row"
-        className={`p-4 text-left align-top text-sm font-medium bg-muted/40 border-b border-border w-40 sticky left-0 z-10 ${differs ? "text-suzuki-navy" : "text-muted-foreground"}`}
+        className={`p-4 text-left align-top text-sm font-medium bg-muted/40 border-b border-border w-40 sticky left-0 z-10 ${differs ? "text-suzuki-navy dark:text-foreground" : "text-muted-foreground"}`}
       >
         <span className="inline-flex items-center gap-1.5">
           {differs && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Nilai berbeda antar mobil" aria-hidden />}

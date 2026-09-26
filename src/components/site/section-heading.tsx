@@ -25,7 +25,7 @@ export function SectionHeading({
         className={`flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10 ${className}`}
       >
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-suzuki-navy mb-3 flex items-center gap-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-suzuki-navy dark:text-foreground mb-3 flex items-center gap-4">
             <span className="inline-block w-10 h-1.5 rounded-full bg-suzuki-red" aria-hidden />
             {title}
           </h2>
@@ -37,7 +37,7 @@ export function SectionHeading({
   }
   return (
     <Reveal className={`text-center mb-10 ${className}`}>
-      <h2 className="text-3xl md:text-4xl font-bold text-suzuki-navy mb-4 flex items-center justify-center gap-4">
+      <h2 className="text-3xl md:text-4xl font-bold text-suzuki-navy dark:text-foreground mb-4 flex items-center justify-center gap-4">
         <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
         {title}
         <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />

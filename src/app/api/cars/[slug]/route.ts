@@ -5,7 +5,8 @@ import { serializeMobil } from "@/lib/serializers";
 
 export const dynamic = "force-dynamic";
 
-/** GET /api/cars/[slug] — detail mobil (hanya yang tampil / published). */
+/** GET /api/cars/[slug] — detail mobil (hanya yang tampil / published).
+ *  Termasuk `jumlah_minat` (jumlah permintaan test drive nyata utk mobil ini). */
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ slug: string }> },
@@ -17,7 +18,11 @@ export async function GET(
       where: { slug, is_published: true },
     });
     if (!car) return fail("Mobil tidak ditemukan.", 404);
-    return ok({ car: serializeMobil(car) });
+    const demand =
+      car.id == null
+        ? 0
+        : await db.testDrive.count({ where: { mobil_id: car.id } });
+    return ok({ car: { ...serializeMobil(car), jumlah_minat: demand } });
   } catch (e) {
     console.error("[api/cars/[slug]] GET error:", e);
     return fail("Gagal memuat data mobil.", 500);

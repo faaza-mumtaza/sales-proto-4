@@ -62,7 +62,7 @@ export function CaptchaChallenge({
         <button
           type="button"
           onClick={() => void load()}
-          className="px-3 rounded-lg border border-input text-muted-foreground hover:text-suzuki-navy hover:bg-muted transition-colors"
+          className="px-3 rounded-lg border border-input text-muted-foreground hover:text-suzuki-navy dark:hover:text-white hover:bg-muted transition-colors"
           aria-label="Ganti soal verifikasi"
           title="Ganti soal"
         >

@@ -49,7 +49,7 @@ export function AdminLoginView() {
 
   const inputWrap = "relative";
   const inputCls =
-    "w-full pl-11 pr-4 py-3 rounded-lg border border-input bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50";
+    "w-full pl-11 pr-4 py-3 rounded-lg border border-input bg-white dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-suzuki-red/50";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-suzuki-navy via-suzuki-navy to-suzuki-dark px-4 py-12 relative overflow-hidden">
@@ -69,7 +69,7 @@ export function AdminLoginView() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-2xl p-8 relative">
+        <div className="bg-white dark:bg-card rounded-xl shadow-2xl p-8 relative">
           <div className="decoration absolute top-0 left-8 right-8 h-1 rounded-b-full bg-gradient-to-r from-transparent via-suzuki-red to-transparent" />
           <form onSubmit={onSubmit} className="space-y-5">
             <div>

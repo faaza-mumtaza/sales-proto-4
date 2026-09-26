@@ -1,18 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, ArrowUpDown, SlidersHorizontal, RotateCcw, Fuel, Settings, ChevronDown } from "lucide-react";
+import { Search, ArrowUpDown, SlidersHorizontal, RotateCcw, Fuel, Settings, ChevronDown, Flame } from "lucide-react";
 import { CarCard } from "./car-card";
 import { Reveal } from "./reveal";
 import { KATEGORI, formatPriceShort, type Mobil } from "@/lib/site-utils";
 
-type SortMode = "default" | "price-asc" | "price-desc" | "name-asc";
+type SortMode = "default" | "price-asc" | "price-desc" | "name-asc" | "demand-desc";
 
 /** Jumlah kartu per “halaman” (8 = 2 baris penuh di grid xl:4-kolom / lg:3-kolom+1). */
 const PAGE_SIZE = 8;
 
 const SORT_OPTIONS: Array<{ id: SortMode; label: string }> = [
   { id: "default", label: "Urutan Standar" },
+  { id: "demand-desc", label: "Paling Diminati" },
   { id: "price-asc", label: "Harga Terendah" },
   { id: "price-desc", label: "Harga Tertinggi" },
   { id: "name-asc", label: "Nama (A–Z)" },
@@ -99,12 +100,35 @@ export function CarCatalog({
       case "name-asc":
         list = [...list].sort((a, b) => a.nama.localeCompare(b.nama, "id"));
         break;
+      case "demand-desc":
+        // Paling diminati = jumlah permintaan test drive nyata (DB), tie-break nama
+        list = [...list].sort(
+          (a, b) =>
+            (b.jumlah_minat ?? 0) - (a.jumlah_minat ?? 0) ||
+            a.nama.localeCompare(b.nama, "id"),
+        );
+        break;
       default:
         // urutan sudah sesuai field `urutan` dari API
         break;
     }
     return list;
   }, [active, cars, query, sort, budget, transmission, fuel]);
+
+  // Mobil "paling dicari": permintaan test drive tertinggi (min. 2 agar
+  // bermakna) — diberi badge api di kartunya, hanya saat data tersedia.
+  const hotSlug = useMemo(() => {
+    let best: string | null = null;
+    let bestCount = 1; // threshold: ≥2 permintaan
+    for (const c of cars) {
+      const n = c.jumlah_minat ?? 0;
+      if (n > bestCount) {
+        bestCount = n;
+        best = c.slug;
+      }
+    }
+    return best;
+  }, [cars]);
 
   // Reset tampilan saat filter/sort berubah — pola "set state saat render"
   // (resmi dari dokumen React, lolos rule set-state-in-effect): bila key
@@ -129,7 +153,7 @@ export function CarCatalog({
     `px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border ${
       selected
         ? "bg-suzuki-navy text-white border-suzuki-navy shadow-sm"
-        : "bg-background text-muted-foreground border-border hover:border-suzuki-navy/40 hover:text-suzuki-navy"
+        : "bg-background text-muted-foreground border-border hover:border-suzuki-navy/40 dark:hover:border-white/40 hover:text-suzuki-navy dark:hover:text-white"
     }`;
 
   return (
@@ -165,7 +189,7 @@ export function CarCatalog({
                 className={`px-5 sm:px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                   active === cat.id
                     ? "bg-suzuki-red text-white shadow-sm"
-                    : "text-muted-foreground hover:text-suzuki-navy"
+                    : "text-muted-foreground hover:text-suzuki-navy dark:hover:text-white"
                 }`}
               >
                 {cat.label}
@@ -178,7 +202,7 @@ export function CarCatalog({
             <div className="w-full max-w-3xl rounded-2xl border border-border bg-card px-4 py-3.5 space-y-3">
               <div className="flex items-center gap-2 text-sm">
                 <SlidersHorizontal className="w-4 h-4 text-suzuki-red shrink-0" aria-hidden />
-                <span className="font-semibold text-suzuki-navy">Filter Lanjutan</span>
+                <span className="font-semibold text-suzuki-navy dark:text-foreground">Filter Lanjutan</span>
                 {activeAdvanced && (
                   <button
                     onClick={resetAdvanced}
@@ -267,12 +291,18 @@ export function CarCatalog({
 
           <div className="flex flex-wrap items-center justify-center gap-2">
             <span className="text-sm text-muted-foreground" aria-live="polite">
-              Menampilkan <strong className="text-suzuki-navy">{filtered.length}</strong> dari{" "}
+              Menampilkan <strong className="text-suzuki-navy dark:text-foreground">{filtered.length}</strong> dari{" "}
               {cars.length} mobil
             </span>
             {filtered.length > 0 && filtered[0]?.harga_mulai != null && sort === "price-asc" && (
               <span className="text-xs text-muted-foreground">
                 (termurah: {formatPriceShort(filtered[0].harga_mulai)})
+              </span>
+            )}
+            {sort === "demand-desc" && hotSlug && (
+              <span className="inline-flex items-center gap-1 text-xs text-suzuki-red font-medium">
+                <Flame className="w-3.5 h-3.5" aria-hidden />
+                berdasarkan permintaan test drive nyata
               </span>
             )}
           </div>
@@ -305,7 +335,7 @@ export function CarCatalog({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {shown.map((c, i) => (
                 <Reveal key={c.id} delay={Math.min(i % PAGE_SIZE, 7) * 70}>
-                  <CarCard car={c} />
+                  <CarCard car={c} hot={c.slug === hotSlug} />
                 </Reveal>
               ))}
             </div>
@@ -320,7 +350,7 @@ export function CarCatalog({
                   <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden />
                 </button>
                 <p className="text-xs text-muted-foreground" aria-live="polite">
-                  Menampilkan <strong className="text-suzuki-navy">{shown.length}</strong> dari{" "}
+                  Menampilkan <strong className="text-suzuki-navy dark:text-foreground">{shown.length}</strong> dari{" "}
                   {filtered.length} mobil
                 </p>
               </div>

@@ -17,10 +17,10 @@ interface BookingItem {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  PENDING: "bg-orange-100 text-orange-800 border-orange-200",
-  CONFIRMED: "bg-blue-100 text-blue-800 border-blue-200",
-  DONE: "bg-green-100 text-green-800 border-green-200",
-  CANCELLED: "bg-red-100 text-red-700 border-red-200",
+  PENDING: "bg-orange-100 dark:bg-orange-950/70 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-900",
+  CONFIRMED: "bg-blue-100 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-900",
+  DONE: "bg-green-100 dark:bg-green-950/70 text-green-800 dark:text-green-300 border-green-200 dark:border-green-900",
+  CANCELLED: "bg-red-100 dark:bg-red-950/70 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -56,20 +56,20 @@ function StatusSteps({ status }: { status: string }) {
           <div key={s} className="flex items-center">
             {i > 0 && (
               <span
-                className={`w-6 sm:w-8 h-0.5 ${i <= activeIdx ? "bg-suzuki-red" : "bg-gray-200"}`}
+                className={`w-6 sm:w-8 h-0.5 ${i <= activeIdx ? "bg-suzuki-red" : "bg-gray-200 dark:bg-white/10"}`}
                 aria-hidden
               />
             )}
             <span className="flex flex-col items-center gap-1">
               <span
                 className={`w-3 h-3 rounded-full transition-colors ${
-                  reached ? "bg-suzuki-red" : "bg-gray-200"
+                  reached ? "bg-suzuki-red" : "bg-gray-200 dark:bg-white/20"
                 } ${isCurrent ? "ring-4 ring-suzuki-red/20" : ""}`}
                 aria-hidden
               />
               <span
                 className={`text-[10px] font-medium whitespace-nowrap ${
-                  isCurrent ? "text-suzuki-red" : reached ? "text-muted-foreground" : "text-gray-300"
+                  isCurrent ? "text-suzuki-red" : reached ? "text-muted-foreground" : "text-gray-300 dark:text-slate-600"
                 }`}
               >
                 {STEP_LABEL[s]}
@@ -112,7 +112,7 @@ export function BookingStatusCheck() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-suzuki-navy mb-2">Lacak Status Booking</h2>
+      <h2 className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-2">Lacak Status Booking</h2>
       <p className="text-sm text-muted-foreground mb-6">
         Masukkan nomor telepon yang Anda gunakan saat mengajukan test drive atau booking servis.
       </p>
@@ -131,7 +131,7 @@ export function BookingStatusCheck() {
             onChange={(e) => setPhone(e.target.value)}
             placeholder="08123456789"
             aria-label="Nomor telepon Anda"
-            className="w-full pl-10 pr-3 py-3 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50 focus:border-suzuki-red/50"
+            className="w-full pl-10 pr-3 py-3 border rounded-lg text-sm bg-white dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-suzuki-red/50 focus:border-suzuki-red/50"
           />
         </div>
         <button
@@ -156,13 +156,13 @@ export function BookingStatusCheck() {
       {loading && (
         <div className="space-y-3" aria-live="polite">
           {[0, 1].map((i) => (
-            <div key={i} className="bg-gray-50 border border-border rounded-xl h-28 animate-pulse" />
+            <div key={i} className="bg-gray-50 dark:bg-white/5 border border-border rounded-xl h-28 animate-pulse" />
           ))}
         </div>
       )}
 
       {!loading && items !== null && items.length === 0 && (
-        <div className="bg-gray-50 border border-border rounded-xl p-8 text-center">
+        <div className="bg-gray-50 dark:bg-white/5 border border-border rounded-xl p-8 text-center">
           <CalendarClock className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
           <p className="text-sm text-muted-foreground mb-1 font-medium text-foreground">
             Tidak ditemukan booking aktif untuk nomor ini.
@@ -179,7 +179,7 @@ export function BookingStatusCheck() {
             </a>
             <a
               href="#/kontak?form=servis"
-              className="px-4 py-2 text-xs font-semibold rounded-lg border border-border bg-white hover:border-suzuki-red/40 hover:text-suzuki-red text-suzuki-navy transition-colors"
+              className="px-4 py-2 text-xs font-semibold rounded-lg border border-border bg-white dark:bg-white/5 hover:border-suzuki-red/40 hover:text-suzuki-red text-suzuki-navy dark:text-foreground transition-colors"
             >
               Booking Servis
             </a>
@@ -196,23 +196,23 @@ export function BookingStatusCheck() {
             {items.map((b) => (
               <div
                 key={`${b.jenis}-${b.tanggal}-${b.created_at}`}
-                className="border border-border rounded-xl p-4 hover:shadow-md transition-shadow bg-white"
+                className="border border-border rounded-xl p-4 hover:shadow-md transition-shadow bg-white dark:bg-card"
               >
                 <div className="flex items-start gap-3.5">
                   <div
                     className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                      b.jenis === "TEST_DRIVE" ? "bg-suzuki-red/10" : "bg-teal-100"
+                      b.jenis === "TEST_DRIVE" ? "bg-suzuki-red/10" : "bg-teal-100 dark:bg-teal-950/70"
                     }`}
                   >
                     {b.jenis === "TEST_DRIVE" ? (
                       <Car className="w-5 h-5 text-suzuki-red" aria-hidden />
                     ) : (
-                      <Wrench className="w-5 h-5 text-teal-700" aria-hidden />
+                      <Wrench className="w-5 h-5 text-teal-700 dark:text-teal-300" aria-hidden />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <h3 className="font-semibold text-suzuki-navy text-sm">
+                      <h3 className="font-semibold text-suzuki-navy dark:text-foreground text-sm">
                         {b.jenis === "TEST_DRIVE" ? "Test Drive" : "Servis Bengkel"}
                       </h3>
                       <span

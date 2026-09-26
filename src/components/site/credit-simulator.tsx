@@ -160,19 +160,19 @@ export function CreditSimulator({
               <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm">
                 <div>
                   <dt className="text-xs text-muted-foreground">Pokok pinjaman</dt>
-                  <dd className="font-semibold text-suzuki-navy">
+                  <dd className="font-semibold text-suzuki-navy dark:text-foreground">
                     {calc ? formatPrice(calc.pokok) : "-"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Total bunga</dt>
-                  <dd className="font-semibold text-suzuki-navy">
+                  <dd className="font-semibold text-suzuki-navy dark:text-foreground">
                     {calc ? formatPrice(calc.totalBunga) : "-"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Total pembayaran</dt>
-                  <dd className="font-semibold text-suzuki-navy">
+                  <dd className="font-semibold text-suzuki-navy dark:text-foreground">
                     {calc ? formatPrice(calc.totalBayar) : "-"}
                   </dd>
                 </div>

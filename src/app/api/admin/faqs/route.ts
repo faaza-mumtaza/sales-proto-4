@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { ok, fail, parseJsonBody, zodErrorMessage } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
-import { faqUpsertSchema, faqToggleSchema, idSchema } from "@/lib/validations";
+import { faqUpsertSchema, faqToggleSchema, faqBulkPublishSchema, idSchema } from "@/lib/validations";
 
 export const dynamic = "force-dynamic";
 
@@ -103,13 +103,29 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-/** PATCH /api/admin/faqs — toggle tampil/sembunyi cepat. */
+/** PATCH /api/admin/faqs — toggle tampil/sembunyi cepat (tunggal {id} atau massal {ids}). */
 export async function PATCH(req: NextRequest) {
   const denied = requireAdmin(req);
   if (denied) return denied;
 
   const body = await parseJsonBody(req);
   if (!body) return fail("Format data tidak valid.", 400);
+
+  // Mode massal: { ids: [...], is_published }
+  if (Array.isArray(body.ids)) {
+    const parsed = faqBulkPublishSchema.safeParse(body);
+    if (!parsed.success) return fail(zodErrorMessage(parsed.error), 422);
+    try {
+      const res = await db.faq.updateMany({
+        where: { id: { in: parsed.data.ids } },
+        data: { is_published: parsed.data.is_published },
+      });
+      return ok({ updated: res.count });
+    } catch (e) {
+      console.error("[api/admin/faqs] PATCH bulk error:", e);
+      return fail("Gagal mengubah status FAQ secara massal.", 500);
+    }
+  }
 
   const parsed = faqToggleSchema.safeParse(body);
   if (!parsed.success) return fail(zodErrorMessage(parsed.error), 422);
@@ -128,10 +144,31 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-/** DELETE /api/admin/faqs?id=... */
+/**
+ * DELETE /api/admin/faqs — hapus FAQ.
+ * Tunggal: ?id=... — Massal: ?ids=id1,id2,... (maks 100).
+ */
 export async function DELETE(req: NextRequest) {
   const denied = requireAdmin(req);
   if (denied) return denied;
+
+  // Mode massal: ?ids=a,b,c
+  const idsParam = req.nextUrl.searchParams.get("ids");
+  if (idsParam) {
+    const ids = idsParam
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 100);
+    if (ids.length === 0) return fail("Parameter ids tidak valid.", 422);
+    try {
+      const res = await db.faq.deleteMany({ where: { id: { in: ids } } });
+      return ok({ deleted: res.count });
+    } catch (e) {
+      console.error("[api/admin/faqs] DELETE bulk error:", e);
+      return fail("Gagal menghapus FAQ secara massal.", 500);
+    }
+  }
 
   const parsed = idSchema.safeParse({ id: req.nextUrl.searchParams.get("id") ?? "" });
   if (!parsed.success) return fail(zodErrorMessage(parsed.error), 422);

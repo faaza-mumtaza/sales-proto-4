@@ -45,7 +45,7 @@ export function ArticleCard({ article }: { article: Artikel }) {
           <Calendar className="w-3.5 h-3.5" aria-hidden />
           {formatDateID(article.published_at ?? article.created_at)}
         </div>
-        <h3 className="text-lg font-bold text-suzuki-navy mb-2 line-clamp-2 group-hover:text-suzuki-red transition-colors">
+        <h3 className="text-lg font-bold text-suzuki-navy dark:text-foreground mb-2 line-clamp-2 group-hover:text-suzuki-red transition-colors">
           {article.judul}
         </h3>
         {article.ringkasan && (

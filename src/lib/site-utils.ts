@@ -106,6 +106,9 @@ export interface Mobil {
   is_new: boolean;
   is_published: boolean;
   urutan: number;
+  /** Jumlah permintaan test drive nyata (dari DB) — dipakai sorting
+   *  "Paling Diminati" & badge paling dicari. Opsional: 0 bila tidak ada. */
+  jumlah_minat?: number;
   created_at: string;
   updated_at: string;
 }

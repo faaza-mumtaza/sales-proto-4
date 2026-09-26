@@ -130,7 +130,7 @@ export function ArtikelView() {
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
                   tipe === t.id
                     ? "bg-suzuki-red text-white shadow-md shadow-suzuki-red/30"
-                    : "bg-muted text-muted-foreground hover:text-suzuki-navy hover:bg-border/60"
+                    : "bg-muted text-muted-foreground hover:text-suzuki-navy dark:hover:text-white hover:bg-border/60"
                 }`}
               >
                 {t.label}
@@ -152,7 +152,7 @@ export function ArtikelView() {
                   className={`px-3 py-1 rounded-full text-xs transition-all ${
                     tag === t
                       ? "bg-suzuki-navy text-white font-medium"
-                      : "bg-muted text-muted-foreground hover:text-suzuki-navy"
+                      : "bg-muted text-muted-foreground hover:text-suzuki-navy dark:hover:text-white"
                   }`}
                 >
                   #{t}
@@ -183,7 +183,7 @@ export function ArtikelView() {
           {!isLoading && !isError && popular.length >= 3 && (
             <Reveal variant="fade">
               <div className="mb-10 rounded-2xl border border-border bg-card p-5 sm:p-6">
-                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-suzuki-navy mb-4">
+                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-suzuki-navy dark:text-foreground mb-4">
                   <Flame className="w-4 h-4 text-suzuki-red" aria-hidden />
                   Artikel Terpopuler
                   <span className="ml-auto text-[11px] font-medium normal-case tracking-normal text-muted-foreground">
@@ -207,7 +207,7 @@ export function ArtikelView() {
                         >
                           {i + 1}
                         </span>
-                        <span className="text-xs font-semibold text-suzuki-navy leading-snug line-clamp-3 group-hover:text-suzuki-red transition-colors">
+                        <span className="text-xs font-semibold text-suzuki-navy dark:text-foreground leading-snug line-clamp-3 group-hover:text-suzuki-red transition-colors">
                           {a.judul}
                         </span>
                         <span className="mt-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -255,7 +255,7 @@ export function ArtikelView() {
                 <div className="flex flex-col items-center gap-2 mt-10">
                   <button
                     onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                    className="inline-flex items-center gap-2 px-8 py-3 border border-suzuki-navy/30 text-suzuki-navy hover:bg-suzuki-navy hover:text-white hover:border-suzuki-navy rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
+                    className="inline-flex items-center gap-2 px-8 py-3 border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white hover:bg-suzuki-navy dark:hover:bg-white hover:text-white dark:hover:text-suzuki-navy hover:border-suzuki-navy dark:hover:border-white rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
                   >
                     Muat Lebih Banyak
                     <ChevronDown className="w-4 h-4" aria-hidden />

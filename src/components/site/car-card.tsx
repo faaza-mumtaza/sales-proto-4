@@ -1,19 +1,20 @@
 "use client";
 
 import { Link } from "@/lib/router";
-import { Users, Fuel, Settings, Scale, Check, Eye } from "lucide-react";
+import { Users, Fuel, Settings, Scale, Check, Eye, Flame } from "lucide-react";
 import { useState } from "react";
 import { CAR_FALLBACK_IMAGE, formatPrice, type Mobil } from "@/lib/site-utils";
 import { useCompare } from "@/lib/use-compare";
 import { toast } from "sonner";
 import { QuickViewDialog } from "./quick-view-dialog";
 
-export function CarCard({ car }: { car: Mobil }) {
+export function CarCard({ car, hot = false }: { car: Mobil; hot?: boolean }) {
   const [imgErr, setImgErr] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const { slugs, toggle, isFull } = useCompare();
   const selected = slugs.includes(car.slug);
   const img = imgErr || !car.gambar_utama ? CAR_FALLBACK_IMAGE : car.gambar_utama;
+  const demand = car.jumlah_minat ?? 0;
 
   function handleToggleCompare(e: React.MouseEvent) {
     e.preventDefault();
@@ -37,6 +38,14 @@ export function CarCard({ car }: { car: Mobil }) {
         {car.is_new && (
           <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-xs font-semibold rounded-full shadow-sm">
             NEW
+          </span>
+        )}
+        {/* Badge mobil paling dicari — berdasarkan permintaan test drive nyata */}
+        {hot && (
+          <span className="absolute bottom-16 left-4 z-10 inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide text-white bg-gradient-to-r from-suzuki-red to-orange-500 shadow-lg shadow-suzuki-red/30">
+            <Flame className="w-3.5 h-3.5" aria-hidden />
+            Paling Diminati
+            {demand > 0 && <span className="font-extrabold">· {demand}×</span>}
           </span>
         )}
         <button
@@ -68,11 +77,11 @@ export function CarCard({ car }: { car: Mobil }) {
           <Eye className="w-3.5 h-3.5" aria-hidden />
           <span className="hidden sm:inline">Pratinjau</span>
         </button>
-        <div className="relative h-48 flex items-center justify-center bg-[#E8E8E8] rounded-lg overflow-hidden">
+        <div className="relative h-48 flex items-center justify-center bg-[#E8E8E8] dark:bg-white/10 rounded-lg overflow-hidden">
           <img
             src={img}
             alt={car.nama}
-            onError={() => setImgError(true)}
+            onError={() => setImgErr(true)}
             loading="lazy"
             className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
           />
@@ -80,7 +89,7 @@ export function CarCard({ car }: { car: Mobil }) {
       </div>
 
       <div className="p-4 pt-4 flex flex-col flex-1">
-        <h3 className="font-bold text-lg text-suzuki-navy mb-2 group-hover:text-suzuki-red transition-colors">
+        <h3 className="font-bold text-lg text-suzuki-navy dark:text-foreground mb-2 group-hover:text-suzuki-red transition-colors">
           {car.nama}
         </h3>
         {car.warna.length > 0 && (

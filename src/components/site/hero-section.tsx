@@ -9,7 +9,7 @@ export function HeroSection({ carCount }: { carCount?: number }) {
   // Jumlah model real dari DB (fallback 9 bila data belum termuat)
   const models = carCount && carCount > 0 ? carCount : 9;
   return (
-    <section className="relative bg-white overflow-hidden" aria-label="Hero">
+    <section className="relative bg-white dark:bg-background overflow-hidden" aria-label="Hero">
       {/* dekorasi latar */}
       <div className="decoration absolute -top-24 -right-24 w-96 h-96 rounded-full bg-suzuki-red/5 blur-3xl" />
       <div className="decoration absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-suzuki-navy/5 blur-3xl" />
@@ -28,14 +28,14 @@ export function HeroSection({ carCount }: { carCount?: number }) {
               />
               <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl" />
             </div>
-            <div className="absolute -bottom-5 left-6 bg-white rounded-xl shadow-lg border border-border px-5 py-3 flex items-center gap-3">
+            <div className="absolute -bottom-5 left-6 bg-white dark:bg-card rounded-xl shadow-lg border border-border px-5 py-3 flex items-center gap-3">
               <div className="flex -space-x-2">
-                <span className="w-8 h-8 rounded-full bg-suzuki-red/10 text-suzuki-red text-xs font-bold flex items-center justify-center ring-2 ring-white">
+                <span className="w-8 h-8 rounded-full bg-suzuki-red/10 text-suzuki-red text-xs font-bold flex items-center justify-center ring-2 ring-white dark:ring-card">
                   ★
                 </span>
               </div>
               <div>
-                <p className="text-sm font-bold text-suzuki-navy leading-tight">Dealer Resmi</p>
+                <p className="text-sm font-bold text-suzuki-navy dark:text-foreground leading-tight">Dealer Resmi</p>
                 <p className="text-xs text-muted-foreground">PT. Sunmotor Indosentra Trada</p>
               </div>
             </div>
@@ -46,7 +46,7 @@ export function HeroSection({ carCount }: { carCount?: number }) {
               <Sparkles className="w-3.5 h-3.5" aria-hidden />
               Suzuki BSB Semarang
             </p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight text-suzuki-navy">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight text-suzuki-navy dark:text-foreground">
               Temukan Mobil
               <br />
               <span className="text-suzuki-red relative inline-block">
@@ -67,7 +67,7 @@ export function HeroSection({ carCount }: { carCount?: number }) {
                 </svg>
               </span>
             </h1>
-            <p className="text-gray-600 text-lg mb-8 max-w-lg">
+            <p className="text-gray-600 dark:text-slate-300 text-lg mb-8 max-w-lg">
               Jelajahi koleksi lengkap kendaraan Suzuki dengan teknologi terdepan, desain
               modern, dan performa handal untuk setiap perjalanan Anda.
             </p>
@@ -82,7 +82,7 @@ export function HeroSection({ carCount }: { carCount?: number }) {
               </Link>
               <Link
                 to="/kontak"
-                className="inline-flex items-center justify-center border border-suzuki-navy/30 text-suzuki-navy hover:bg-suzuki-navy hover:text-white hover:border-suzuki-navy rounded-full px-8 py-4 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
+                className="inline-flex items-center justify-center border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white hover:bg-suzuki-navy dark:hover:bg-white dark:hover:text-suzuki-navy hover:border-suzuki-navy dark:hover:border-white rounded-full px-8 py-4 text-base font-semibold transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
               >
                 Hubungi Kami
               </Link>
@@ -91,21 +91,21 @@ export function HeroSection({ carCount }: { carCount?: number }) {
             <dl className="grid grid-cols-3 gap-4 mt-10 max-w-md">
               <div className="text-center sm:text-left">
                 <dt className="sr-only">Model tersedia</dt>
-                <dd className="text-xl font-bold text-suzuki-navy">
+                <dd className="text-xl font-bold text-suzuki-navy dark:text-foreground">
                   <CountUp value={models} suffix="+" />
                 </dd>
                 <dd className="text-xs text-muted-foreground">Model Tersedia</dd>
               </div>
               <div className="text-center sm:text-left">
                 <dt className="sr-only">Garansi resmi</dt>
-                <dd className="text-xl font-bold text-suzuki-navy">
+                <dd className="text-xl font-bold text-suzuki-navy dark:text-foreground">
                   <CountUp value={100} suffix="%" />
                 </dd>
                 <dd className="text-xs text-muted-foreground">Garansi Resmi</dd>
               </div>
               <div className="text-center sm:text-left">
                 <dt className="sr-only">Test drive gratis</dt>
-                <dd className="text-xl font-bold text-suzuki-navy">Gratis</dd>
+                <dd className="text-xl font-bold text-suzuki-navy dark:text-foreground">Gratis</dd>
                 <dd className="text-xs text-muted-foreground">Test Drive</dd>
               </div>
             </dl>

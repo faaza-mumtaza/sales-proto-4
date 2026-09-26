@@ -9,7 +9,7 @@ export function NotFoundView() {
     <SiteLayout>
       <div className="container mx-auto px-4 py-24 text-center">
         <p className="text-6xl font-bold text-suzuki-red mb-4">404</p>
-        <h1 className="text-2xl font-bold text-suzuki-navy mb-3">Halaman tidak ditemukan</h1>
+        <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-3">Halaman tidak ditemukan</h1>
         <p className="text-muted-foreground mb-8">
           Halaman yang Anda cari tidak tersedia atau sudah dipindahkan.
         </p>
@@ -22,7 +22,7 @@ export function NotFoundView() {
           </Link>
           <Link
             to="/mobil"
-            className="px-6 py-3 border border-suzuki-navy/30 text-suzuki-navy font-semibold rounded-lg hover:bg-suzuki-navy/5 transition-colors"
+            className="px-6 py-3 border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white font-semibold rounded-lg hover:bg-suzuki-navy/5 dark:hover:bg-white/10 transition-colors"
           >
             Lihat Katalog
           </Link>

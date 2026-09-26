@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Users, Fuel, Settings, CheckCircle, ChevronLeft, ChevronRight, Calendar, MessageCircle, Palette } from "lucide-react";
+import { Users, Fuel, Settings, CheckCircle, ChevronLeft, ChevronRight, Calendar, MessageCircle, Palette, Flame } from "lucide-react";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ErrorState, CardSkeleton } from "@/components/site/states";
@@ -191,7 +191,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                 )}
                 {warnaAktif && (
                   <p className="text-center text-sm text-muted-foreground mt-3" aria-live="polite">
-                    Warna: <span className="font-semibold text-suzuki-navy">{warnaAktif.nama}</span>
+                    Warna: <span className="font-semibold text-suzuki-navy dark:text-foreground">{warnaAktif.nama}</span>
                   </p>
                 )}
                 {gallery.length > 1 && (
@@ -201,7 +201,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                         setActiveWarna(null);
                         setImgIndex((i) => (i - 1 + gallery.length) % gallery.length);
                       }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90 dark:text-suzuki-navy"
                       aria-label="Gambar sebelumnya"
                     >
                       <ChevronLeft className="w-5 h-5" />
@@ -211,7 +211,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                         setActiveWarna(null);
                         setImgIndex((i) => (i + 1) % gallery.length);
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90 dark:text-suzuki-navy"
                       aria-label="Gambar berikutnya"
                     >
                       <ChevronRight className="w-5 h-5" />
@@ -241,7 +241,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
 
             {/* Info */}
             <Reveal variant="up" delay={100}>
-              <h1 className="text-3xl md:text-4xl font-bold text-suzuki-navy mb-4">{car.nama}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-suzuki-navy dark:text-foreground mb-4">{car.nama}</h1>
 
               <div className="flex items-center gap-6 mb-6 text-muted-foreground flex-wrap">
                 {car.seater != null && (
@@ -267,7 +267,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
               {/* Pilihan warna */}
               {car.warna.length > 0 && (
                 <div className="mb-6">
-                  <h2 className="font-semibold text-suzuki-navy mb-3 text-lg flex items-center gap-3">
+                  <h2 className="font-semibold text-suzuki-navy dark:text-foreground mb-3 text-lg flex items-center gap-3">
                     <span className="inline-block w-8 h-1 rounded-full bg-suzuki-red" aria-hidden />
                     Warna Tersedia
                     <Palette className="w-4 h-4 text-muted-foreground" aria-hidden />
@@ -307,7 +307,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                 </div>
               )}
 
-              <div className="bg-gradient-to-br from-suzuki-light to-white rounded-xl p-6 mb-6 border border-border">
+              <div className="bg-gradient-to-br from-suzuki-light to-white dark:to-card rounded-xl p-6 mb-6 border border-border">
                 <p className="text-sm text-muted-foreground mb-1">Harga mulai dari</p>
                 <p className="text-3xl font-bold text-suzuki-red">
                   {car.harga_label ?? formatPrice(car.harga_mulai)}
@@ -315,6 +315,17 @@ export function MobilDetailView({ slug }: { slug: string }) {
                 <p className="text-xs text-muted-foreground mt-2">
                   * Harga OTR Semarang, dapat berubah sewaktu-waktu
                 </p>
+                {/* Permintaan test drive nyata — data langsung dari DB */}
+                {(car.jumlah_minat ?? 0) > 0 && (
+                  <p className="mt-4 pt-3 border-t border-border/70 flex items-center gap-2 text-sm">
+                    <Flame className="w-4 h-4 text-suzuki-red shrink-0" aria-hidden />
+                    <span>
+                      Telah diajukan test drive{" "}
+                      <strong className="text-suzuki-red">{car.jumlah_minat}×</strong>{" "}
+                      melalui website
+                    </span>
+                  </p>
+                )}
               </div>
 
               <p className="text-muted-foreground mb-6 whitespace-pre-line">
@@ -330,7 +341,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
               {/* Spesifikasi */}
               {car.spesifikasi.length > 0 && (
                 <div className="mb-8">
-                  <h2 className="font-semibold text-suzuki-navy mb-3 text-lg flex items-center gap-3">
+                  <h2 className="font-semibold text-suzuki-navy dark:text-foreground mb-3 text-lg flex items-center gap-3">
                     <span className="inline-block w-8 h-1 rounded-full bg-suzuki-red" aria-hidden />
                     Spesifikasi
                   </h2>
@@ -343,7 +354,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                         }`}
                       >
                         <dt className="text-muted-foreground">{s.label}</dt>
-                        <dd className="font-medium text-suzuki-navy sm:text-right">{s.value}</dd>
+                        <dd className="font-medium text-suzuki-navy dark:text-foreground sm:text-right">{s.value}</dd>
                       </div>
                     ))}
                   </dl>
@@ -351,7 +362,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
               )}
 
               <div className="mb-8">
-                <h2 className="font-semibold text-suzuki-navy mb-4 text-lg flex items-center gap-3">
+                <h2 className="font-semibold text-suzuki-navy dark:text-foreground mb-4 text-lg flex items-center gap-3">
                   <span className="inline-block w-8 h-1 rounded-full bg-suzuki-red" aria-hidden />
                   Keunggulan:
                 </h2>
@@ -385,7 +396,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                 <button
                   onClick={() => window.print()}
                   title="Cetak lembar spesifikasi mobil ini"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border-2 border-suzuki-navy/20 text-suzuki-navy hover:border-suzuki-navy hover:bg-suzuki-navy hover:text-white font-semibold transition-all active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border-2 border-suzuki-navy/20 dark:border-white/20 text-suzuki-navy dark:text-white hover:border-suzuki-navy dark:hover:border-white hover:bg-suzuki-navy dark:hover:bg-white hover:text-white dark:hover:text-suzuki-navy font-semibold transition-all active:scale-95"
                 >
                   <Printer className="w-4 h-4" aria-hidden />
                   Cetak Spesifikasi
@@ -404,7 +415,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
       {related.length > 0 && (
         <section className="py-12 bg-suzuki-light border-t border-border print-hide" aria-labelledby="judul-serupa">
           <div className="container mx-auto px-4">
-            <h2 id="judul-serupa" className="text-2xl font-bold text-suzuki-navy mb-8 text-center flex items-center justify-center gap-4">
+            <h2 id="judul-serupa" className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-8 text-center flex items-center justify-center gap-4">
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
               Mobil Suzuki Lainnya
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />

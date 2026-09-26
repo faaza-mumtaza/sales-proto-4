@@ -86,7 +86,7 @@ export function HomeView() {
         <div className="container mx-auto px-4 text-center -mt-6">
           <Link
             to="/mobil"
-            className="inline-flex items-center gap-2 px-6 py-3 border border-suzuki-navy/30 text-suzuki-navy hover:bg-suzuki-navy hover:text-white rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
+            className="inline-flex items-center gap-2 px-6 py-3 border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white hover:bg-suzuki-navy dark:hover:bg-white hover:text-white dark:hover:text-suzuki-navy hover:border-suzuki-navy dark:hover:border-white rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
           >
             Lihat Semua Mobil →
           </Link>
@@ -106,7 +106,7 @@ export function HomeView() {
                   <div className="w-12 h-12 bg-suzuki-red/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-suzuki-red group-hover:scale-110 transition-all duration-300">
                     <f.icon className="w-6 h-6 text-suzuki-red group-hover:text-white transition-colors" />
                   </div>
-                  <h3 className="font-semibold text-lg text-suzuki-navy mb-2">{f.title}</h3>
+                  <h3 className="font-semibold text-lg text-suzuki-navy dark:text-foreground mb-2">{f.title}</h3>
                   <p className="text-muted-foreground text-sm">{f.description}</p>
                 </div>
               </Reveal>
@@ -163,7 +163,7 @@ export function HomeView() {
               <div className="w-14 h-14 bg-suzuki-red/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-suzuki-red group-hover:rotate-6 transition-all duration-300">
                 <Car className="w-7 h-7 text-suzuki-red group-hover:text-white transition-colors" />
               </div>
-              <h2 id="judul-cta" className="text-2xl font-bold text-suzuki-navy mb-3">
+              <h2 id="judul-cta" className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-3">
                 Siap Untuk Test Drive?
               </h2>
               <p className="text-muted-foreground mb-6">

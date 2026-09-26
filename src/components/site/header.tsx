@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useHashRoute } from "@/lib/router";
 import { Menu, X, Search } from "lucide-react";
 import { SearchCommand } from "./search-command";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -24,25 +25,30 @@ export function SuzukiLogo({ className = "h-7 w-auto" }: { className?: string })
       role="img"
     >
       <g>
-        <rect fill="#1a2942" x="434.7" y="18.77" width="18.69" height="50.47" />
+        <rect fill="#1a2942" className="logo-wordmark" x="434.7" y="18.77" width="18.69" height="50.47" />
         <polygon
           fill="#1a2942"
+          className="logo-wordmark"
           points="404.38 69.24 384.95 50.76 384.95 69.24 366.24 69.24 366.24 18.77 384.95 18.77 384.95 36.69 405.84 18.77 430.33 18.77 401.56 43.35 429.46 69.24 404.38 69.24"
         />
         <path
           fill="#1a2942"
+          className="logo-wordmark"
           d="M330.78,71.18c-25.72,0-28.81-10.74-28.89-18.82-.05-4.49-.1-12.78-.1-15.29v-18.31h17.9v29.17c0,7.42,3.42,10.72,11.09,10.72s11.1-3.31,11.1-10.72v-29.17h17.9v18.31c0,2.47-.05,10.76-.1,15.29-.08,8.08-3.17,18.82-28.89,18.82Z"
         />
         <polygon
           fill="#1a2942"
+          className="logo-wordmark"
           points="236.8 69.24 236.8 58.79 266.4 31.15 237.79 31.15 237.79 18.77 295.54 18.77 295.54 29.22 265.54 56.8 295.45 56.8 295.45 69.24 236.8 69.24"
         />
         <path
           fill="#1a2942"
+          className="logo-wordmark"
           d="M202.54,71.18c-25.73,0-28.81-10.74-28.89-18.82-.05-4.47-.1-12.76-.1-15.29v-18.31h17.9v29.17c0,7.42,3.42,10.72,11.1,10.72s11.1-3.31,11.1-10.72v-29.17h17.9v18.31c0,2.54-.05,10.83-.1,15.29-.08,8.08-3.17,18.82-28.89,18.82Z"
         />
         <path
           fill="#1a2942"
+          className="logo-wordmark"
           d="M139.12,70.46c-26.77,0-31.45-8.2-32.34-17.15h22.64c2.05,5.98,8.1,5.98,10.1,5.98,2.42,0,8-.42,8-4.3,0-3.4-3.8-3.77-9.54-4.32-.75-.07-1.54-.15-2.36-.23-18.41-1.93-27.76-5.01-27.76-16.5,0-5.01,2.75-16.65,28.2-16.65h.23c19.47.06,30.7,6.13,30.9,16.69h-20.81c-1.41-5-6.96-5.76-10.17-5.76-1.24,0-5.44.15-7.26,2.1-.63.67-.91,1.48-.85,2.42.17,2.75,5.39,3.34,11.99,4.09,1.36.15,2.78.31,4.22.5,16.55,2.12,24.59,7.52,24.59,16.53,0,3.88-2.12,16.53-29.39,16.61h-.39Z"
         />
         <path
@@ -74,7 +80,7 @@ export function Header() {
   const openSearch = useCallback(() => setSearchOpen(true), []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-suzuki-dark/95 backdrop-blur border-b border-gray-100 dark:border-white/10 shadow-sm dark:shadow-none">
       {/* Command palette pencarian global (Ctrl/Cmd+K) */}
       <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
       <div className="container mx-auto px-4">
@@ -97,8 +103,8 @@ export function Header() {
                     aria-current={isActive ? "page" : undefined}
                     className={`nav-link relative px-4 py-2 text-sm font-medium transition-colors ${
                       isActive
-                        ? "text-suzuki-navy font-bold"
-                        : "text-gray-500 hover:text-suzuki-navy"
+                        ? "text-suzuki-navy dark:text-white font-bold"
+                        : "text-gray-500 dark:text-slate-400 hover:text-suzuki-navy dark:hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -116,12 +122,14 @@ export function Header() {
               onClick={openSearch}
               aria-label="Cari di situs (Ctrl K)"
               title="Cari di situs (Ctrl+K)"
-              className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-gray-200 text-gray-400 hover:border-suzuki-red/50 hover:text-suzuki-navy transition-all hover:shadow-sm"
+              className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-gray-200 dark:border-white/15 text-gray-400 dark:text-slate-500 hover:border-suzuki-red/50 hover:text-suzuki-navy dark:hover:text-white transition-all hover:shadow-sm"
             >
               <Search className="w-4 h-4" aria-hidden />
               <span className="hidden xl:inline text-sm">Cari…</span>
               <kbd className="search-kbd hidden xl:inline-flex group-hover:border-suzuki-red/40">Ctrl K</kbd>
             </button>
+            {/* Toggle tema terang/gelap */}
+            <ThemeToggle />
             <Link
               to="/kontak?form=test-drive"
               className="hidden lg:inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-suzuki-red hover:bg-suzuki-red/90 text-white text-sm font-semibold rounded-full transition-colors shadow-sm"
@@ -131,12 +139,13 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-1 md:hidden">
+            <ThemeToggle className="!w-8 !h-8" />
             <button
               type="button"
               onClick={openSearch}
               aria-label="Cari di situs"
               title="Cari (Ctrl+K)"
-              className="p-2.5 -mr-1 text-suzuki-navy"
+              className="p-2.5 -mr-1 text-suzuki-navy dark:text-white"
             >
               <Search className="h-[22px] w-[22px]" aria-hidden />
             </button>
@@ -147,16 +156,16 @@ export function Header() {
               aria-expanded={open}
             >
               {open ? (
-                <X className="h-6 w-6 text-suzuki-navy" />
+                <X className="h-6 w-6 text-suzuki-navy dark:text-white" />
               ) : (
-                <Menu className="h-6 w-6 text-suzuki-navy" />
+                <Menu className="h-6 w-6 text-suzuki-navy dark:text-white" />
               )}
             </button>
           </div>
         </div>
 
         {open && (
-          <nav className="md:hidden pb-4 border-t border-gray-100 pt-3" aria-label="Navigasi mobile">
+          <nav className="md:hidden pb-4 border-t border-gray-100 dark:border-white/10 pt-3" aria-label="Navigasi mobile">
             <div className="flex flex-col gap-1">
               <button
                 type="button"
@@ -164,7 +173,7 @@ export function Header() {
                   setOpen(false);
                   openSearch();
                 }}
-                className="flex items-center gap-3 text-sm font-medium py-3 px-4 rounded-lg text-suzuki-navy bg-suzuki-light hover:bg-gray-100 transition-colors"
+                className="flex items-center gap-3 text-sm font-medium py-3 px-4 rounded-lg text-suzuki-navy dark:text-white bg-suzuki-light hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
               >
                 <Search className="w-4 h-4" aria-hidden />
                 Cari mobil, promo, atau artikel…
@@ -182,8 +191,8 @@ export function Header() {
                     onClick={() => setOpen(false)}
                     className={`text-sm font-medium transition-colors py-3 px-4 rounded-lg ${
                       isActive
-                        ? "text-suzuki-navy bg-gray-100 font-bold"
-                        : "text-gray-500 hover:text-suzuki-navy hover:bg-gray-50"
+                        ? "text-suzuki-navy dark:text-white bg-gray-100 dark:bg-white/10 font-bold"
+                        : "text-gray-500 dark:text-slate-400 hover:text-suzuki-navy dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
                     }`}
                   >
                     {link.label}

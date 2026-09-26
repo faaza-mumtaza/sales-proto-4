@@ -73,7 +73,7 @@ export function DateRangeFilter({
           max={value.to || undefined}
           onChange={(e) => onChange({ ...value, from: e.target.value })}
           aria-label="Tanggal mulai"
-          className="px-2.5 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
+          className="px-2.5 py-1.5 border rounded-lg text-xs bg-white dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
         />
         <span className="text-muted-foreground text-xs" aria-hidden>
           —
@@ -84,7 +84,7 @@ export function DateRangeFilter({
           min={value.from || undefined}
           onChange={(e) => onChange({ ...value, to: e.target.value })}
           aria-label="Tanggal akhir"
-          className="px-2.5 py-1.5 border rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
+          className="px-2.5 py-1.5 border rounded-lg text-xs bg-white dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
         />
       </div>
       <div className="flex flex-wrap gap-1.5" role="group" aria-label="Preset rentang tanggal">
@@ -92,7 +92,7 @@ export function DateRangeFilter({
           <button
             key={p.label}
             onClick={() => onChange({ from: p.from(), to: "" })}
-            className="px-2.5 py-1 rounded-full text-xs border border-border bg-white text-muted-foreground hover:text-suzuki-navy hover:border-suzuki-navy/40 transition-colors active:scale-95"
+            className="px-2.5 py-1 rounded-full text-xs border border-border bg-white dark:bg-white/5 text-muted-foreground hover:text-suzuki-navy dark:hover:text-white hover:border-suzuki-navy/40 transition-colors active:scale-95"
           >
             {p.label}
           </button>

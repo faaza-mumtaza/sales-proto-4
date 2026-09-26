@@ -33,6 +33,8 @@ export interface MobilDTO {
   is_new: boolean;
   is_published: boolean;
   urutan: number;
+  /** Jumlah permintaan test drive nyata (opsional, dilengkapi route API). */
+  jumlah_minat?: number;
   created_at: string;
   updated_at: string;
 }

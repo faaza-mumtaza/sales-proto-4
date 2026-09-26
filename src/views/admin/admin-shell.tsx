@@ -7,6 +7,7 @@ import { apiGet, apiPost } from "@/lib/api";
 import { Link, useHashRoute, navigate } from "@/lib/router";
 import { SuzukiLogo } from "@/components/site/header";
 import { ChangePasswordDialog } from "@/components/admin/change-password-dialog";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean; badgeKind?: "pesanBaru" | "testDrivePending" | "servisPending" | "testimoniPending" }> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -152,13 +153,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="p-4 border-t border-white/10 space-y-1">
-          <Link
-            to="/"
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-          >
-            <Globe className="w-4 h-4" aria-hidden />
-            Lihat Website
-          </Link>
+          <div className="flex items-center justify-between gap-2 px-1 pb-1">
+            <Link
+              to="/"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <Globe className="w-4 h-4" aria-hidden />
+              Lihat Website
+            </Link>
+            {/* Toggle tema — border putih transparan agar selaras di sidebar navy */}
+            <ThemeToggle className="!border-white/15 hover:!border-suzuki-red/60" />
+          </div>
           <div className="px-4 py-2">
             <p className="text-xs text-white/50 truncate">{data.admin?.name}</p>
             <p className="text-[11px] text-white/40 truncate">{data.admin?.email}</p>
@@ -185,17 +190,20 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
       {/* Konten */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="md:hidden sticky top-0 z-20 flex items-center justify-between p-4 bg-white border-b shadow-sm">
+        <header className="md:hidden sticky top-0 z-20 flex items-center justify-between p-4 bg-white dark:bg-card border-b shadow-sm dark:shadow-none">
           <button onClick={() => setOpen(!open)} aria-label="Buka menu admin">
-            {open ? <X className="w-6 h-6 text-suzuki-navy" /> : <Menu className="w-6 h-6 text-suzuki-navy" />}
+            {open ? <X className="w-6 h-6 text-suzuki-navy dark:text-white" /> : <Menu className="w-6 h-6 text-suzuki-navy dark:text-white" />}
           </button>
-          <span className="font-bold text-suzuki-navy">Admin Suzuki BSB</span>
-          <Link to="/" className="text-xs text-muted-foreground underline">
-            Situs
-          </Link>
+          <span className="font-bold text-suzuki-navy dark:text-white">Admin Suzuki BSB</span>
+          <div className="flex items-center gap-1">
+            <ThemeToggle className="!w-8 !h-8" />
+            <Link to="/" className="text-xs text-muted-foreground underline">
+              Situs
+            </Link>
+          </div>
         </header>
         <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-auto">{children}</main>
-        <footer className="px-6 py-4 border-t bg-white text-xs text-muted-foreground">
+        <footer className="px-6 py-4 border-t bg-white dark:bg-card text-xs text-muted-foreground">
           Panel Admin Suzuki BSB Semarang — kelola katalog, artikel, pesan, dan test drive.
         </footer>
       </div>

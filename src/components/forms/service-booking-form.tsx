@@ -204,8 +204,8 @@ export function ServiceBookingForm({
                 onClick={() => setForm({ ...form, jenis_servis: j.id })}
                 className={`text-left px-4 py-3 rounded-lg border text-sm font-medium transition-all ${
                   selected
-                    ? "border-suzuki-red bg-suzuki-red/5 text-suzuki-navy shadow-sm"
-                    : "border-input bg-background text-muted-foreground hover:border-suzuki-red/40 hover:text-suzuki-navy"
+                    ? "border-suzuki-red bg-suzuki-red/5 dark:bg-suzuki-red/10 text-suzuki-navy dark:text-foreground shadow-sm"
+                    : "border-input bg-background text-muted-foreground hover:border-suzuki-red/40 hover:text-suzuki-navy dark:hover:text-white"
                 }`}
               >
                 <span className="flex items-center gap-2">

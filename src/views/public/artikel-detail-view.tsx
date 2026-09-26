@@ -202,7 +202,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
         <span className="inline-block px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full mb-4">
           {a.tipe}
         </span>
-        <h1 className="text-3xl md:text-4xl font-bold text-suzuki-navy mb-4 leading-tight">
+        <h1 className="text-3xl md:text-4xl font-bold text-suzuki-navy dark:text-foreground mb-4 leading-tight">
           {a.judul}
         </h1>
         <div className="flex items-center gap-3 text-sm text-muted-foreground mb-8 flex-wrap">
@@ -257,7 +257,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
       {data?.related && data.related.length > 0 && (
         <section className="py-12 bg-suzuki-light border-t border-border" aria-labelledby="judul-terkait">
           <div className="container mx-auto px-4">
-            <h2 id="judul-terkait" className="text-2xl font-bold text-suzuki-navy mb-8 text-center flex items-center justify-center gap-4">
+            <h2 id="judul-terkait" className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-8 text-center flex items-center justify-center gap-4">
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
               Artikel Terkait
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />

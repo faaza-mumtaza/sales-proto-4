@@ -34,12 +34,12 @@ export function ComparisonBar() {
       {/* Spacer agar konten/footer tidak tertutup bar fixed */}
       <div className="h-20 sm:h-[4.75rem] no-print" aria-hidden />
       <div
-        className="fixed bottom-0 inset-x-0 z-40 border-t border-suzuki-red/20 bg-white/95 backdrop-blur-md shadow-[0_-8px_30px_rgba(26,41,66,0.15)] animate-[fade-in-up_0.3s_ease-out] no-print"
+        className="fixed bottom-0 inset-x-0 z-40 border-t border-suzuki-red/20 bg-white/95 dark:bg-card/95 backdrop-blur-md shadow-[0_-8px_30px_rgba(26,41,66,0.15)] animate-[fade-in-up_0.3s_ease-out] no-print"
         role="region"
         aria-label="Mobil yang dipilih untuk dibandingkan"
       >
       <div className="container mx-auto px-4 py-3 flex items-center gap-3 overflow-x-auto">
-        <span className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-suzuki-navy shrink-0">
+        <span className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-suzuki-navy dark:text-foreground shrink-0">
           <Scale className="w-4 h-4 text-suzuki-red" aria-hidden />
           Bandingkan
         </span>
@@ -56,12 +56,12 @@ export function ComparisonBar() {
                 className="w-8 h-8 object-contain rounded-full bg-white"
                 aria-hidden
               />
-              <span className="text-xs font-medium text-suzuki-navy max-w-28 truncate">{c.nama}</span>
+              <span className="text-xs font-medium text-suzuki-navy dark:text-foreground max-w-28 truncate">{c.nama}</span>
               <button
                 type="button"
                 onClick={() => remove(c.slug)}
                 aria-label={`Keluarkan ${c.nama} dari perbandingan`}
-                className="w-5 h-5 rounded-full bg-suzuki-navy/10 hover:bg-suzuki-red hover:text-white text-suzuki-navy flex items-center justify-center transition-colors"
+                className="w-5 h-5 rounded-full bg-suzuki-navy/10 hover:bg-suzuki-red hover:text-white text-suzuki-navy dark:text-foreground flex items-center justify-center transition-colors"
               >
                 <X className="w-3 h-3" aria-hidden />
               </button>

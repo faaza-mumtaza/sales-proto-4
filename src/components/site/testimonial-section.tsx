@@ -121,7 +121,7 @@ export function TestimonialSection() {
                   <div className="flex items-center gap-3 mb-4">
                     <AvatarInitial nama={t.nama} />
                     <div className="min-w-0">
-                      <figcaption className="font-semibold text-suzuki-navy truncate">{t.nama}</figcaption>
+                      <figcaption className="font-semibold text-suzuki-navy dark:text-foreground truncate">{t.nama}</figcaption>
                       <p className="text-xs text-muted-foreground">{formatDateID(t.created_at)}</p>
                     </div>
                   </div>
@@ -142,7 +142,7 @@ export function TestimonialSection() {
             onClick={() => setShowForm((v) => !v)}
             aria-expanded={showForm}
             aria-controls="form-testimoni"
-            className="inline-flex items-center gap-2 px-6 py-3 border border-suzuki-navy/30 text-suzuki-navy hover:bg-suzuki-navy hover:text-white rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
+            className="inline-flex items-center gap-2 px-6 py-3 border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white hover:bg-suzuki-navy dark:hover:bg-white hover:text-white dark:hover:text-suzuki-navy rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
           >
             <MessageSquarePlus className="w-4 h-4" aria-hidden />
             {showForm ? "Tutup Formulir" : "Tulis Testimoni Anda"}
@@ -206,13 +206,13 @@ function TestimonialForm({ onSuccess }: { onSuccess: () => void }) {
         className="bg-card rounded-xl border border-border p-6 sm:p-8 shadow-sm space-y-5"
         noValidate
       >
-        <h3 className="font-bold text-lg text-suzuki-navy">Bagikan Pengalaman Anda</h3>
+        <h3 className="font-bold text-lg text-suzuki-navy dark:text-foreground">Bagikan Pengalaman Anda</h3>
         <p className="text-sm text-muted-foreground -mt-3">
           Testimoni akan ditinjau oleh tim kami sebelum ditayangkan. Terima kasih!
         </p>
 
         <div>
-          <label htmlFor="testi-nama" className="block text-sm font-medium mb-1.5 text-suzuki-navy">
+          <label htmlFor="testi-nama" className="block text-sm font-medium mb-1.5 text-suzuki-navy dark:text-foreground">
             Nama <span className="text-suzuki-red">*</span>
           </label>
           <input
@@ -228,7 +228,7 @@ function TestimonialForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
 
         <div>
-          <span className="block text-sm font-medium mb-1.5 text-suzuki-navy">
+          <span className="block text-sm font-medium mb-1.5 text-suzuki-navy dark:text-foreground">
             Rating <span className="text-suzuki-red">*</span>
           </span>
           <div className="flex items-center gap-1" role="radiogroup" aria-label="Pilih rating">
@@ -263,7 +263,7 @@ function TestimonialForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
 
         <div>
-          <label htmlFor="testi-pesan" className="block text-sm font-medium mb-1.5 text-suzuki-navy">
+          <label htmlFor="testi-pesan" className="block text-sm font-medium mb-1.5 text-suzuki-navy dark:text-foreground">
             Testimoni Anda <span className="text-suzuki-red">*</span>
           </label>
           <textarea
@@ -294,7 +294,7 @@ function TestimonialForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5" role="alert">
+          <p className="text-sm text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 rounded-lg px-4 py-2.5" role="alert">
             {error}
           </p>
         )}

@@ -28,7 +28,7 @@ export function TentangKamiView() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <Reveal>
-              <h2 className="text-2xl md:text-3xl font-bold text-suzuki-navy mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-suzuki-navy dark:text-foreground mb-6">
                 Dealer Resmi Suzuki Terpercaya di Semarang
               </h2>
               <div className="space-y-4 text-muted-foreground">
@@ -101,7 +101,7 @@ export function TentangKamiView() {
 
       <section className="py-8 pb-16" aria-labelledby="judul-lokasi">
         <div className="container mx-auto px-4">
-          <h2 id="judul-lokasi" className="text-2xl md:text-3xl font-bold text-suzuki-navy mb-6 text-center">
+          <h2 id="judul-lokasi" className="text-2xl md:text-3xl font-bold text-suzuki-navy dark:text-foreground mb-6 text-center">
             Lokasi Kami
           </h2>
           <div className="rounded-xl overflow-hidden border border-border shadow-sm">

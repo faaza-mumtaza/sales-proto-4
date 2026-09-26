@@ -253,6 +253,27 @@ export const bookingBulkStatusSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "DONE", "CANCELLED"]),
 });
 
+/** Aksi massal testimoni — ubah status moderasi banyak testimoni sekaligus. */
+export const testimoniBulkStatusSchema = z.object({
+  ids: bulkIdsField,
+  status: z.enum(["PENDING", "APPROVED", "REJECTED"]),
+});
+
+/**
+ * Aksi massal artikel — hanya DRAFT/PUBLISHED (TERJADWAL sengaja tidak
+ * termasuk karena butuh scheduled_at per artikel).
+ */
+export const artikelBulkStatusSchema = z.object({
+  ids: bulkIdsField,
+  status: z.enum(["DRAFT", "PUBLISHED"]),
+});
+
+/** Aksi massal FAQ — tampilkan / sembunyikan banyak FAQ sekaligus. */
+export const faqBulkPublishSchema = z.object({
+  ids: bulkIdsField,
+  is_published: z.boolean(),
+});
+
 export const idSchema = z.object({ id: z.string().min(1).max(64) });
 
 /** Form testimoni publik — honeypot menyatu (field website harus kosong). */
