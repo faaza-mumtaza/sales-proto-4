@@ -67,7 +67,15 @@ export function ServiceBookingForm({
         captchaAnswer: captcha.captchaAnswer,
         website,
       });
-      toast.success("Booking servis terkirim! Kami akan menghubungi Anda untuk konfirmasi jadwal.");
+      toast.success("Booking servis terkirim! Kami akan menghubungi Anda untuk konfirmasi jadwal.", {
+        description: "Lacak perkembangan statusnya kapan saja dengan nomor telepon Anda.",
+        action: {
+          label: "Cek Status",
+          onClick: () => {
+            window.location.hash = "#/kontak?form=status";
+          },
+        },
+      });
       setForm((f) => ({
         ...f,
         nama_lengkap: "",

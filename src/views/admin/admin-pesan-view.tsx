@@ -6,6 +6,8 @@ import { Mail, Phone, MessageCircle, Trash2, Search, Download } from "lucide-rea
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPatch } from "@/lib/api";
 import { usePageMeta } from "@/lib/router";
+import { useSelection } from "@/lib/use-selection";
+import { BulkActionBar } from "@/components/admin/bulk-action-bar";
 import { AdminShell } from "./admin-shell";
 import { formatDateID, formatDateTimeID, phoneToWaNumber, type Pesan } from "@/lib/site-utils";
 import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
@@ -27,6 +29,7 @@ export function AdminPesanView() {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>(EMPTY_RANGE);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin", "pesan"],
@@ -73,6 +76,47 @@ export function AdminPesanView() {
     }
     return list;
   }, [allMessages, filter, search, dateRange]);
+
+  // Seleksi item untuk aksi massal
+  const sel = useSelection(filtered);
+
+  async function bulkStatus(status: string) {
+    if (sel.count === 0) return;
+    setBulkBusy(true);
+    try {
+      const res = await apiPatch<{ updated: number }>("/api/admin/messages", {
+        ids: [...sel.selected],
+        status,
+      });
+      await qc.invalidateQueries({ queryKey: ["admin", "pesan"] });
+      await qc.invalidateQueries({ queryKey: ["admin", "stats"] });
+      toast.success(`${res.updated} pesan ditandai "${status}"`);
+      sel.clear();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal memperbarui status massal");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  async function bulkDelete() {
+    if (sel.count === 0) return;
+    if (!window.confirm(`Hapus ${sel.count} pesan terpilih? Tindakan ini tidak bisa dibatalkan.`)) return;
+    setBulkBusy(true);
+    try {
+      const res = await apiDelete<{ deleted: number }>("/api/admin/messages", {
+        ids: [...sel.selected].join(","),
+      });
+      await qc.invalidateQueries({ queryKey: ["admin", "pesan"] });
+      await qc.invalidateQueries({ queryKey: ["admin", "stats"] });
+      toast.success(`${res.deleted} pesan dihapus`);
+      sel.clear();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal menghapus pesan secara massal");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   function exportCsv() {
     if (filtered.length === 0) {
@@ -156,6 +200,23 @@ export function AdminPesanView() {
           />
         </div>
 
+        {/* Bilah aksi massal — tampil saat ada item terpilih */}
+        <BulkActionBar
+          count={sel.count}
+          total={filtered.length}
+          onSelectAll={sel.selectAll}
+          onClear={sel.clear}
+          statuses={[
+            { value: "BARU", label: "Baru" },
+            { value: "DIBACA", label: "Dibaca" },
+            { value: "DIBALAS", label: "Dibalas" },
+            { value: "SELESAI", label: "Selesai" },
+          ]}
+          onBulkStatus={(s) => void bulkStatus(s)}
+          onBulkDelete={() => void bulkDelete()}
+          busy={bulkBusy}
+        />
+
         {isLoading ? (
           <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat pesan…
@@ -180,16 +241,28 @@ export function AdminPesanView() {
           <div className="space-y-3">
             {filtered.map((p) => {
               const isOpen = expanded === p.id;
+              const isSel = sel.selected.has(p.id);
               return (
                 <div
                   key={p.id}
-                  className={`bg-white rounded-xl border p-5 transition-shadow ${
-                    p.status === "BARU" ? "border-suzuki-red/40 shadow-sm" : "border-border"
+                  className={`bg-white rounded-xl border p-5 transition-all ${
+                    isSel
+                      ? "border-suzuki-red/60 ring-1 ring-suzuki-red/40 row-selected"
+                      : p.status === "BARU"
+                        ? "border-suzuki-red/40 shadow-sm"
+                        : "border-border"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <input
+                          type="checkbox"
+                          checked={isSel}
+                          onChange={() => sel.toggle(p.id)}
+                          aria-label={`Pilih pesan dari ${p.nama_lengkap}`}
+                          className="w-4 h-4 shrink-0 cursor-pointer"
+                        />
                         <strong className="text-suzuki-navy">{p.nama_lengkap}</strong>
                         <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[p.status]}`}>
                           {p.status}

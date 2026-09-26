@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { ok, fail, parseJsonBody, zodErrorMessage } from "@/lib/api-helpers";
 import { requireAdmin } from "@/lib/auth";
-import { pesanStatusSchema } from "@/lib/validations";
+import { pesanStatusSchema, pesanBulkStatusSchema } from "@/lib/validations";
 
 export const dynamic = "force-dynamic";
 
@@ -31,13 +31,30 @@ export async function GET(req: NextRequest) {
   }
 }
 
-/** PATCH /api/admin/messages — ubah status pesan. */
+/** PATCH /api/admin/messages — ubah status pesan (tunggal {id,status} atau massal {ids,status}). */
 export async function PATCH(req: NextRequest) {
   const denied = requireAdmin(req);
   if (denied) return denied;
 
   const body = await parseJsonBody(req);
   if (!body) return fail("Format data tidak valid.", 400);
+
+  // Mode massal: { ids: [...], status }
+  if (Array.isArray(body.ids)) {
+    const parsed = pesanBulkStatusSchema.safeParse(body);
+    if (!parsed.success) return fail(zodErrorMessage(parsed.error), 422);
+    try {
+      const res = await db.pesan.updateMany({
+        where: { id: { in: parsed.data.ids } },
+        data: { status: parsed.data.status },
+      });
+      return ok({ updated: res.count });
+    } catch (e) {
+      console.error("[api/admin/messages] PATCH bulk error:", e);
+      return fail("Gagal memperbarui status pesan secara massal.", 500);
+    }
+  }
+
   const parsed = pesanStatusSchema.safeParse(body);
   if (!parsed.success) return fail(zodErrorMessage(parsed.error), 422);
 
@@ -55,10 +72,31 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-/** DELETE /api/admin/messages?id=... — hapus pesan. */
+/**
+ * DELETE /api/admin/messages — hapus pesan.
+ * Tunggal: ?id=... — Massal: ?ids=id1,id2,... (maks 100).
+ */
 export async function DELETE(req: NextRequest) {
   const denied = requireAdmin(req);
   if (denied) return denied;
+
+  // Mode massal: ?ids=a,b,c
+  const idsParam = req.nextUrl.searchParams.get("ids");
+  if (idsParam) {
+    const ids = idsParam
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 100);
+    if (ids.length === 0) return fail("Parameter ids tidak valid.", 422);
+    try {
+      const res = await db.pesan.deleteMany({ where: { id: { in: ids } } });
+      return ok({ deleted: res.count });
+    } catch (e) {
+      console.error("[api/admin/messages] DELETE bulk error:", e);
+      return fail("Gagal menghapus pesan secara massal.", 500);
+    }
+  }
 
   const id = req.nextUrl.searchParams.get("id");
   if (!id) return fail("Parameter id wajib.", 422);

@@ -2,23 +2,25 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Phone, Mail, MapPin, Clock, Car, MessageSquare, Wrench } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Car, MessageSquare, Wrench, SearchCheck } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ContactForm } from "@/components/forms/contact-form";
 import { TestDriveForm } from "@/components/forms/test-drive-form";
 import { ServiceBookingForm } from "@/components/forms/service-booking-form";
+import { BookingStatusCheck } from "@/components/forms/booking-status-check";
 import { ErrorState } from "@/components/site/states";
 import { FaqSection } from "@/components/site/faq-section";
 import { usePageMeta, useHashRoute } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { type Mobil } from "@/lib/site-utils";
 
-type FormId = "kontak" | "test-drive" | "servis";
+type FormId = "kontak" | "test-drive" | "servis" | "status";
 
 const formTypes = [
   { id: "kontak", label: "Hubungi Kami", icon: MessageSquare },
   { id: "test-drive", label: "Test Drive", icon: Car },
   { id: "servis", label: "Booking Servis", icon: Wrench },
+  { id: "status", label: "Cek Status", icon: SearchCheck },
 ] as const;
 
 const HEADER_COPY: Record<FormId, { title: string; desc: string }> = {
@@ -34,6 +36,10 @@ const HEADER_COPY: Record<FormId, { title: string; desc: string }> = {
     title: "Booking Servis Bengkel",
     desc: "Servis berkala hingga perbaikan berat — teknisi bersertifikat dan spare part asli Suzuki.",
   },
+  status: {
+    title: "Cek Status Booking",
+    desc: "Lacak status pengajuan test drive dan booking servis Anda cukup dengan nomor telepon.",
+  },
 };
 
 export function KontakView() {
@@ -43,14 +49,18 @@ export function KontakView() {
       ? "test-drive"
       : route.query.get("form") === "servis"
         ? "servis"
-        : "kontak",
+        : route.query.get("form") === "status"
+          ? "status"
+          : "kontak",
   );
   usePageMeta(
     active === "test-drive"
       ? "Jadwalkan Test Drive — Suzuki BSB"
       : active === "servis"
         ? "Booking Servis Bengkel — Suzuki BSB"
-        : "Kontak — Suzuki BSB Semarang",
+        : active === "status"
+          ? "Cek Status Booking — Suzuki BSB"
+          : "Kontak — Suzuki BSB Semarang",
   );
 
   // Mobil default untuk test drive (dari tombol CTA halaman detail mobil)
@@ -67,6 +77,7 @@ export function KontakView() {
     setTrackedForm(currentForm);
     if (currentForm === "test-drive") setActive("test-drive");
     else if (currentForm === "servis") setActive("servis");
+    else if (currentForm === "status") setActive("status");
     else if (currentForm === "kontak") setActive("kontak");
   }
 
@@ -174,6 +185,8 @@ export function KontakView() {
                   <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Kirim Pesan</h2>
                   <ContactForm defaultSubjek={defaultSubjek} defaultPesan={defaultPesan} />
                 </>
+              ) : active === "status" ? (
+                <BookingStatusCheck />
               ) : active === "servis" ? (
                 carsQuery.isLoading ? (
                   <p className="text-center text-muted-foreground py-8">Memuat form booking servis…</p>

@@ -51,7 +51,22 @@ export const metadata: Metadata = {
     description: SITE_DESC,
   },
   icons: {
-    icon: "/suzuki-favicon.svg",
+    icon: [
+      { url: "/suzuki-favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+  manifest: "/manifest.webmanifest",
+  applicationName: "Suzuki BSB",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Suzuki BSB",
+  },
+  formatDetection: {
+    telephone: false,
   },
 };
 

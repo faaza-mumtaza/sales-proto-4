@@ -6,6 +6,8 @@ import { Calendar, Phone, Mail, MessageCircle, Car, Trash2, Download } from "luc
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPatch } from "@/lib/api";
 import { usePageMeta } from "@/lib/router";
+import { useSelection } from "@/lib/use-selection";
+import { BulkActionBar } from "@/components/admin/bulk-action-bar";
 import { AdminShell } from "./admin-shell";
 import { formatDateID, formatDateTimeID, phoneToWaNumber, type TestDrive } from "@/lib/site-utils";
 import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
@@ -47,6 +49,7 @@ export function AdminTestDriveView() {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<string>("all");
   const [dateRange, setDateRange] = useState<DateRange>(EMPTY_RANGE);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin", "testdrive"],
@@ -85,6 +88,47 @@ export function AdminTestDriveView() {
     }
     return list;
   }, [allBookings, filter, dateRange]);
+
+  // Seleksi item untuk aksi massal
+  const sel = useSelection(filtered);
+
+  async function bulkStatus(status: string) {
+    if (sel.count === 0) return;
+    setBulkBusy(true);
+    try {
+      const res = await apiPatch<{ updated: number }>("/api/admin/test-drives", {
+        ids: [...sel.selected],
+        status,
+      });
+      await qc.invalidateQueries({ queryKey: ["admin", "testdrive"] });
+      await qc.invalidateQueries({ queryKey: ["admin", "stats"] });
+      toast.success(`${res.updated} booking ${STATUS_LABEL[status]?.toLowerCase() ?? status}`);
+      sel.clear();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal memperbarui status massal");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  async function bulkDelete() {
+    if (sel.count === 0) return;
+    if (!window.confirm(`Hapus ${sel.count} booking terpilih? Tindakan ini tidak bisa dibatalkan.`)) return;
+    setBulkBusy(true);
+    try {
+      const res = await apiDelete<{ deleted: number }>("/api/admin/test-drives", {
+        ids: [...sel.selected].join(","),
+      });
+      await qc.invalidateQueries({ queryKey: ["admin", "testdrive"] });
+      await qc.invalidateQueries({ queryKey: ["admin", "stats"] });
+      toast.success(`${res.deleted} booking dihapus`);
+      sel.clear();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal menghapus booking secara massal");
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   function exportCsv() {
     if (filtered.length === 0) {
@@ -186,6 +230,23 @@ export function AdminTestDriveView() {
           </p>
         </div>
 
+        {/* Bilah aksi massal — tampil saat ada item terpilih */}
+        <BulkActionBar
+          count={sel.count}
+          total={filtered.length}
+          onSelectAll={sel.selectAll}
+          onClear={sel.clear}
+          statuses={[
+            { value: "CONFIRMED", label: "Konfirmasi" },
+            { value: "DONE", label: "Selesai" },
+            { value: "CANCELLED", label: "Batalkan" },
+            { value: "PENDING", label: "Aktifkan" },
+          ]}
+          onBulkStatus={(s) => void bulkStatus(s)}
+          onBulkDelete={() => void bulkDelete()}
+          busy={bulkBusy}
+        />
+
         {isLoading ? (
           <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat booking…
@@ -211,6 +272,18 @@ export function AdminTestDriveView() {
               <table className="min-w-[860px] w-full text-sm" aria-label="Tabel booking test drive">
                 <thead className="bg-muted text-left">
                   <tr className="text-xs uppercase tracking-wide text-muted-foreground">
+                    <th className="px-4 py-3 w-10">
+                      <input
+                        type="checkbox"
+                        checked={sel.allSelected}
+                        ref={(el) => {
+                          if (el) el.indeterminate = sel.someSelected;
+                        }}
+                        onChange={sel.toggleAll}
+                        aria-label="Pilih semua booking"
+                        className="w-4 h-4 cursor-pointer"
+                      />
+                    </th>
                     <th className="px-4 py-3">Pemesan</th>
                     <th className="px-4 py-3">Mobil</th>
                     <th className="px-4 py-3">Jadwal</th>
@@ -219,8 +292,22 @@ export function AdminTestDriveView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((t) => (
-                    <tr key={t.id} className="border-t align-top hover:bg-suzuki-light/60 transition-colors">
+                  {filtered.map((t) => {
+                    const isSel = sel.selected.has(t.id);
+                    return (
+                    <tr
+                      key={t.id}
+                      className={`border-t align-top hover:bg-suzuki-light/60 transition-colors ${isSel ? "row-selected" : ""}`}
+                    >
+                      <td className="px-4 py-3">
+                        <input
+                          type="checkbox"
+                          checked={isSel}
+                          onChange={() => sel.toggle(t.id)}
+                          aria-label={`Pilih booking ${t.nama_lengkap}`}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                      </td>
                       <td className="px-4 py-3">
                         <p className="font-medium text-suzuki-navy">{t.nama_lengkap}</p>
                         <p className="text-xs text-muted-foreground flex flex-col gap-0.5 mt-1">
@@ -289,18 +376,30 @@ export function AdminTestDriveView() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Kartu (mobile) */}
             <div className="sm:hidden divide-y">
-              {filtered.map((t) => (
-                <div key={t.id} className="p-4 space-y-3">
+              {filtered.map((t) => {
+                const isSel = sel.selected.has(t.id);
+                return (
+                <div key={t.id} className={`p-4 space-y-3 ${isSel ? "row-selected" : ""}`}>
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium text-suzuki-navy">{t.nama_lengkap}</p>
-                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[t.status]}`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={isSel}
+                        onChange={() => sel.toggle(t.id)}
+                        aria-label={`Pilih booking ${t.nama_lengkap}`}
+                        className="w-4 h-4 shrink-0 cursor-pointer"
+                      />
+                      <p className="font-medium text-suzuki-navy truncate">{t.nama_lengkap}</p>
+                    </div>
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_STYLE[t.status]}`}>
                       {STATUS_LABEL[t.status]}
                     </span>
                   </div>
@@ -336,7 +435,8 @@ export function AdminTestDriveView() {
                     </a>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

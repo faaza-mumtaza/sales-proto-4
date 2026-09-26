@@ -233,6 +233,26 @@ export const testDriveStatusSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "CANCELLED", "DONE"]),
 });
 
+/* ---------------------------------------------------------------- */
+/* Aksi massal (bulk) — batch ubah status & hapus                    */
+/* ---------------------------------------------------------------- */
+
+/** Daftar id untuk aksi massal — maksimal 100 item per request. */
+export const bulkIdsField = z
+  .array(z.string().min(1).max(64))
+  .min(1, "Pilih minimal satu item")
+  .max(100, "Maksimal 100 item per aksi massal");
+
+export const pesanBulkStatusSchema = z.object({
+  ids: bulkIdsField,
+  status: z.enum(["BARU", "DIBACA", "DIBALAS", "SELESAI"]),
+});
+
+export const bookingBulkStatusSchema = z.object({
+  ids: bulkIdsField,
+  status: z.enum(["PENDING", "CONFIRMED", "DONE", "CANCELLED"]),
+});
+
 export const idSchema = z.object({ id: z.string().min(1).max(64) });
 
 /** Form testimoni publik — honeypot menyatu (field website harus kosong). */

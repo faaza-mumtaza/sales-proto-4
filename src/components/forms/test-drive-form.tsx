@@ -49,7 +49,15 @@ export function TestDriveForm({
         captchaAnswer: captcha.captchaAnswer,
         website,
       });
-      toast.success("Pendaftaran test drive berhasil! Tim kami akan menghubungi untuk konfirmasi.");
+      toast.success("Pendaftaran test drive berhasil! Tim kami akan menghubungi untuk konfirmasi.", {
+        description: "Lacak perkembangan statusnya kapan saja dengan nomor telepon Anda.",
+        action: {
+          label: "Cek Status",
+          onClick: () => {
+            window.location.hash = "#/kontak?form=status";
+          },
+        },
+      });
       setForm({
         ...form,
         nama_lengkap: "",
