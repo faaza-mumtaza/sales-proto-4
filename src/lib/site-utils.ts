@@ -135,6 +135,21 @@ export interface TestDrive {
   created_at: string;
 }
 
+export interface BookingServis {
+  id: string;
+  nama_lengkap: string;
+  no_telepon: string;
+  email: string | null;
+  mobil_pilihan: string;
+  mobil_slug: string | null;
+  jenis_servis: string;
+  tanggal_diinginkan: string;
+  waktu_diinginkan: string;
+  keluhan: string | null;
+  status: string;
+  created_at: string;
+}
+
 export interface Faq {
   id: string;
   kategori: string;
@@ -155,6 +170,25 @@ export const CAR_FALLBACK_IMAGE =
 export const WAKTU_SLOTS = [
   "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
 ];
+
+/** Slot waktu workshop servis (istirahat 12:00 dilewati). */
+export const SERVIS_WAKTU_SLOTS = [
+  "08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00",
+];
+
+/** Jenis layanan servis bengkel — kode sesuai validasi server. */
+export const SERVIS_JENIS: Array<{ id: string; label: string; hint: string }> = [
+  { id: "servis-berkala", label: "Servis Berkala", hint: "Perawatan rutin sesuai km mobil Anda" },
+  { id: "ganti-oli", label: "Ganti Oli & Filter", hint: "Oli mesin + filter sesuai tipe Suzuki" },
+  { id: "tune-up", label: "Tune-Up Mesin", hint: "Pengecekan & penyetelan performa mesin" },
+  { id: "servis-berat", label: "Servis Berat", hint: "Perbaikan menyeluruh / general repair" },
+  { id: "cek-kaki-kaki", label: "Cek Kaki-Kaki & Rem", hint: "Suspensi, ban, dan sistem rem" },
+  { id: "lainnya", label: "Lainnya", hint: "Jelaskan keluhan Anda di kolom catatan" },
+];
+
+export const SERVIS_JENIS_LABEL: Record<string, string> = Object.fromEntries(
+  SERVIS_JENIS.map((j) => [j.id, j.label]),
+);
 
 /** URL WhatsApp dengan pesan default. */
 export function waLink(text: string, phone: string = WHATSAPP_NUMBER): string {

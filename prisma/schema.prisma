@@ -47,6 +47,7 @@ model Mobil {
   updated_at    DateTime @updatedAt
 
   test_drives TestDrive[]
+  bookings_servis BookingServis[]
 
   @@map("mobil_katalog")
 }
@@ -131,4 +132,26 @@ model Faq {
 
   @@index([is_published, urutan])
   @@map("faqs")
+}
+
+model BookingServis {
+  id                 String   @id @default(uuid())
+  nama_lengkap       String
+  no_telepon         String
+  email              String?
+  mobil_pilihan      String // nama mobil (dari katalog atau teks bebas utk mobil non-katalog)
+  mobil_id           String? // FK opsional ke Mobil
+  jenis_servis       String // servis-berkala | ganti-oli | tune-up | servis-berat | cek-kaki-kaki | lainnya
+  tanggal_diinginkan DateTime
+  waktu_diinginkan   String
+  keluhan            String?
+  status             String   @default("PENDING") // PENDING | CONFIRMED | DONE | CANCELLED
+  ip_address         String?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  mobil Mobil? @relation(fields: [mobil_id], references: [id], onDelete: SetNull)
+
+  @@index([status, tanggal_diinginkan])
+  @@map("booking_servis")
 }

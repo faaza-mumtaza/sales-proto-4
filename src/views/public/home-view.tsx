@@ -54,7 +54,7 @@ export function HomeView() {
 
   return (
     <SiteLayout>
-      <HeroSection />
+      <HeroSection carCount={cars.length} />
 
       <section id="katalog" className="py-16 bg-suzuki-light" aria-labelledby="judul-katalog">
         <div className="container mx-auto px-4">

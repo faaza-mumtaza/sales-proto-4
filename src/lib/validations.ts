@@ -61,6 +61,15 @@ export const WAKTU_VALID = [
   "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
 ];
 
+/** Slot waktu workshop servis (istirahat makan siang 12:00 dilewati). */
+export const SERVIS_WAKTU_VALID = [
+  "08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00",
+];
+
+export const SERVIS_JENIS_VALID = [
+  "servis-berkala", "ganti-oli", "tune-up", "servis-berat", "cek-kaki-kaki", "lainnya",
+] as const;
+
 export const testDriveSchema = z.object({
   nama_lengkap: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
   no_telepon: phone,
@@ -91,6 +100,52 @@ export const testDriveSchema = z.object({
   ...captchaFields,
 });
 export type TestDriveInput = z.infer<typeof testDriveSchema>;
+
+/** Form booking servis bengkel publik. */
+export const bookingServisSchema = z.object({
+  nama_lengkap: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
+  no_telepon: phone,
+  email: z
+    .preprocess(
+      (v) => (v == null || (typeof v === "string" && v.trim() === "") ? undefined : v),
+      z.string().trim().email("Email tidak valid").max(255).optional(),
+    )
+    .optional(),
+  mobil_id: z
+    .preprocess(
+      (v) => (typeof v === "string" && v.trim() === "" ? null : v),
+      z.string().max(64).nullable(),
+    )
+    .optional(),
+  mobil_pilihan: z.string().trim().min(1, "Isi mobil Anda").max(200),
+  jenis_servis: z.enum(SERVIS_JENIS_VALID),
+  tanggal_diinginkan: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Tanggal tidak valid")
+    .refine((v) => {
+      const d = new Date(v + "T00:00:00");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return !Number.isNaN(d.getTime()) && d >= today;
+    }, "Tanggal tidak boleh di masa lalu"),
+  waktu_diinginkan: z.string().refine(
+    (v) => SERVIS_WAKTU_VALID.includes(v),
+    "Pilih slot waktu workshop yang tersedia",
+  ),
+  keluhan: z
+    .preprocess(
+      (v) => (v == null || (typeof v === "string" && v.trim() === "") ? undefined : v),
+      z.string().trim().max(1000).optional(),
+    )
+    .optional(),
+  ...captchaFields,
+});
+export type BookingServisInput = z.infer<typeof bookingServisSchema>;
+
+export const bookingServisStatusSchema = z.object({
+  id: z.string().max(64),
+  status: z.enum(["PENDING", "CONFIRMED", "DONE", "CANCELLED"]),
+});
 
 const slugField = z
   .string()

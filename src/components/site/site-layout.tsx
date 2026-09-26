@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { FloatingButtons } from "./floating-buttons";
+import { CookieConsent } from "./cookie-consent";
 
 /**
  * Layout publik: header sticky di atas, konten fleksibel, footer menempel
@@ -19,6 +20,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
         <Footer />
       </div>
       <FloatingButtons />
+      <CookieConsent />
     </div>
   );
 }

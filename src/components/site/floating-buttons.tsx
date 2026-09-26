@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { WHATSAPP_NUMBER } from "@/lib/site-utils";
-import { MessageCircle, ArrowUp } from "lucide-react";
+import { MessageCircle, ArrowUp, Wrench } from "lucide-react";
 import { useCompare } from "@/lib/use-compare";
-import { useHashRoute } from "@/lib/router";
+import { useHashRoute, Link } from "@/lib/router";
 
 export function FloatingButtons() {
   const [showTop, setShowTop] = useState(false);
@@ -37,6 +37,14 @@ export function FloatingButtons() {
       >
         <ArrowUp className="w-6 h-6" aria-hidden />
       </button>
+      <Link
+        to="/kontak?form=servis"
+        aria-label="Booking servis bengkel"
+        title="Booking Servis Bengkel"
+        className="w-14 h-14 bg-suzuki-navy/90 hover:bg-suzuki-red text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110"
+      >
+        <Wrench className="w-6 h-6" aria-hidden />
+      </Link>
       <a
         href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
           "Halo, saya tertarik dengan mobil Suzuki",

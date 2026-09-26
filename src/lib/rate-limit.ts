@@ -63,6 +63,7 @@ export function rateLimit(
 export const RATE_LIMITS = {
   contact: { max: 5, windowMs: 10 * 60_000 },
   testDrive: { max: 5, windowMs: 10 * 60_000 },
+  serviceBooking: { max: 5, windowMs: 10 * 60_000 },
   testimoni: { max: 3, windowMs: 15 * 60_000 },
   login: { max: 10, windowMs: 15 * 60_000 },
   changePassword: { max: 5, windowMs: 15 * 60_000 },

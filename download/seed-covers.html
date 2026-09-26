@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Cover Seed Artikel</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #333; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  .cover {
+    width: 1344px; height: 768px;
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 64px 72px;
+    margin-bottom: 24px;
+  }
+  .dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.09) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+  }
+  .glow {
+    position: absolute; border-radius: 50%; filter: blur(90px);
+  }
+  .badge {
+    position: absolute; top: 56px; left: 72px;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #e32322; color: #fff;
+    font-size: 22px; font-weight: 700; letter-spacing: 3px;
+    padding: 12px 26px; border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .brand {
+    position: absolute; top: 60px; right: 72px;
+    color: rgba(255,255,255,0.85);
+    font-size: 26px; font-weight: 800; letter-spacing: 6px;
+  }
+  .brand span { color: #e32322; }
+  h1 { color: #fff; font-size: 88px; line-height: 1.04; font-weight: 800; letter-spacing: -1px; }
+  h1 em { color: #e32322; font-style: normal; }
+  .sub { color: rgba(255,255,255,0.78); font-size: 30px; margin-top: 22px; font-weight: 500; }
+  .foot {
+    display: flex; align-items: center; gap: 14px;
+    margin-top: 34px;
+  }
+  .foot .bar { width: 72px; height: 6px; border-radius: 999px; background: #e32322; }
+  .foot .txt { color: rgba(255,255,255,0.65); font-size: 22px; letter-spacing: 1px; }
+  .bigmark {
+    position: absolute; right: -30px; bottom: -70px;
+    font-size: 560px; font-weight: 900; color: rgba(255,255,255,0.05);
+    line-height: 1; user-select: none;
+  }
+  .iconrow { display: flex; gap: 18px; margin-top: 26px; }
+  .chip {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22);
+    color: #fff; font-size: 24px; font-weight: 600;
+    padding: 14px 24px; border-radius: 16px;
+  }
+
+  #promo-dp { background: linear-gradient(135deg, #7f1210 0%, #e32322 55%, #ff5a52 100%); }
+  #promo-dp .glow.a { width: 420px; height: 420px; background: rgba(255,255,255,0.16); top: -140px; right: 120px; }
+  #promo-service { background: linear-gradient(135deg, #0f172a 0%, #1a2942 60%, #27406b 100%); }
+  #promo-service .glow.a { width: 380px; height: 380px; background: rgba(227,35,34,0.35); bottom: -120px; right: 60px; }
+  #berita-hybrid { background: linear-gradient(120deg, #0b1220 0%, #14263d 55%, #1e4c6b 100%); }
+  #berita-hybrid .glow.a { width: 460px; height: 460px; background: rgba(56,189,248,0.25); top: -160px; right: -60px; }
+  #berita-hybrid .glow.b { width: 300px; height: 300px; background: rgba(227,35,34,0.3); bottom: -100px; left: 200px; }
+  #berita-lineup { background: linear-gradient(135deg, #1a2942 0%, #33456e 50%, #55688f 100%); }
+  #berita-lineup .glow.a { width: 500px; height: 500px; background: rgba(255,255,255,0.12); top: -200px; left: -100px; }
+  #kegiatan-testdrive { background: linear-gradient(135deg, #e32322 0%, #c11918 45%, #1a2942 100%); }
+  #kegiatan-testdrive .glow.a { width: 420px; height: 420px; background: rgba(255,255,255,0.15); bottom: -140px; right: 180px; }
+  #kegiatan-sosial { background: linear-gradient(135deg, #9a3412 0%, #c2410c 40%, #e32322 100%); }
+  #kegiatan-sosial .glow.a { width: 400px; height: 400px; background: rgba(255,255,255,0.14); top: -120px; left: 240px; }
+</style>
+</head>
+<body>
+
+  <section class="cover" id="promo-dp">
+    <div class="glow a"></div><div class="dots"></div>
+    <div class="badge">Promo</div>
+    <div class="brand">SUZUKI <span>BSB</span></div>
+    <div class="bigmark">%</div>
+    <h1>DP Ringan,<br><em>Impian Jalan</em></h1>
+    <p class="sub">Angsuran mulai Rp 3 jutaan untuk unit pilihan keluarga.</p>
+    <div class="iconrow">
+      <div class="chip">🔑 DP Murah</div>
+      <div class="chip">💳 Proses Cepat</div>
+      <div class="chip">🚗 Unit Siap Bawa</div>
+    </div>
+    <div class="foot"><div class="bar"></div><div class="txt">Suzuki BSB Semarang — PT. Sunmotor Indosentra Trada</div></div>
+  </section>
+
+  <section class="cover" id="promo-service">
+    <div class="glow a"></div><div class="dots"></div>
+    <div class="badge" style="background:#fff;color:#1a2942;">Purnajual</div>
+    <div class="brand">SUZUKI <span>BSB</span></div>
+    <div class="bigmark">🛠</div>
+    <h1 style="color:#fff;">Servis Berkala<br><em>Gratis 3 Tahun</em></h1>
+    <p class="sub">Teknisi bersertifikat &amp; spare part asli Suzuki.</p>
+    <div class="iconrow">
+      <div class="chip">✅ Garansi Resmi</div>
+      <div class="chip">⏱ Estimasi Transparan</div>
+      <div class="chip">🧰 Alat Standar Bengkel</div>
+    </div>
+    <div class="foot"><div class="bar"></div><div class="txt">Workshop Suzuki BSB Semarang</div></div>
+  </section>
+
+  <section class="cover" id="berita-hybrid">
+    <div class="glow a"></div><div class="glow b"></div><div class="dots"></div>
+    <div class="badge" style="background:#38bdf8;">Berita</div>
+    <div class="brand">SUZUKI <span>BSB</span></div>
+    <div class="bigmark">⚡</div>
+    <h1>Lineup <em>Hybrid</em><br>Semakin Kuat</h1>
+    <p class="sub">Ertiga Hybrid, XL7 Hybrid, Fronx Hybrid, hingga Grand Vitara.</p>
+    <div class="iconrow">
+      <div class="chip">🌱 Efisiensi BBM</div>
+      <div class="chip">🔇 Senyap di Kota</div>
+      <div class="chip">🔋 Teknologi Mild Hybrid</div>
+    </div>
+    <div class="foot"><div class="bar" style="background:#38bdf8;"></div><div class="txt">Berita Resmi — Suzuki BSB Semarang</div></div>
+  </section>
+
+  <section class="cover" id="berita-lineup">
+    <div class="glow a"></div><div class="dots"></div>
+    <div class="badge" style="background:#1a2942;">Katalog</div>
+    <div class="brand">SUZUKI <span>BSB</span></div>
+    <div class="bigmark">🚙</div>
+    <h1>Katalog Terbaru<br><em>Garansi Resmi</em></h1>
+    <p class="sub">10 model passenger &amp; commercial siap test drive hari ini.</p>
+    <div class="iconrow">
+      <div class="chip">suv SUV &amp; MPV</div>
+      <div class="chip">🛻 Commercial</div>
+      <div class="chip">⚙️ MT / AT / Hybrid</div>
+    </div>
+    <div class="foot"><div class="bar"></div><div class="txt">Suzuki BSB Semarang — Katalog Unit</div></div>
+  </section>
+
+  <section class="cover" id="kegiatan-testdrive">
+    <div class="glow a"></div><div class="dots"></div>
+    <div class="badge" style="background:#fff;color:#c11918;">Kegiatan</div>
+    <div class="brand">SUZUKI <span>BSB</span></div>
+    <div class="bigmark">🏁</div>
+    <h1>Event<br><em>Test Drive</em></h1>
+    <p class="sub">Rasakan langsung performa unit favorit Anda — gratis!</p>
+    <div class="iconrow">
+      <div class="chip">📍 Area Dealer</div>
+      <div class="chip">👨‍👩‍👧 Ramah Keluarga</div>
+      <div class="chip">🎁 Doorprize</div>
+    </div>
+    <div class="foot"><div class="bar" style="background:#fff;"></div><div class="txt">Laporan Kegiatan — Suzuki BSB Semarang</div></div>
+  </section>
+
+  <section class="cover" id="kegiatan-sosial">
+    <div class="glow a"></div><div class="dots"></div>
+    <div class="badge" style="background:#fff;color:#c2410c;">Sosial</div>
+    <div class="brand">SUZUKI <span>BSB</span></div>
+    <div class="bigmark">❤</div>
+    <h1>Bakti Sosial<br><em>di Mijen</em></h1>
+    <p class="sub">Berbagi sembako &amp; keceriaan bersama warga sekitar dealer.</p>
+    <div class="iconrow">
+      <div class="chip">🤝 250 Paket</div>
+      <div class="chip">🏘 Warga Mijen</div>
+      <div class="chip">♻️ Peduli Lingkungan</div>
+    </div>
+    <div class="foot"><div class="bar" style="background:#fff;"></div><div class="txt">Tanggung Jawab Sosial — Suzuki BSB</div></div>
+  </section>
+
+</body>
+</html>

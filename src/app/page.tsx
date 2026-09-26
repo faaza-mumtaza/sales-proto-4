@@ -26,6 +26,7 @@ import { AdminArtikelView } from "@/views/admin/admin-artikel-view";
 import { AdminArtikelFormView } from "@/views/admin/admin-artikel-form-view";
 import { AdminPesanView } from "@/views/admin/admin-pesan-view";
 import { AdminTestDriveView } from "@/views/admin/admin-test-drive-view";
+import { AdminServisView } from "@/views/admin/admin-servis-view";
 import { AdminTestimoniView } from "@/views/admin/admin-testimoni-view";
 import { AdminFaqView } from "@/views/admin/admin-faq-view";
 
@@ -103,6 +104,12 @@ function AppRoutes() {
       return (
         <div key="admin-td" className="page-enter">
           <AdminTestDriveView />
+        </div>
+      );
+    if (seg2 === "servis")
+      return (
+        <div key="admin-servis" className="page-enter">
+          <AdminServisView />
         </div>
       );
     if (seg2 === "testimoni")

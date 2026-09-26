@@ -2,28 +2,55 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Phone, Mail, MapPin, Clock, Car, MessageSquare } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Car, MessageSquare, Wrench } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ContactForm } from "@/components/forms/contact-form";
 import { TestDriveForm } from "@/components/forms/test-drive-form";
+import { ServiceBookingForm } from "@/components/forms/service-booking-form";
 import { ErrorState } from "@/components/site/states";
 import { FaqSection } from "@/components/site/faq-section";
 import { usePageMeta, useHashRoute } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { type Mobil } from "@/lib/site-utils";
 
+type FormId = "kontak" | "test-drive" | "servis";
+
 const formTypes = [
   { id: "kontak", label: "Hubungi Kami", icon: MessageSquare },
   { id: "test-drive", label: "Test Drive", icon: Car },
+  { id: "servis", label: "Booking Servis", icon: Wrench },
 ] as const;
+
+const HEADER_COPY: Record<FormId, { title: string; desc: string }> = {
+  kontak: {
+    title: "Hubungi Kami",
+    desc: "Tim kami siap membantu Anda. Hubungi melalui telepon, email, atau kunjungi dealer kami.",
+  },
+  "test-drive": {
+    title: "Jadwalkan Test Drive",
+    desc: "Rasakan langsung pengalaman berkendara mobil Suzuki pilihan Anda. Gratis dan tanpa kewajiban membeli.",
+  },
+  servis: {
+    title: "Booking Servis Bengkel",
+    desc: "Servis berkala hingga perbaikan berat — teknisi bersertifikat dan spare part asli Suzuki.",
+  },
+};
 
 export function KontakView() {
   const route = useHashRoute();
-  const [active, setActive] = useState<"kontak" | "test-drive">(
-    route.query.get("form") === "test-drive" ? "test-drive" : "kontak",
+  const [active, setActive] = useState<FormId>(
+    route.query.get("form") === "test-drive"
+      ? "test-drive"
+      : route.query.get("form") === "servis"
+        ? "servis"
+        : "kontak",
   );
   usePageMeta(
-    active === "test-drive" ? "Jadwalkan Test Drive — Suzuki BSB" : "Kontak — Suzuki BSB Semarang",
+    active === "test-drive"
+      ? "Jadwalkan Test Drive — Suzuki BSB"
+      : active === "servis"
+        ? "Booking Servis Bengkel — Suzuki BSB"
+        : "Kontak — Suzuki BSB Semarang",
   );
 
   // Mobil default untuk test drive (dari tombol CTA halaman detail mobil)
@@ -33,12 +60,13 @@ export function KontakView() {
   const defaultPesan = route.query.get("pesan") ?? "";
 
   // Sinkronkan bila hash berubah (pola "adjust state during render" React):
-  // CTA dari halaman lain bisa membawa ?form=test-drive setelah komponen hidup.
+  // CTA dari halaman lain bisa membawa ?form=... setelah komponen hidup.
   const currentForm = route.query.get("form");
   const [trackedForm, setTrackedForm] = useState(currentForm);
   if (trackedForm !== currentForm) {
     setTrackedForm(currentForm);
     if (currentForm === "test-drive") setActive("test-drive");
+    else if (currentForm === "servis") setActive("servis");
     else if (currentForm === "kontak") setActive("kontak");
   }
 
@@ -50,15 +78,14 @@ export function KontakView() {
 
   return (
     <SiteLayout>
-      <section className="bg-suzuki-navy py-16 text-white">
-        <div className="container mx-auto px-4 text-center">
+      <section className="bg-suzuki-navy py-16 text-white relative overflow-hidden">
+        <div className="decoration absolute -top-20 -right-20 w-72 h-72 rounded-full bg-suzuki-red/10 blur-3xl" />
+        <div className="container mx-auto px-4 text-center relative">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            {active === "kontak" ? "Hubungi Kami" : "Jadwalkan Test Drive"}
+            {HEADER_COPY[active].title}
           </h1>
           <p className="text-white/70 max-w-2xl mx-auto">
-            {active === "kontak"
-              ? "Tim kami siap membantu Anda. Hubungi melalui telepon, email, atau kunjungi dealer kami."
-              : "Rasakan langsung pengalaman berkendara mobil Suzuki pilihan Anda. Gratis dan tanpa kewajiban membeli."}
+            {HEADER_COPY[active].desc}
           </p>
         </div>
       </section>
@@ -118,14 +145,18 @@ export function KontakView() {
 
             <div className="bg-card rounded-xl border border-border p-6 md:p-8">
               <div className="flex justify-center mb-8">
-                <div className="inline-flex bg-gray-100 rounded-full p-1" role="tablist" aria-label="Pilih jenis form">
+                <div
+                  className="inline-flex flex-wrap justify-center gap-1 bg-gray-100 rounded-2xl sm:rounded-full p-1"
+                  role="tablist"
+                  aria-label="Pilih jenis form"
+                >
                   {formTypes.map((t) => (
                     <button
                       key={t.id}
                       role="tab"
                       aria-selected={active === t.id}
                       onClick={() => setActive(t.id)}
-                      className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                      className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                         active === t.id
                           ? "bg-suzuki-red text-white shadow-sm"
                           : "text-gray-500 hover:text-suzuki-navy"
@@ -143,6 +174,20 @@ export function KontakView() {
                   <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Kirim Pesan</h2>
                   <ContactForm defaultSubjek={defaultSubjek} defaultPesan={defaultPesan} />
                 </>
+              ) : active === "servis" ? (
+                carsQuery.isLoading ? (
+                  <p className="text-center text-muted-foreground py-8">Memuat form booking servis…</p>
+                ) : carsQuery.isError ? (
+                  <ErrorState
+                    message="Gagal memuat daftar mobil untuk booking servis."
+                    onRetry={() => void carsQuery.refetch()}
+                  />
+                ) : (
+                  <>
+                    <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Form Booking Servis</h2>
+                    <ServiceBookingForm cars={cars} defaultMobilId={defaultMobilId} />
+                  </>
+                )
               ) : carsQuery.isLoading ? (
                 <p className="text-center text-muted-foreground py-8">Memuat form test drive…</p>
               ) : carsQuery.isError ? (

@@ -272,3 +272,56 @@ Stage Summary:
    - Setelah `db:push`: bump PRISMA_CACHE_KEY di src/lib/db.ts + RESTART daemon (bump saja tidak cukup).
    - Setelah edit globals.css: bila perubahan tidak tampak di fresh-load (curl chunk CSS), WAJIB stop server → `rm -rf .next` → start daemon ulang (Turbopack CSS cache stale).
    - Waktu sandbox = tahun 2026.
+
+---
+Task ID: 7
+Agent: main (Z.ai Code)
+Task: QA menyeluruh fase sebelumnya, lalu implementasi 4 fitur baru (Booking Servis fullstack, filter katalog lanjutan, tombol bagikan, cookie consent) + styling polish (animated counter, drop cap, micro-interactions) + pemulihan 6 cover artikel seed yang hilang
+
+Work Log:
+- **QA awal (fase sebelumnya stabil)**: server 200, lint bersih, dev.log bersih, DB utuh (10 mobil, 13 artikel, 6 pesan, 4 booking TD, 4 testimoni, 8 FAQ, 1 admin), sweep publik (10 kartu katalog, 6 artikel + search + tag chips, 2 tab kontak + 8 FAQ + 2 JSON-LD), login admin + dashboard 5 kartu + badge + chart OK, 0 console error → fase stabil, lanjut fitur baru.
+- **Fitur 1: Booking Servis Bengkel (fullstack, purnajual)**:
+  - Schema: model `BookingServis` (nama, telp, email?, mobil_pilihan + FK mobil_id optional, jenis_servis, tanggal, waktu, keluhan, status PENDING|CONFIRMED|DONE|CANCELLED, ip, @@index(status,tanggal)) → db:push → **bump PRISMA_CACHE_KEY ke `prisma_v5`** → restart daemon.
+  - Validasi: `bookingServisSchema` + `bookingServisStatusSchema`; SERVIS_WAKTU_VALID 08:00–16:00 (12:00 istirahat dilewati); 6 jenis layanan (servis-berkala, ganti-oli, tune-up, servis-berat, cek-kaki-kaki, lainnya). Rate-limit `serviceBooking` 5/10m.
+  - API publik `POST /api/service-booking` (rate-limit + honeypot + math-captcha + zod + mobil_id divalidasi ke DB, nama resmi dipakai bila dari katalog); API admin `GET/PATCH/DELETE /api/admin/service-bookings`; stats API + `servisPending`/`servisTotal`.
+  - Publik: `ServiceBookingForm` (radio-card jenis layanan dgn hint dinamis, mobil dari katalog ATAU teks bebas utk non-katalog, keluhan, captcha) — **tab ke-3 halaman Kontak** (`?form=servis`), header hero dinamis per tab.
+  - Admin: menu sidebar "Servis" (ikon Wrench) + badge PENDING; `admin-servis-view` (tabel desktop/kartu mobile, filter status + **chips jenis layanan dgn counter**, date-range pada jadwal, ringkasan jadwal mendatang, reply WA dgn template jenis servis, delete, Export CSV menghormati filter); **dashboard kini 6 kartu statistik** (+ Booking Servis teal, grid 2/3/6) semuanya dgn angka CountUp.
+  - Entry points lain: tombol melayang wrench (FloatingButtons) → `?form=servis`; link footer "Booking Service" → tab servis.
+  - Seed 5 booking realistis (2 PENDING, 1 CONFIRMED, 2 DONE, backdate).
+  - **VERIFIKASI end-to-end**: API (captcha benar → 201; jenis invalid / tanggal lampau / honeypot / captcha salah → ditolak; admin tanpa sesi → 401); submit via browser (mobil non-katalog teks bebas) → masuk DB → ubah status CONFIRMED via UI → tersimpan → hapus via UI (native click) → bersih; CSV export 5 baris valid (escaping + jenis label); badge sidebar "Servis — 2"; WA link berisi template jenis servis.
+  - **Bug ditemukan & diperbaiki via QA**: `<select required>` #sv-mobil memblokir submit saat pilih "Mobil lain" (nilai "" dianggap kosong oleh validasi HTML5) → required dihapus, validasi custom saat submit (aria-required tetap).
+- **Fitur 2: Filter Katalog Lanjutan** (`car-catalog.tsx`):
+  - Panel "Filter Lanjutan": **rentang budget** (5 pilihan: <150, 150–250, 250–400, >400 Jt), **chips transmisi** & **bahan bakar** (opsi dinamis dari data, hanya tampil bila ≥2 variasi), tombol Reset, counter "Menampilkan X dari Y", hint mobil termurah saat urut harga-naik, empty-state dgn "Reset semua filter".
+  - VERIFIKASI: <150jt → 0 (benar, termurah 184jt); 150–250 → 5; 250–400 → 3; >400 → 2 (GV+Jimny); Hybrid → 4; Hybrid+AT → 4 (keempat hybrid memang AT — dicek ke DB); reset → 10.
+  - Catatan testing: `el.value=...` + `dispatchEvent(change)` TIDAK memicu onChange React (value-tracker dedup) — pakai `agent-browser select <sel> <val>`.
+- **Fitur 3: Tombol Bagikan** (`share-buttons.tsx` reusable):
+  - WhatsApp, Facebook, X/Twitter (icon button bulat brand color, scale+shadow hover) + Salin Tautan (Clipboard API + fallback execCommand, state "Tersalin!").
+  - Dipasang: detail mobil (bawah CTA, no-print) & detail artikel (menggantikan grup share lama; tombol "Hubungi Sales" tetap).
+  - VERIFIKASI: 3 link share URL benar (wa.me, facebook sharer, twitter intent) + toast & state tombol salin OK di keduanya.
+- **Fitur 4: Banner Persetujuan Cookie** (`cookie-consent.tsx` di SiteLayout):
+  - Navy blur banner fixed bottom, muncul 900ms setelah load, tombol "Mengerti"/"Hanya penting", localStorage `suzuki_bsb_cookie_consent_v1`, animasi slide-down saat ditutup, no-print, aman utk mode privat (try/catch).
+  - VERIFIKASI: banner tampil → klik → localStorage tersimpan → tidak muncul lagi setelah itu.
+- **Styling polish (wajib)**:
+  - `CountUp` (rAF + IntersectionObserver + **manipulasi DOM langsung tanpa state React** — lolos rule react-compiler, prefers-reduced-motion → langsung nilai akhir, aria-label nilai final; SSR render 0).
+  - **Hero stats kini dinamis dari DB** (jumlah model real: "10+") + CountUp di semua kartu statistik dashboard.
+  - CSS baru: `::selection` merah brand; `text-wrap: balance` utk h1–h3; **drop cap merah** paragraf pertama artikel (desktop ≥768px); `.scroll-thin` scrollbar tipis (dipakai list dashboard); tab kontak flex-wrap.
+  - VERIFIKASI: counter beranimasi 0→10 saat masuk viewport; drop cap computed float:left 49.6px; semua rule ada di CSS chunk yang di-serve.
+- **INSIDEN: `db/uploads/` HILANG (dihapus cleanup sandbox)** → 6 cover artikel seed 404.
+  - **Semua service z-ai (image-generation, image-search, VLM, LLM) error 401 "missing X-Token"** — `/etc/.z-ai-config` hanya berisi baseUrl+apiKey tanpa token (berubah sejak sesi sebelumnya).
+  - SOLUSI: cover branded dibuat via HTML (download/seed-covers.html: gradient brand per tipe artikel + tipografi + badge + pattern dots) → dirender & di-screenshot agent-browser viewport 1344x768 (scroll offset per section; element-screenshot bermasalah di bawah fold) → 6 PNG 470–538KB → simpan db/uploads/seed/ → rename `promo-dp.png` → `promo-dp-ringan.png` (harus cocok dgn referensi DB).
+  - HASIL: semua /api/files/seed/*.png 200; 0 gambar rusak di halaman artikel/promo/home/mobil.
+- **Bug/perilaku sandbox lain**: (1) setelah HMR rebuild, click handler baris tabel mati utk synthetic `.click()` — reload halaman memulihkan; utk interaksi tabel selalu pakai native `agent-browser click`; (2) rate-limit in-memory reset saat restart server (dipakai utk QA submit form setelah limit tercapai 5/10m — limiternya sendiri TERBUKTI bekerja).
+
+Stage Summary:
+- 4 fitur baru lengkap & terverifikasi end-to-end: (1) **Booking Servis fullstack** — DB → form publik (tab ke-3 kontak + tombol melayang + footer) → admin (menu+badge+6th kartu dashboard+status+WA+CSV+filter jenis+tanggal); (2) **filter katalog lanjutan** (budget/transmisi/bahan bakar + reset + counter); (3) **tombol bagikan** WA/FB/X/copy di detail mobil & artikel; (4) **banner cookie consent** (localStorage + animasi).
+- Styling: animated counter (hero dinamis dari DB + dashboard), drop cap artikel, selection merah, text-wrap balance, scrollbar tipis, tab kontak wrap.
+- Bug diperbaiki: select required memblokir "Mobil lain"; overflow mobile tab kontak 375px (flex-wrap); 6 cover seed dipulihkan (via render HTML + screenshot, karena service AI token-blocked).
+- Kualitas akhir: lint 0 error; dev.log bersih; sweep mobile 375px SEMUA halaman (9 publik + admin + servis) tanpa overflow; 0 console error; 0 gambar rusak; sitemap+robots 200; CSV servis valid.
+- Kredensial admin TIDAK berubah: admin@suzukibsb.id / SuzukiBSB#2025.
+
+### Status saat ini: blueprint lengkap + 6 fase polish/fitur selesai & terverifikasi (total 20+ fitur tambahan sejak blueprint).
+### Sisa / rekomendasi fase berikutnya:
+1. Service z-ai (image-gen/search/VLM) TIDAK tersedia sesi ini (401 X-Token) — bila token pulih, pertimbangkan ganti cover artikel hasil render dgn foto asli & jalankan VLM review visual.
+2. Fitur opsional lanjutan: notifikasi email/WA otomatis ke admin saat ada entri baru, pagination katalog (saat mobil > 12), gambar per warna via uploader admin (field DB siap), multibahasa EN, dark mode toggle.
+3. Migrasi production (tetap): postgresql + Supabase, ADMIN_SESSION_SECRET kuat, TURNSTILE_SECRET_KEY, NEXT_PUBLIC_SITE_URL asli, next/image, ganti password admin.
+4. Operasional sandbox (penting): dev server via `python3 start-dev-daemon.py`; setelah `db:push` bump PRISMA_CACHE_KEY + restart daemon; setelah edit globals.css bila stale → stop → rm .next → start ulang; `db/uploads/` adalah RUNTIME data (gitignored) — **backup/bersiap regenerasi bila sandbox di-reset** (seed cover via download/seed-covers.html + agent-browser screenshot prosedur di worklog ini).

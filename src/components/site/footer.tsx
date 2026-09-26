@@ -69,7 +69,10 @@ export function Footer() {
               <h3 className="font-semibold text-lg mb-4">Layanan</h3>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <Link to="/kontak" className="text-white/70 hover:text-suzuki-red transition-colors">
+                  <Link
+                    to="/kontak?form=servis"
+                    className="text-white/70 hover:text-suzuki-red transition-colors"
+                  >
                     Booking Service
                   </Link>
                 </li>

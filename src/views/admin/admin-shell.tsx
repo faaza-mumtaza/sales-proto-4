@@ -2,18 +2,19 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Car, FileText, Mail, Calendar, Star, LogOut, Menu, X, Globe, HelpCircle } from "lucide-react";
+import { LayoutDashboard, Car, FileText, Mail, Calendar, Star, LogOut, Menu, X, Globe, HelpCircle, Wrench } from "lucide-react";
 import { apiGet, apiPost } from "@/lib/api";
 import { Link, useHashRoute, navigate } from "@/lib/router";
 import { SuzukiLogo } from "@/components/site/header";
 import { ChangePasswordDialog } from "@/components/admin/change-password-dialog";
 
-const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean; badgeKind?: "pesanBaru" | "testDrivePending" | "testimoniPending" }> = [
+const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean; badgeKind?: "pesanBaru" | "testDrivePending" | "servisPending" | "testimoniPending" }> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/katalog", label: "Katalog Mobil", icon: Car },
   { to: "/admin/artikel", label: "Artikel", icon: FileText },
   { to: "/admin/pesan", label: "Pesan Masuk", icon: Mail, badgeKind: "pesanBaru" },
   { to: "/admin/test-drive", label: "Test Drive", icon: Calendar, badgeKind: "testDrivePending" },
+  { to: "/admin/servis", label: "Servis", icon: Wrench, badgeKind: "servisPending" },
   { to: "/admin/testimoni", label: "Testimoni", icon: Star, badgeKind: "testimoniPending" },
   { to: "/admin/faq", label: "FAQ", icon: HelpCircle },
 ];
@@ -22,6 +23,7 @@ interface AdminStats {
   counts: {
     pesanBaru: number;
     testDrivePending: number;
+    servisPending?: number;
     testimoniPending?: number;
   };
 }
@@ -54,9 +56,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
   });
   const pesanBaru = statsQuery.data?.counts?.pesanBaru ?? 0;
   const tdPending = statsQuery.data?.counts?.testDrivePending ?? 0;
+  const servisPending = statsQuery.data?.counts?.servisPending ?? 0;
   const testiPending = statsQuery.data?.counts?.testimoniPending ?? 0;
-  const badgeFor = (kind?: "pesanBaru" | "testDrivePending" | "testimoniPending") =>
-    kind === "pesanBaru" ? pesanBaru : kind === "testDrivePending" ? tdPending : kind === "testimoniPending" ? testiPending : 0;
+  const badgeFor = (kind?: "pesanBaru" | "testDrivePending" | "servisPending" | "testimoniPending") =>
+    kind === "pesanBaru" ? pesanBaru : kind === "testDrivePending" ? tdPending : kind === "servisPending" ? servisPending : kind === "testimoniPending" ? testiPending : 0;
 
   // Guard: belum login → lempar ke halaman login
   useEffect(() => {

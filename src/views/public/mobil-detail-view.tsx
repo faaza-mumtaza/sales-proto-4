@@ -15,6 +15,7 @@ import { CAR_FALLBACK_IMAGE, formatPrice, waLink, type Mobil } from "@/lib/site-
 import { JsonLd } from "@/components/site/json-ld";
 import { carJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import { Lightbox, type LightboxImage } from "@/components/site/lightbox";
+import { ShareButtons } from "@/components/site/share-buttons";
 import { Printer, Maximize2 } from "lucide-react";
 
 const FEATURES = [
@@ -108,6 +109,10 @@ export function MobilDetailView({ slug }: { slug: string }) {
   // Pesan WA menyertakan warna pilihan agar sales langsung paham konteksnya
   const namaUntukWa =
     car.nama + (warnaAktif ? ` warna ${warnaAktif.nama}` : "");
+  const shareUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/#/mobil/${car.slug}`
+      : `/mobil/${car.slug}`;
 
   return (
     <SiteLayout>
@@ -385,6 +390,11 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   <Printer className="w-4 h-4" aria-hidden />
                   Cetak Spesifikasi
                 </button>
+              </div>
+
+              {/* Bagikan halaman mobil ini */}
+              <div className="pt-2 border-t border-border/70 no-print">
+                <ShareButtons title={car.nama} url={shareUrl} />
               </div>
             </Reveal>
           </div>

@@ -3,8 +3,11 @@
 import { Link } from "@/lib/router";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { Reveal } from "./reveal";
+import { CountUp } from "./count-up";
 
-export function HeroSection() {
+export function HeroSection({ carCount }: { carCount?: number }) {
+  // Jumlah model real dari DB (fallback 9 bila data belum termuat)
+  const models = carCount && carCount > 0 ? carCount : 9;
   return (
     <section className="relative bg-white overflow-hidden" aria-label="Hero">
       {/* dekorasi latar */}
@@ -86,17 +89,25 @@ export function HeroSection() {
             </div>
 
             <dl className="grid grid-cols-3 gap-4 mt-10 max-w-md">
-              {[
-                { value: "9+", label: "Model Tersedia" },
-                { value: "100%", label: "Garansi Resmi" },
-                { value: "Gratis", label: "Test Drive" },
-              ].map((s) => (
-                <div key={s.label} className="text-center sm:text-left">
-                  <dt className="sr-only">{s.label}</dt>
-                  <dd className="text-xl font-bold text-suzuki-navy">{s.value}</dd>
-                  <dd className="text-xs text-muted-foreground">{s.label}</dd>
-                </div>
-              ))}
+              <div className="text-center sm:text-left">
+                <dt className="sr-only">Model tersedia</dt>
+                <dd className="text-xl font-bold text-suzuki-navy">
+                  <CountUp value={models} suffix="+" />
+                </dd>
+                <dd className="text-xs text-muted-foreground">Model Tersedia</dd>
+              </div>
+              <div className="text-center sm:text-left">
+                <dt className="sr-only">Garansi resmi</dt>
+                <dd className="text-xl font-bold text-suzuki-navy">
+                  <CountUp value={100} suffix="%" />
+                </dd>
+                <dd className="text-xs text-muted-foreground">Garansi Resmi</dd>
+              </div>
+              <div className="text-center sm:text-left">
+                <dt className="sr-only">Test drive gratis</dt>
+                <dd className="text-xl font-bold text-suzuki-navy">Gratis</dd>
+                <dd className="text-xs text-muted-foreground">Test Drive</dd>
+              </div>
             </dl>
           </Reveal>
         </div>

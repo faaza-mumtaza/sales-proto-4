@@ -1,11 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Car, FileText, Mail, Calendar, Star, ArrowRight, CheckCircle2, Clock, Eye, TrendingUp } from "lucide-react";
+import { Car, FileText, Mail, Calendar, Star, ArrowRight, CheckCircle2, Clock, Eye, TrendingUp, Wrench } from "lucide-react";
 import { apiGet } from "@/lib/api";
 import { Link, usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
 import { TrendChart, type TrendPoint } from "@/components/admin/trend-chart";
+import { CountUp } from "@/components/site/count-up";
 import { formatDateID } from "@/lib/site-utils";
 
 interface Stats {
@@ -16,6 +17,8 @@ interface Stats {
     artikelPublished: number;
     pesanBaru: number;
     testDrivePending: number;
+    servisPending?: number;
+    servisTotal?: number;
     testimoniPending?: number;
     testimoniApproved?: number;
   };
@@ -74,8 +77,8 @@ export function AdminDashboardView() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            {Array.from({ length: 5 }).map((_, i) => (
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="bg-white rounded-xl p-5 border border-border">
                 <div className="w-10 h-10 bg-muted rounded-lg animate-pulse mb-3" />
                 <div className="h-7 w-16 bg-muted rounded animate-pulse mb-2" />
@@ -95,10 +98,10 @@ export function AdminDashboardView() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               <StatCard
                 label="Mobil Aktif"
-                value={`${data.counts.mobilAktif}`}
+                value={data.counts.mobilAktif}
                 sub={`dari ${data.counts.mobilTotal} total`}
                 icon={Car}
                 color="bg-suzuki-red"
@@ -106,7 +109,7 @@ export function AdminDashboardView() {
               />
               <StatCard
                 label="Artikel Tayang"
-                value={`${data.counts.artikelPublished}`}
+                value={data.counts.artikelPublished}
                 sub={`dari ${data.counts.artikelTotal} total`}
                 icon={FileText}
                 color="bg-purple-500"
@@ -114,7 +117,7 @@ export function AdminDashboardView() {
               />
               <StatCard
                 label="Pesan Baru"
-                value={`${data.counts.pesanBaru}`}
+                value={data.counts.pesanBaru}
                 sub="perlu ditindaklanjuti"
                 icon={Mail}
                 color="bg-orange-500"
@@ -122,15 +125,23 @@ export function AdminDashboardView() {
               />
               <StatCard
                 label="Booking Baru"
-                value={`${data.counts.testDrivePending}`}
+                value={data.counts.testDrivePending}
                 sub="menunggu konfirmasi"
                 icon={Calendar}
                 color="bg-green-600"
                 to="/admin/test-drive"
               />
               <StatCard
+                label="Booking Servis"
+                value={data.counts.servisPending ?? 0}
+                sub={`${data.counts.servisTotal ?? 0} total · workshop`}
+                icon={Wrench}
+                color="bg-teal-600"
+                to="/admin/servis"
+              />
+              <StatCard
                 label="Testimoni"
-                value={`${data.counts.testimoniPending ?? 0}`}
+                value={data.counts.testimoniPending ?? 0}
                 sub={`${data.counts.testimoniApproved ?? 0} tayang · menunggu moderasi`}
                 icon={Star}
                 color="bg-amber-500"
@@ -156,7 +167,7 @@ export function AdminDashboardView() {
                 {data.recentPesan.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4">Belum ada pesan.</p>
                 ) : (
-                  <ul className="max-h-80 overflow-y-auto pr-1 space-y-3">
+                  <ul className="max-h-80 overflow-y-auto scroll-thin pr-1 space-y-3">
                     {data.recentPesan.map((p) => (
                       <li key={p.id} className="text-sm border-b pb-3 last:border-0">
                         <div className="flex items-center justify-between gap-2">
@@ -193,7 +204,7 @@ export function AdminDashboardView() {
                 {data.upcomingTestDrive.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-4">Belum ada booking test drive.</p>
                 ) : (
-                  <ul className="max-h-80 overflow-y-auto pr-1 space-y-3">
+                  <ul className="max-h-80 overflow-y-auto scroll-thin pr-1 space-y-3">
                     {data.upcomingTestDrive.map((t) => (
                       <li key={t.id} className="text-sm border-b pb-3 last:border-0">
                         <div className="flex items-center justify-between gap-2">
@@ -259,7 +270,7 @@ function StatCard({
   to,
 }: {
   label: string;
-  value: string;
+  value: number;
   sub: string;
   icon: typeof Car;
   color: string;
@@ -273,7 +284,9 @@ function StatCard({
       <div className={`w-10 h-10 ${color} text-white rounded-lg flex items-center justify-center mb-3`}>
         <Icon className="w-5 h-5" aria-hidden />
       </div>
-      <p className="text-2xl font-bold text-suzuki-navy group-hover:text-suzuki-red transition-colors">{value}</p>
+      <p className="text-2xl font-bold text-suzuki-navy group-hover:text-suzuki-red transition-colors">
+        <CountUp value={value} duration={800} />
+      </p>
       <p className="text-xs text-muted-foreground mt-1">
         {label}
         <span className="block text-[11px] opacity-75">{sub}</span>
