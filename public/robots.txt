@@ -12,3 +12,9 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Halaman admin & API tidak perlu diindeks
+Disallow: /api/
+Disallow: /*/admin
+
+Sitemap: /sitemap.xml

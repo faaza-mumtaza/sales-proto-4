@@ -1,8 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Suzuki Dealer Website — Prisma Schema
+// SQLite di sandbox dev. Untuk production (Supabase/Vercel):
+//   1. Ganti provider ke "postgresql" dan DATABASE_URL ke Supabase connection string.
+//   2. Field JSON string (spesifikasi, galeri_gambar, tags) bisa dimigrasi ke tipe native (Json, String[]).
+// Catatan: field memakai snake_case mengikuti kode legacy agar porting UI minim perubahan.
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +13,94 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("admins")
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Mobil {
+  id            String   @id @default(uuid())
+  nama          String
+  slug          String   @unique
+  kategori      String // passenger | commercial
+  kategori_label String
+  harga_mulai   Int?
+  harga_label   String?
+  seater        Int?
+  fuel          String?
+  transmission  String?
+  deskripsi     String?
+  spesifikasi   String   @default("{}") // JSON string: [{ label, value }]
+  gambar_utama  String?
+  galeri_gambar String   @default("[]") // JSON string: string[]
+  is_new        Boolean  @default(false)
+  is_published  Boolean  @default(true)
+  urutan        Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  test_drives TestDrive[]
+
+  @@map("mobil_katalog")
+}
+
+model Artikel {
+  id          String    @id @default(uuid())
+  judul       String
+  slug        String    @unique
+  ringkasan   String?
+  konten      String
+  cover_image String?
+  tipe        String // PROMO | BERITA | KEGIATAN
+  tags        String    @default("[]") // JSON string: string[]
+  status      String    @default("DRAFT") // DRAFT | TERJADWAL | PUBLISHED
+  published_at DateTime?
+  scheduled_at DateTime?
+  views       Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  @@map("artikel")
+}
+
+model Pesan {
+  id           String   @id @default(uuid())
+  nama_lengkap String
+  no_telepon   String
+  email        String?
+  subjek       String?
+  pesan        String
+  status       String   @default("BARU") // BARU | DIBACA | DIBALAS | SELESAI
+  ip_address   String?
+  user_agent   String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("pesan_masuk")
+}
+
+model TestDrive {
+  id                 String   @id @default(uuid())
+  nama_lengkap       String
+  no_telepon         String
+  email              String
+  mobil_id           String?
+  mobil_pilihan      String
+  tanggal_diinginkan DateTime
+  waktu_diinginkan   String
+  catatan            String?
+  status             String   @default("PENDING") // PENDING | CONFIRMED | CANCELLED | DONE
+  ip_address         String?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  mobil Mobil? @relation(fields: [mobil_id], references: [id], onDelete: SetNull)
+
+  @@map("test_drive")
 }
