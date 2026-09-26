@@ -1,14 +1,16 @@
 "use client";
 
 import { Link } from "@/lib/router";
-import { Users, Fuel, Settings, Scale, Check } from "lucide-react";
+import { Users, Fuel, Settings, Scale, Check, Eye } from "lucide-react";
 import { useState } from "react";
 import { CAR_FALLBACK_IMAGE, formatPrice, type Mobil } from "@/lib/site-utils";
 import { useCompare } from "@/lib/use-compare";
 import { toast } from "sonner";
+import { QuickViewDialog } from "./quick-view-dialog";
 
 export function CarCard({ car }: { car: Mobil }) {
   const [imgErr, setImgErr] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false);
   const { slugs, toggle, isFull } = useCompare();
   const selected = slugs.includes(car.slug);
   const img = imgErr || !car.gambar_utama ? CAR_FALLBACK_IMAGE : car.gambar_utama;
@@ -26,6 +28,8 @@ export function CarCard({ car }: { car: Mobil }) {
 
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-xl hover:shadow-suzuki-navy/10 hover:-translate-y-1 transition-all duration-300 group flex flex-col card-accent">
+      {/* Quick view — pratinjau cepat tanpa pindah halaman */}
+      <QuickViewDialog car={car} open={quickOpen} onOpenChange={setQuickOpen} />
       <div className="relative p-4 pb-0">
         <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full shadow-sm">
           {car.kategori_label}
@@ -49,6 +53,20 @@ export function CarCard({ car }: { car: Mobil }) {
         >
           {selected ? <Check className="w-3.5 h-3.5" aria-hidden /> : <Scale className="w-3.5 h-3.5" aria-hidden />}
           <span className="hidden sm:inline">{selected ? "Dibandingkan" : "Bandingkan"}</span>
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setQuickOpen(true);
+          }}
+          aria-label={`Pratinjau cepat ${car.nama}`}
+          title="Pratinjau cepat"
+          className="absolute bottom-3 left-4 z-10 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold border bg-white/90 backdrop-blur text-suzuki-navy border-border hover:border-suzuki-red/50 hover:text-suzuki-red transition-all duration-300 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0"
+        >
+          <Eye className="w-3.5 h-3.5" aria-hidden />
+          <span className="hidden sm:inline">Pratinjau</span>
         </button>
         <div className="relative h-48 flex items-center justify-center bg-[#E8E8E8] rounded-lg overflow-hidden">
           <img

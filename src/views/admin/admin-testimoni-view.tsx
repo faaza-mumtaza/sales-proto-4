@@ -4,12 +4,13 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Star, Trash2, Search, Check, X, Undo2, Quote } from "lucide-react";
+import { Star, Trash2, Search, Check, X, Undo2, Quote, Download } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPatch, apiDelete } from "@/lib/api";
 import { usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
-import { formatDateID } from "@/lib/site-utils";
+import { formatDateID, formatDateTimeID } from "@/lib/site-utils";
+import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
 
 interface TestimoniAdmin {
   id: string;
@@ -90,6 +91,23 @@ export function AdminTestimoniView() {
     return list;
   }, [items, filter, search]);
 
+  function exportCsv() {
+    if (filtered.length === 0) {
+      toast.info("Tidak ada testimoni untuk diexport sesuai filter saat ini.");
+      return;
+    }
+    const csv = buildCsv(filtered, [
+      { header: "Tanggal", value: (t) => formatDateTimeID(t.created_at) },
+      { header: "Nama", value: (t) => t.nama },
+      { header: "Rating", value: (t) => t.rating },
+      { header: "Testimoni", value: (t) => t.pesan },
+      { header: "Status", value: (t) => STATUS_LABEL[t.status] ?? t.status },
+      { header: "IP", value: (t) => t.ip_address ?? "" },
+    ]);
+    downloadCsv(`testimoni-suzuki-bsb-${fileDatestamp()}.csv`, csv);
+    toast.success(`${filtered.length} testimoni diexport ke CSV.`);
+  }
+
   return (
     <AdminShell>
       <div className="space-y-6">
@@ -139,6 +157,13 @@ export function AdminTestimoniView() {
           <p className="text-sm text-muted-foreground" aria-live="polite">
             {filtered.length} testimoni
           </p>
+          <button
+            onClick={exportCsv}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors sm:ml-auto"
+          >
+            <Download className="w-4 h-4" aria-hidden />
+            Export CSV
+          </button>
         </div>
 
         {isLoading ? (

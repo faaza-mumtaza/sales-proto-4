@@ -37,6 +37,24 @@ export function formatDateTimeID(d: string | Date | null | undefined): string {
   });
 }
 
+/** Waktu relatif bahasa Indonesia: "baru saja", "5 menit lalu", "2 jam lalu", … */
+export function formatRelativeID(d: string | Date | null | undefined): string {
+  if (!d) return "";
+  const date = typeof d === "string" ? new Date(d) : d;
+  if (Number.isNaN(date.getTime())) return "";
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60_000);
+  if (diffMin < 1) return "baru saja";
+  if (diffMin < 60) return `${diffMin} menit lalu`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour} jam lalu`;
+  const diffDay = Math.floor(diffHour / 24);
+  if (diffDay < 7) return `${diffDay} hari lalu`;
+  const diffWeek = Math.floor(diffDay / 7);
+  if (diffWeek < 5) return `${diffWeek} minggu lalu`;
+  return formatDateID(date);
+}
+
 export const WHATSAPP_NUMBER = "6285647079807";
 export const INSTAGRAM_URL = "https://www.instagram.com/naufalll_miin";
 

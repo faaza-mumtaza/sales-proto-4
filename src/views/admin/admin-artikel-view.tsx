@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, ExternalLink, Eye, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Eye, Search, Download } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiGet } from "@/lib/api";
 import { Link, usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
 import { formatDateID, formatDateTimeID, type Artikel } from "@/lib/site-utils";
+import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
 
 const TIPE_STYLE: Record<string, string> = {
   PROMO: "bg-suzuki-red/10 text-suzuki-red",
@@ -56,6 +57,25 @@ export function AdminArtikelView() {
     return list;
   }, [data, filter, search]);
 
+  function exportCsv() {
+    if (filtered.length === 0) {
+      toast.info("Tidak ada artikel untuk diexport sesuai filter saat ini.");
+      return;
+    }
+    const csv = buildCsv(filtered, [
+      { header: "Judul", value: (a) => a.judul },
+      { header: "Slug", value: (a) => a.slug },
+      { header: "Tipe", value: (a) => a.tipe },
+      { header: "Status", value: (a) => a.status },
+      { header: "Tag", value: (a) => a.tags.join("; ") },
+      { header: "Views", value: (a) => a.views },
+      { header: "Dipublikasikan", value: (a) => (a.published_at ? formatDateTimeID(a.published_at) : "") },
+      { header: "Dibuat", value: (a) => formatDateTimeID(a.created_at) },
+    ]);
+    downloadCsv(`artikel-suzuki-bsb-${fileDatestamp()}.csv`, csv);
+    toast.success(`${filtered.length} artikel diexport ke CSV.`);
+  }
+
   return (
     <AdminShell>
       <div className="space-y-6">
@@ -94,7 +114,7 @@ export function AdminArtikelView() {
               </button>
             ))}
           </div>
-          <div className="relative sm:ml-auto sm:w-72">
+          <div className="relative sm:w-72">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
               aria-hidden
@@ -107,6 +127,13 @@ export function AdminArtikelView() {
               className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
             />
           </div>
+          <button
+            onClick={exportCsv}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors shrink-0"
+          >
+            <Download className="w-4 h-4" aria-hidden />
+            Export CSV
+          </button>
         </div>
 
         {isLoading ? (

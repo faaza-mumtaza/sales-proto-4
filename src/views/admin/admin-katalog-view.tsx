@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Search, ExternalLink, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ExternalLink, Eye, EyeOff, Download } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPut } from "@/lib/api";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
 import type { Mobil } from "@/lib/site-utils";
+import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
 
 export function AdminKatalogView() {
   usePageMeta("Katalog Mobil — Admin Suzuki BSB");
@@ -60,6 +61,28 @@ export function AdminKatalogView() {
     );
   }, [data, search]);
 
+  function exportCsv() {
+    if (filtered.length === 0) {
+      toast.info("Tidak ada mobil untuk diexport sesuai pencarian saat ini.");
+      return;
+    }
+    const csv = buildCsv(filtered, [
+      { header: "Nama", value: (m) => m.nama },
+      { header: "Slug", value: (m) => m.slug },
+      { header: "Kategori", value: (m) => m.kategori_label },
+      { header: "Harga Mulai (Rp)", value: (m) => m.harga_mulai ?? "" },
+      { header: "Harga Label", value: (m) => m.harga_label ?? "" },
+      { header: "Kursi", value: (m) => m.seater ?? "" },
+      { header: "Bahan Bakar", value: (m) => m.fuel ?? "" },
+      { header: "Transmisi", value: (m) => m.transmission ?? "" },
+      { header: "Jumlah Warna", value: (m) => m.warna.length },
+      { header: "Tampil", value: (m) => (m.is_published ? "Ya" : "Tidak") },
+      { header: "Urutan", value: (m) => m.urutan },
+    ]);
+    downloadCsv(`katalog-mobil-suzuki-bsb-${fileDatestamp()}.csv`, csv);
+    toast.success(`${filtered.length} mobil diexport ke CSV.`);
+  }
+
   return (
     <AdminShell>
       <div className="space-y-6">
@@ -84,18 +107,27 @@ export function AdminKatalogView() {
             <h2 className="font-semibold text-suzuki-navy">
               Daftar Mobil <span className="text-muted-foreground font-normal">({filtered.length})</span>
             </h2>
-            <div className="relative sm:w-72">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-                aria-hidden
-              />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari nama / kategori / harga…"
-                aria-label="Cari mobil"
-                className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
-              />
+            <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <div className="relative sm:w-72">
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+                  aria-hidden
+                />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Cari nama / kategori / harga…"
+                  aria-label="Cari mobil"
+                  className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
+                />
+              </div>
+              <button
+                onClick={exportCsv}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
+              >
+                <Download className="w-4 h-4" aria-hidden />
+                Export CSV
+              </button>
             </div>
           </div>
 

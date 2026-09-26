@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, X, Tag, ChevronDown } from "lucide-react";
+import { Search, X, Tag, ChevronDown, Flame, Eye } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
 import { ArticleSkeleton, ErrorState, EmptyState } from "@/components/site/states";
 import { Reveal } from "@/components/site/reveal";
-import { usePageMeta, useHashRoute } from "@/lib/router";
+import { usePageMeta, useHashRoute, Link } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { TIPE_ARTIKEL, type Artikel } from "@/lib/site-utils";
 
@@ -62,6 +62,14 @@ export function ArtikelView() {
   const hasMore = filtered.length > visibleCount;
 
   const hasActiveFilter = tipe !== "all" || tag !== null || query.trim() !== "";
+
+  // Artikel terpopuler (berdasarkan views) — hanya saat tanpa filter aktif
+  const popular = useMemo(() => {
+    if (hasActiveFilter) return [];
+    return [...(data?.articles ?? [])]
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 5);
+  }, [data, hasActiveFilter]);
 
   function resetFilters() {
     setTipe("all");
@@ -169,6 +177,51 @@ export function ArtikelView() {
                 </button>
               )}
             </div>
+          )}
+
+          {/* Artikel terpopuler — strip peringkat berdasarkan jumlah pembaca */}
+          {!isLoading && !isError && popular.length >= 3 && (
+            <Reveal variant="fade">
+              <div className="mb-10 rounded-2xl border border-border bg-card p-5 sm:p-6">
+                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-suzuki-navy mb-4">
+                  <Flame className="w-4 h-4 text-suzuki-red" aria-hidden />
+                  Artikel Terpopuler
+                  <span className="ml-auto text-[11px] font-medium normal-case tracking-normal text-muted-foreground">
+                    paling banyak dibaca
+                  </span>
+                </h2>
+                <ol className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  {popular.map((a, i) => (
+                    <li key={a.id}>
+                      <Link
+                        to={`/artikel/${a.slug}`}
+                        className="group flex flex-col gap-2 rounded-xl p-3 border border-transparent hover:border-border hover:bg-background hover:shadow-sm transition-all h-full"
+                      >
+                        <span
+                          aria-hidden
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm font-black shrink-0 ${
+                            i === 0
+                              ? "bg-suzuki-red text-white"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {i + 1}
+                        </span>
+                        <span className="text-xs font-semibold text-suzuki-navy leading-snug line-clamp-3 group-hover:text-suzuki-red transition-colors">
+                          {a.judul}
+                        </span>
+                        <span className="mt-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <Eye className="w-3 h-3" aria-hidden />
+                          {a.views.toLocaleString("id-ID")}x
+                          <span className="text-border" aria-hidden>|</span>
+                          {a.tipe}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </Reveal>
           )}
 
           {isLoading ? (

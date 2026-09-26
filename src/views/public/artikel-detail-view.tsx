@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Tag, MessageCircle } from "lucide-react";
+import { Calendar, Tag, MessageCircle, Clock3 } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
 import { Breadcrumb } from "@/components/site/breadcrumb";
@@ -24,7 +24,15 @@ interface TocResult {
   html: string;
 }
 
-/** Parsing daftar isi dari HTML konten artikel + menanam id pada tiap heading
+/** Estimasi waktu baca (menit) dari HTML konten — ±200 kata/menit. */
+function readingMinutes(html: string): number {
+  const words = html
+    .replace(/<[^>]+>/g, " ")
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+/** Parsing daftar isi dari HTML konten + menanam id pada tiap heading
  *  (murni, client-side; dipanggil dalam useMemo agar hasil stabil). */
 function buildToc(konten: string): TocResult {
   if (!konten || typeof window === "undefined") return { items: [], html: konten };
@@ -204,6 +212,11 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
           </span>
           <span aria-hidden>·</span>
           <span>{a.views.toLocaleString("id-ID")} kali dibaca</span>
+          <span aria-hidden>·</span>
+          <span className="inline-flex items-center gap-1.5" title="Estimasi kecepatan baca 200 kata/menit">
+            <Clock3 className="w-4 h-4" aria-hidden />
+            {readingMinutes(a.konten)} menit baca
+          </span>
         </div>
 
         {/* Konten sudah disanitasi server-side sebelum disimpan; id heading

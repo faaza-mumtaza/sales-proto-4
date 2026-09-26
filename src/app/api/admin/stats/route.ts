@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     await publishDueArtikels();
 
-    const [mobilTotal, mobilAktif, artikelTotal, artikelPublished, pesanBaru, tdPending, servisPending, servisTotal, testimoniPending, testimoniApproved, recentPesan, upcomingTD, pesanRows, tdRows] =
+    const [mobilTotal, mobilAktif, artikelTotal, artikelPublished, pesanBaru, tdPending, servisPending, servisTotal, testimoniPending, testimoniApproved, recentPesan, upcomingTD, pesanRows, tdRows, latestPesan, latestTD, latestServis, latestTestimoni, latestArtikel] =
       await Promise.all([
         db.mobil.count(),
         db.mobil.count({ where: { is_published: true } }),
@@ -34,7 +34,67 @@ export async function GET(req: NextRequest) {
         }),
         db.pesan.findMany({ select: { created_at: true }, orderBy: { created_at: "asc" } }),
         db.testDrive.findMany({ select: { created_at: true }, orderBy: { created_at: "asc" } }),
+        // Feed aktivitas terbaru (diambil per entitas lalu digabung & diurutkan)
+        db.pesan.findMany({ orderBy: { created_at: "desc" }, take: 6 }),
+        db.testDrive.findMany({ orderBy: { created_at: "desc" }, take: 6 }),
+        db.bookingServis.findMany({ orderBy: { created_at: "desc" }, take: 6 }),
+        db.testimoni.findMany({ orderBy: { created_at: "desc" }, take: 6 }),
+        db.artikel.findMany({ orderBy: { created_at: "desc" }, take: 6 }),
       ]);
+
+    // Timeline aktivitas terbaru — gabungan semua entitas, urut waktu desc
+    interface ActivityItem {
+      id: string;
+      type: "PESAN" | "TEST_DRIVE" | "SERVIS" | "TESTIMONI" | "ARTIKEL";
+      title: string;
+      detail: string;
+      status: string;
+      created_at: string;
+    }
+    const activity: ActivityItem[] = [
+      ...latestPesan.map((p) => ({
+        id: `pesan-${p.id}`,
+        type: "PESAN" as const,
+        title: p.nama_lengkap,
+        detail: p.pesan.length > 110 ? p.pesan.slice(0, 110) + "…" : p.pesan,
+        status: p.status,
+        created_at: p.created_at.toISOString(),
+      })),
+      ...latestTD.map((t) => ({
+        id: `td-${t.id}`,
+        type: "TEST_DRIVE" as const,
+        title: t.nama_lengkap,
+        detail: `Test drive ${t.mobil_pilihan}`,
+        status: t.status,
+        created_at: t.created_at.toISOString(),
+      })),
+      ...latestServis.map((s) => ({
+        id: `servis-${s.id}`,
+        type: "SERVIS" as const,
+        title: s.nama_lengkap,
+        detail: `Booking servis ${s.mobil_pilihan}`,
+        status: s.status,
+        created_at: s.created_at.toISOString(),
+      })),
+      ...latestTestimoni.map((t) => ({
+        id: `testi-${t.id}`,
+        type: "TESTIMONI" as const,
+        title: t.nama,
+        detail: `${"★".repeat(t.rating)}${"☆".repeat(5 - t.rating)} — ${t.pesan.length > 90 ? t.pesan.slice(0, 90) + "…" : t.pesan}`,
+        status: t.status,
+        created_at: t.created_at.toISOString(),
+      })),
+      ...latestArtikel.map((a) => ({
+        id: `artikel-${a.id}`,
+        type: "ARTIKEL" as const,
+        title: a.judul.length > 70 ? a.judul.slice(0, 70) + "…" : a.judul,
+        detail: `Artikel ${a.tipe.toLowerCase()}`,
+        status: a.status,
+        created_at: a.created_at.toISOString(),
+      })),
+    ]
+      .sort((x, y) => (x.created_at < y.created_at ? 1 : -1))
+      .slice(0, 12);
 
     // Tren 6 bulan terakhir: jumlah pesan & booking test drive per bulan
     const trend: Array<{ bulan: string; pesan: number; test_drive: number }> = [];
@@ -68,6 +128,7 @@ export async function GET(req: NextRequest) {
         testimoniApproved,
       },
       trend,
+      activity,
       recentPesan: recentPesan.map((p) => ({
         id: p.id,
         nama_lengkap: p.nama_lengkap,

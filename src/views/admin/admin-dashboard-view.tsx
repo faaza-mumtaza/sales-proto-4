@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Car, FileText, Mail, Calendar, Star, ArrowRight, CheckCircle2, Clock, Eye, TrendingUp, Wrench } from "lucide-react";
+import { Car, FileText, Mail, Calendar, Star, ArrowRight, CheckCircle2, Clock, Eye, TrendingUp, Wrench, Newspaper, History } from "lucide-react";
 import { apiGet } from "@/lib/api";
 import { Link, usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
 import { TrendChart, type TrendPoint } from "@/components/admin/trend-chart";
 import { CountUp } from "@/components/site/count-up";
-import { formatDateID } from "@/lib/site-utils";
+import { formatDateID, formatRelativeID } from "@/lib/site-utils";
 
 interface Stats {
   counts: {
@@ -41,6 +41,16 @@ interface Stats {
     waktu_diinginkan: string;
     status: string;
   }>;
+  activity?: ActivityItem[];
+}
+
+interface ActivityItem {
+  id: string;
+  type: "PESAN" | "TEST_DRIVE" | "SERVIS" | "TESTIMONI" | "ARTIKEL";
+  title: string;
+  detail: string;
+  status: string;
+  created_at: string;
 }
 
 export function AdminDashboardView() {
@@ -234,6 +244,74 @@ export function AdminDashboardView() {
               </div>
             </div>
 
+            {/* Timeline aktivitas terbaru — gabungan semua entitas */}
+            {data.activity && data.activity.length > 0 && (
+              <div className="bg-white rounded-xl border border-border p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="font-bold text-suzuki-navy flex items-center gap-2">
+                    <History className="w-4.5 h-4.5 text-suzuki-red" aria-hidden />
+                    Aktivitas Terbaru
+                  </h2>
+                  <span className="text-xs text-muted-foreground">
+                    12 aktivitas terakhir
+                  </span>
+                </div>
+                <ol className="relative space-y-0 max-h-[420px] overflow-y-auto scroll-thin pr-1">
+                  {data.activity.map((item, i) => {
+                    const meta = ACTIVITY_META[item.type];
+                    const last = i === data.activity!.length - 1;
+                    return (
+                      <li key={item.id} className="relative flex gap-3.5">
+                        {/* Garis penghubung timeline */}
+                        {!last && (
+                          <span
+                            aria-hidden
+                            className="absolute left-[15px] top-8 bottom-0 w-px bg-border"
+                          />
+                        )}
+                        <span
+                          aria-hidden
+                          className={`relative z-10 mt-1 w-8 h-8 rounded-full ${meta.dotBg} flex items-center justify-center shrink-0 ring-4 ring-white`}
+                        >
+                          <meta.icon className={`w-3.5 h-3.5 ${meta.iconCls}`} aria-hidden />
+                        </span>
+                        <Link
+                          to={meta.to}
+                          className="group flex-1 min-w-0 pb-5 -mt-0.5"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-semibold text-suzuki-navy truncate group-hover:text-suzuki-red transition-colors">
+                              {item.title}
+                            </p>
+                            <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0 mt-0.5">
+                              {formatRelativeID(item.created_at)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                            {item.detail}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span
+                              className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${meta.labelCls}`}
+                            >
+                              {meta.label}
+                            </span>
+                            {item.status && (
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded-full border ${statusCls(item.status)}`}
+                              >
+                                {item.status}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            )}
+
             <div className="bg-gradient-to-r from-suzuki-navy to-suzuki-navy/80 rounded-xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
@@ -293,4 +371,82 @@ function StatCard({
       </p>
     </Link>
   );
+}
+
+/** Metadata tipe aktivitas utk timeline dashboard. */
+const ACTIVITY_META: Record<
+  string,
+  {
+    label: string;
+    to: string;
+    icon: typeof Mail;
+    dotBg: string;
+    iconCls: string;
+    labelCls: string;
+  }
+> = {
+  PESAN: {
+    label: "Pesan",
+    to: "/admin/pesan",
+    icon: Mail,
+    dotBg: "bg-orange-100",
+    iconCls: "text-orange-600",
+    labelCls: "bg-orange-50 text-orange-700",
+  },
+  TEST_DRIVE: {
+    label: "Test Drive",
+    to: "/admin/test-drive",
+    icon: Calendar,
+    dotBg: "bg-green-100",
+    iconCls: "text-green-700",
+    labelCls: "bg-green-50 text-green-700",
+  },
+  SERVIS: {
+    label: "Servis",
+    to: "/admin/servis",
+    icon: Wrench,
+    dotBg: "bg-teal-100",
+    iconCls: "text-teal-700",
+    labelCls: "bg-teal-50 text-teal-700",
+  },
+  TESTIMONI: {
+    label: "Testimoni",
+    to: "/admin/testimoni",
+    icon: Star,
+    dotBg: "bg-amber-100",
+    iconCls: "text-amber-600",
+    labelCls: "bg-amber-50 text-amber-700",
+  },
+  ARTIKEL: {
+    label: "Artikel",
+    to: "/admin/artikel",
+    icon: Newspaper,
+    dotBg: "bg-purple-100",
+    iconCls: "text-purple-600",
+    labelCls: "bg-purple-50 text-purple-700",
+  },
+};
+
+/** Kelas warna badge status umum. */
+function statusCls(status: string): string {
+  switch (status) {
+    case "BARU":
+    case "PENDING":
+    case "DRAFT":
+    case "TERJADWAL":
+      return "border-orange-200 bg-orange-50 text-orange-700";
+    case "DIBACA":
+    case "CONFIRMED":
+      return "border-blue-200 bg-blue-50 text-blue-700";
+    case "DIBALAS":
+    case "APPROVED":
+    case "PUBLISHED":
+    case "DONE":
+      return "border-green-200 bg-green-50 text-green-700";
+    case "REJECTED":
+    case "CANCELLED":
+      return "border-red-200 bg-red-50 text-red-700";
+    default:
+      return "border-border bg-muted text-muted-foreground";
+  }
 }

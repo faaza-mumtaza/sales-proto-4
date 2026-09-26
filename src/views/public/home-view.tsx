@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Shield, Wrench, CreditCard, Headphones, Car } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { HeroSection } from "@/components/site/hero-section";
+import { UspStrip } from "@/components/site/usp-strip";
 import { CarCatalog } from "@/components/site/car-catalog";
 import { ArticleCard } from "@/components/site/article-card";
 import { SectionHeading } from "@/components/site/section-heading";
@@ -55,8 +56,9 @@ export function HomeView() {
   return (
     <SiteLayout>
       <HeroSection carCount={cars.length} />
+      <UspStrip />
 
-      <section id="katalog" className="py-16 bg-suzuki-light" aria-labelledby="judul-katalog">
+      <section id="katalog" className="py-16 pt-20 bg-suzuki-light" aria-labelledby="judul-katalog">
         <div className="container mx-auto px-4">
           <SectionHeading
             title="Katalog Mobil Suzuki"
