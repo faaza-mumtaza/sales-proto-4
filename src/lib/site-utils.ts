@@ -135,6 +135,20 @@ export interface TestDrive {
   created_at: string;
 }
 
+export interface Faq {
+  id: string;
+  kategori: string;
+  pertanyaan: string;
+  jawaban: string;
+}
+
+/** Label ramah untuk kategori FAQ. */
+export const FAQ_KATEGORI_LABEL: Record<string, string> = {
+  umum: "Umum",
+  pembelian: "Pembelian & Kredit",
+  purnajual: "Servis & Purnajual",
+};
+
 export const CAR_FALLBACK_IMAGE =
   "https://cms.suzukihyperlocal.com/images/defaults/suzukilogo-pp-removebg-preview.png";
 

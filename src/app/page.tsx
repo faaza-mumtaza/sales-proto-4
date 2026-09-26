@@ -27,8 +27,11 @@ import { AdminArtikelFormView } from "@/views/admin/admin-artikel-form-view";
 import { AdminPesanView } from "@/views/admin/admin-pesan-view";
 import { AdminTestDriveView } from "@/views/admin/admin-test-drive-view";
 import { AdminTestimoniView } from "@/views/admin/admin-testimoni-view";
+import { AdminFaqView } from "@/views/admin/admin-faq-view";
 
 import { ComparisonBar } from "@/components/site/comparison-bar";
+import { JsonLd } from "@/components/site/json-ld";
+import { dealerJsonLd } from "@/lib/jsonld";
 
 function AppRoutes() {
   const route = useHashRoute();
@@ -106,6 +109,12 @@ function AppRoutes() {
       return (
         <div key="admin-testi" className="page-enter">
           <AdminTestimoniView />
+        </div>
+      );
+    if (seg2 === "faq")
+      return (
+        <div key="admin-faq" className="page-enter">
+          <AdminFaqView />
         </div>
       );
     return (
@@ -192,6 +201,8 @@ export default function Page() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      {/* Data terstruktur schema.org: identitas dealer (seluruh halaman) */}
+      <JsonLd data={dealerJsonLd()} />
       <AppRoutes />
       <ComparisonBar />
     </QueryClientProvider>

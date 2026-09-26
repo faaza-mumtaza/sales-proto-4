@@ -5,10 +5,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Calendar, Phone, Mail, MessageCircle, Car, Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPatch } from "@/lib/api";
-import { Link, usePageMeta } from "@/lib/router";
+import { usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
 import { formatDateID, formatDateTimeID, phoneToWaNumber, type TestDrive } from "@/lib/site-utils";
 import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
+import { DateRangeFilter, EMPTY_RANGE, inRange, isRangeActive, type DateRange } from "@/components/admin/date-range-filter";
 
 const STATUSES = ["PENDING", "CONFIRMED", "DONE", "CANCELLED"] as const;
 
@@ -45,7 +46,7 @@ export function AdminTestDriveView() {
   usePageMeta("Test Drive — Admin Suzuki BSB");
   const qc = useQueryClient();
   const [filter, setFilter] = useState<string>("all");
-  const [dateFilter, setDateFilter] = useState<string>("");
+  const [dateRange, setDateRange] = useState<DateRange>(EMPTY_RANGE);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin", "testdrive"],
@@ -75,14 +76,15 @@ export function AdminTestDriveView() {
     }
   }
 
+  const allBookings = data?.bookings ?? [];
   const filtered = useMemo(() => {
-    const all = data?.bookings ?? [];
-    let list = filter === "all" ? all : all.filter((t) => t.status === filter);
-    if (dateFilter) {
-      list = list.filter((t) => t.tanggal_diinginkan.slice(0, 10) === dateFilter);
+    let list = filter === "all" ? allBookings : allBookings.filter((t) => t.status === filter);
+    if (isRangeActive(dateRange)) {
+      // Filter pada tanggal jadwal test drive (bukan tanggal submit)
+      list = list.filter((t) => inRange(t.tanggal_diinginkan, dateRange));
     }
     return list;
-  }, [data, filter, dateFilter]);
+  }, [allBookings, filter, dateRange]);
 
   function exportCsv() {
     if (filtered.length === 0) {
@@ -162,33 +164,26 @@ export function AdminTestDriveView() {
               </button>
             ))}
           </div>
-          <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
-            <label htmlFor="td-date" className="text-xs text-muted-foreground whitespace-nowrap">
-              Filter tanggal:
-            </label>
-            <input
-              id="td-date"
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="px-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
-            />
-            {dateFilter && (
-              <button
-                onClick={() => setDateFilter("")}
-                className="text-xs text-suzuki-red underline"
-              >
-                reset
-              </button>
-            )}
-            <button
-              onClick={exportCsv}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
-            >
-              <Download className="w-4 h-4" aria-hidden />
-              Export CSV
-            </button>
-          </div>
+          <button
+            onClick={exportCsv}
+            className="sm:ml-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
+          >
+            <Download className="w-4 h-4" aria-hidden />
+            Export CSV
+          </button>
+        </div>
+
+        {/* Filter rentang tanggal jadwal (memengaruhi daftar & export CSV) */}
+        <div className="bg-white rounded-lg border border-border px-3.5 py-2.5">
+          <DateRangeFilter
+            value={dateRange}
+            onChange={setDateRange}
+            count={filtered.length}
+            total={allBookings.length}
+          />
+          <p className="text-[11px] text-muted-foreground mt-1.5">
+            Rentang tanggal berlaku pada <strong>jadwal test drive</strong>, bukan tanggal pemesanan.
+          </p>
         </div>
 
         {isLoading ? (

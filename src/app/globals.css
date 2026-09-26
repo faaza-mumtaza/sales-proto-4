@@ -218,6 +218,97 @@
   overflow: hidden;
 }
 
+/* Sembunyikan scrollbar pada strip thumbnail lightbox (tetap dapat digulir) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* Print stylesheet — lembar spesifikasi mobil                      */
+/* ---------------------------------------------------------------- */
+@media print {
+  /* Sembunyikan semua elemen non-konten */
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Layout penuh tanpa scroll & latar bersih */
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 12px;
+  }
+
+  /* Kartu & panel: hilangkan bayangan, pakai garis tipis */
+  main .rounded-xl,
+  main .rounded-lg {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    break-inside: avoid;
+  }
+
+  /* Header dokumen cetak: nama dealer + garis aksen */
+  .print-header {
+    display: block !important;
+    border-bottom: 3px solid #e32322;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+  .print-header .print-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a2942;
+  }
+  .print-header .print-sub {
+    font-size: 11px;
+    color: #555;
+    margin-top: 2px;
+  }
+
+  /* Gambar mobil dicetak dengan ukuran terkendali */
+  main img {
+    max-height: 300px !important;
+    object-fit: contain;
+  }
+
+  /* Tombol & interaksi tidak dicetak (termasuk CTA berbasis link) */
+  main button,
+  main a,
+  main .print-hide {
+    display: none !important;
+  }
+
+  /* Grid dua kolom detail mobil → satu kolom hemat kertas */
+  main .grid.lg\:grid-cols-2 {
+    display: block !important;
+  }
+
+  /* Warna teks brand tetap terbaca di kertas */
+  .text-suzuki-navy {
+    color: #1a2942 !important;
+  }
+  .text-suzuki-red {
+    color: #e32322 !important;
+  }
+
+  /* Hindari halaman yatim */
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  tr,
+  dl {
+    break-inside: avoid;
+  }
+}
+
 /* ---------------------------------------------------------------- */
 /* Animasi & transisi halus                                          */
 /* ---------------------------------------------------------------- */
@@ -228,7 +319,10 @@
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    /* PENTING: harus `none`, bukan translateY(0) — nilai transform apa pun
+       (termasuk identitas) membuat containing block yang MERUSAK position:fixed
+       milik elemen turunannya (tombol melayang, lightbox). */
+    transform: none;
   }
 }
 @keyframes fade-in {
@@ -246,7 +340,7 @@
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: none;
   }
 }
 @keyframes float-soft {
@@ -275,7 +369,7 @@
     transform: scale(1.15);
   }
   100% {
-    transform: scale(1);
+    transform: none;
     opacity: 1;
   }
 }
@@ -300,9 +394,14 @@
   transform: none;
 }
 
-/* Transisi antar halaman SPA */
+/* Transisi antar halaman SPA.
+   PENTING: fill-mode `backwards` (BUKAN `both`) — setelah animasi selesai
+   elemen kembali ke style natural-nya (transform: none). Dengan `both`,
+   Chromium mempertahankan matrix identitas yang menciptakan containing
+   block dan MERUSAK position:fixed milik turunannya (lightbox, tombol
+   melayang). Nilai akhir keyframe sengaja = style default agar tanpa lompatan. */
 .page-enter {
-  animation: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 /* Hover kartu: garis aksen merah muncul dari kiri */
@@ -353,9 +452,9 @@
   animation: float-soft 6s ease-in-out 1.2s infinite;
 }
 
-/* Badge notifikasi admin muncul dengan pop */
+/* Badge notifikasi admin muncul dengan pop (backwards: lihat catatan page-enter) */
 .badge-pop {
-  animation: badge-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: badge-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 /* Placeholder pattern untuk kartu artikel tanpa cover */

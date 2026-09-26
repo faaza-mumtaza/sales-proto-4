@@ -213,3 +213,22 @@ export const changePasswordSchema = z
     path: ["password_baru"],
   });
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+export const FAQ_KATEGORI = ["umum", "pembelian", "purnajual"] as const;
+
+/** FAQ upsert — pertanyaan & jawaban admin. */
+export const faqUpsertSchema = z.object({
+  id: z.string().max(64).optional(),
+  kategori: z.enum(FAQ_KATEGORI).default("umum"),
+  pertanyaan: z.string().trim().min(8, "Pertanyaan minimal 8 karakter").max(200, "Pertanyaan maksimal 200 karakter"),
+  jawaban: z.string().trim().min(10, "Jawaban minimal 10 karakter").max(1500, "Jawaban maksimal 1500 karakter"),
+  urutan: z.preprocess((v) => Number(v), z.number().int("Urutan harus angka").min(0).max(999)),
+  is_published: z.boolean().default(true),
+});
+export type FaqUpsertInput = z.infer<typeof faqUpsertSchema>;
+
+/** Ubah status tampil/sembunyi FAQ via PATCH. */
+export const faqToggleSchema = z.object({
+  id: z.string().max(64),
+  is_published: z.boolean(),
+});

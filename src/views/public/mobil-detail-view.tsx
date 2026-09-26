@@ -12,6 +12,10 @@ import { Reveal } from "@/components/site/reveal";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { CAR_FALLBACK_IMAGE, formatPrice, waLink, type Mobil } from "@/lib/site-utils";
+import { JsonLd } from "@/components/site/json-ld";
+import { carJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
+import { Lightbox, type LightboxImage } from "@/components/site/lightbox";
+import { Printer, Maximize2 } from "lucide-react";
 
 const FEATURES = [
   "Mesin bertenaga dan efisien",
@@ -25,6 +29,7 @@ const FEATURES = [
 export function MobilDetailView({ slug }: { slug: string }) {
   const [imgIndex, setImgIndex] = useState(0);
   const [activeWarna, setActiveWarna] = useState<number | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   // Reset galeri saat slug berubah (pola "adjust state during render" React)
   const [trackedSlug, setTrackedSlug] = useState(slug);
   if (trackedSlug !== slug) {
@@ -85,13 +90,48 @@ export function MobilDetailView({ slug }: { slug: string }) {
   const currentImage =
     warnaAktif?.gambar ?? gallery[imgIndex] ?? car.gambar_utama ?? CAR_FALLBACK_IMAGE;
 
+  // Daftar gambar lightbox: galeri + foto warna (bila tersedia)
+  const lightboxImages: LightboxImage[] = [
+    ...gallery.map((g, i) => ({ src: g, alt: `${car.nama} — tampilan ${i + 1}` })),
+    ...car.warna
+      .filter((w) => w.gambar)
+      .map((w) => ({ src: w.gambar as string, alt: `${car.nama} — warna ${w.nama}` })),
+  ];
+  const warnaLightboxOffset = gallery.length;
+  const lightboxIndexForCurrent = warnaAktif?.gambar
+    ? warnaLightboxOffset +
+      car.warna
+        .filter((w) => w.gambar)
+        .findIndex((w) => w.nama === warnaAktif.nama)
+    : imgIndex;
+
   // Pesan WA menyertakan warna pilihan agar sales langsung paham konteksnya
   const namaUntukWa =
     car.nama + (warnaAktif ? ` warna ${warnaAktif.nama}` : "");
 
   return (
     <SiteLayout>
-      <div className="bg-muted py-4 border-b border-border/60">
+      {/* Data terstruktur schema.org untuk SEO */}
+      <JsonLd
+        data={[
+          carJsonLd(car),
+          breadcrumbJsonLd([
+            { label: "Home", to: "/" },
+            { label: "Mobil", to: "/mobil" },
+            { label: car.nama },
+          ]),
+        ]}
+      />
+
+      {/* Header dokumen saat dicetak (lembar spesifikasi) */}
+      <div className="print-header hidden" aria-hidden>
+        <p className="print-title">Suzuki BSB Semarang — {car.nama}</p>
+        <p className="print-sub">
+          PT. Sunmotor Indosentra Trada · Jl. Kompleks Graha Taman Karet, Semarang · 0856-4707-9807
+        </p>
+      </div>
+
+      <div className="bg-muted py-4 border-b border-border/60 no-print">
         <div className="container mx-auto px-4">
           <Breadcrumb
             items={[
@@ -120,10 +160,30 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   <img
                     src={currentImage}
                     alt={`${car.nama} — ${warnaAktif ? `warna ${warnaAktif.nama}` : `tampilan ${imgIndex + 1}`}`}
-                    className="w-full h-auto max-h-[380px] object-contain group-hover:scale-[1.02] transition-transform duration-500"
+                    className="w-full h-auto max-h-[380px] object-contain group-hover:scale-[1.02] transition-transform duration-500 cursor-zoom-in"
                     loading="eager"
+                    onClick={() => {
+                      if (lightboxImages.length > 0) {
+                        setImgIndex(lightboxIndexForCurrent);
+                        setLightboxOpen(true);
+                      }
+                    }}
                   />
                 </div>
+                {/* Petunjuk perbesar gambar */}
+                {lightboxImages.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setImgIndex(lightboxIndexForCurrent);
+                      setLightboxOpen(true);
+                    }}
+                    className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-suzuki-navy/85 hover:bg-suzuki-navy text-white text-xs font-medium backdrop-blur transition-all hover:shadow-lg active:scale-95"
+                    aria-label="Perbesar galeri gambar"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" aria-hidden />
+                    Perbesar
+                  </button>
+                )}
                 {warnaAktif && (
                   <p className="text-center text-sm text-muted-foreground mt-3" aria-live="polite">
                     Warna: <span className="font-semibold text-suzuki-navy">{warnaAktif.nama}</span>
@@ -317,6 +377,14 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   <MessageCircle className="w-4 h-4" aria-hidden />
                   Hubungi Sales
                 </a>
+                <button
+                  onClick={() => window.print()}
+                  title="Cetak lembar spesifikasi mobil ini"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border-2 border-suzuki-navy/20 text-suzuki-navy hover:border-suzuki-navy hover:bg-suzuki-navy hover:text-white font-semibold transition-all active:scale-95"
+                >
+                  <Printer className="w-4 h-4" aria-hidden />
+                  Cetak Spesifikasi
+                </button>
               </div>
             </Reveal>
           </div>
@@ -324,7 +392,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
       </article>
 
       {related.length > 0 && (
-        <section className="py-12 bg-suzuki-light border-t border-border" aria-labelledby="judul-serupa">
+        <section className="py-12 bg-suzuki-light border-t border-border print-hide" aria-labelledby="judul-serupa">
           <div className="container mx-auto px-4">
             <h2 id="judul-serupa" className="text-2xl font-bold text-suzuki-navy mb-8 text-center flex items-center justify-center gap-4">
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
@@ -340,6 +408,25 @@ export function MobilDetailView({ slug }: { slug: string }) {
             </div>
           </div>
         </section>
+      )}
+
+      {/* Lightbox galeri fullscreen */}
+      {lightboxOpen && (
+        <Lightbox
+          images={lightboxImages}
+          index={Math.min(Math.max(imgIndex, 0), Math.max(lightboxImages.length - 1, 0))}
+          onIndexChange={(i) => {
+            setActiveWarna(null);
+            setImgIndex(i);
+          }}
+          onClose={() => {
+            setLightboxOpen(false);
+            // Bila tertutup saat menampilkan foto warna (indeks di luar galeri),
+            // kembalikan ke gambar galeri agar tampilan utama tetap konsisten.
+            if (imgIndex >= gallery.length) setImgIndex(0);
+          }}
+          title={car.nama}
+        />
       )}
     </SiteLayout>
   );

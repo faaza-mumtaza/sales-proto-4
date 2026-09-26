@@ -32,9 +32,9 @@ export function ComparisonBar() {
   return (
     <>
       {/* Spacer agar konten/footer tidak tertutup bar fixed */}
-      <div className="h-20 sm:h-[4.75rem]" aria-hidden />
+      <div className="h-20 sm:h-[4.75rem] no-print" aria-hidden />
       <div
-        className="fixed bottom-0 inset-x-0 z-40 border-t border-suzuki-red/20 bg-white/95 backdrop-blur-md shadow-[0_-8px_30px_rgba(26,41,66,0.15)] animate-[fade-in-up_0.3s_ease-out]"
+        className="fixed bottom-0 inset-x-0 z-40 border-t border-suzuki-red/20 bg-white/95 backdrop-blur-md shadow-[0_-8px_30px_rgba(26,41,66,0.15)] animate-[fade-in-up_0.3s_ease-out] no-print"
         role="region"
         aria-label="Mobil yang dipilih untuk dibandingkan"
       >

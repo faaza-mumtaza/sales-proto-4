@@ -7,6 +7,7 @@ import { SiteLayout } from "@/components/site/site-layout";
 import { ContactForm } from "@/components/forms/contact-form";
 import { TestDriveForm } from "@/components/forms/test-drive-form";
 import { ErrorState } from "@/components/site/states";
+import { FaqSection } from "@/components/site/faq-section";
 import { usePageMeta, useHashRoute } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { type Mobil } from "@/lib/site-utils";
@@ -176,6 +177,9 @@ export function KontakView() {
           </div>
         </div>
       </section>
+
+      {/* FAQ — dikelola admin, hanya yang dipublikasikan */}
+      <FaqSection />
     </SiteLayout>
   );
 }

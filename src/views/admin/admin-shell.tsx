@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Car, FileText, Mail, Calendar, Star, LogOut, Menu, X, Globe } from "lucide-react";
+import { LayoutDashboard, Car, FileText, Mail, Calendar, Star, LogOut, Menu, X, Globe, HelpCircle } from "lucide-react";
 import { apiGet, apiPost } from "@/lib/api";
 import { Link, useHashRoute, navigate } from "@/lib/router";
 import { SuzukiLogo } from "@/components/site/header";
@@ -15,6 +15,7 @@ const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean;
   { to: "/admin/pesan", label: "Pesan Masuk", icon: Mail, badgeKind: "pesanBaru" },
   { to: "/admin/test-drive", label: "Test Drive", icon: Calendar, badgeKind: "testDrivePending" },
   { to: "/admin/testimoni", label: "Testimoni", icon: Star, badgeKind: "testimoniPending" },
+  { to: "/admin/faq", label: "FAQ", icon: HelpCircle },
 ];
 
 interface AdminStats {

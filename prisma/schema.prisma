@@ -118,3 +118,17 @@ model Testimoni {
 
   @@map("testimoni")
 }
+
+model Faq {
+  id          String   @id @default(uuid())
+  kategori    String   @default("umum") // umum | pembelian | purnajual
+  pertanyaan  String
+  jawaban     String
+  urutan      Int      @default(0)
+  is_published Boolean @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([is_published, urutan])
+  @@map("faqs")
+}

@@ -9,6 +9,7 @@ import { usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
 import { formatDateID, formatDateTimeID, phoneToWaNumber, type Pesan } from "@/lib/site-utils";
 import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
+import { DateRangeFilter, EMPTY_RANGE, inRange, isRangeActive, type DateRange } from "@/components/admin/date-range-filter";
 
 const STATUSES = ["BARU", "DIBACA", "DIBALAS", "SELESAI"] as const;
 
@@ -25,6 +26,7 @@ export function AdminPesanView() {
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange>(EMPTY_RANGE);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin", "pesan"],
@@ -54,9 +56,9 @@ export function AdminPesanView() {
     }
   }
 
+  const allMessages = data?.messages ?? [];
   const filtered = useMemo(() => {
-    const all = data?.messages ?? [];
-    let list = filter === "all" ? all : all.filter((p) => p.status === filter);
+    let list = filter === "all" ? allMessages : allMessages.filter((p) => p.status === filter);
     const q = search.trim().toLowerCase();
     if (q) {
       list = list.filter(
@@ -66,8 +68,11 @@ export function AdminPesanView() {
           (p.subjek ?? "").toLowerCase().includes(q),
       );
     }
+    if (isRangeActive(dateRange)) {
+      list = list.filter((p) => inRange(p.created_at, dateRange));
+    }
     return list;
-  }, [data, filter, search]);
+  }, [allMessages, filter, search, dateRange]);
 
   function exportCsv() {
     if (filtered.length === 0) {
@@ -141,6 +146,16 @@ export function AdminPesanView() {
           </button>
         </div>
 
+        {/* Filter rentang tanggal (memengaruhi daftar & export CSV) */}
+        <div className="bg-white rounded-lg border border-border px-3.5 py-2.5">
+          <DateRangeFilter
+            value={dateRange}
+            onChange={setDateRange}
+            count={filtered.length}
+            total={allMessages.length}
+          />
+        </div>
+
         {isLoading ? (
           <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat pesan…
@@ -156,7 +171,7 @@ export function AdminPesanView() {
           <div className="bg-white rounded-xl border border-border p-10 text-center">
             <Mail className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
             <p className="text-muted-foreground text-sm">
-              {filter === "all" && !search
+              {filter === "all" && !search && !isRangeActive(dateRange)
                 ? "Belum ada pesan masuk. Pesan dari form kontak website akan muncul di sini."
                 : "Tidak ada pesan yang cocok dengan filter."}
             </p>

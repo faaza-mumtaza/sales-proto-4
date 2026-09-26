@@ -211,3 +211,64 @@ Stage Summary:
 2. Migrasi production (tetap, belum berubah): postgresql + Supabase, ADMIN_SESSION_SECRET kuat, ganti password admin (UI ganti password kini TERSEDIA — tinggal dipakai), TURNSTILE_SECRET_KEY, pertimbangkan next/image.
 3. Data demo backdate (pesan/booking/testimoni seeded) sengaja dibiarkan utk demo tren & tampilan — bersihkan sebelum go-live.
 4. Operasional sandbox: bila dev server mati jalankan `python3 /home/z/my-project/start-dev-daemon.py`; JANGAN hapus .next saat server jalan; setelah `db:push` WAJIB restart server (Turbopack memegang Prisma client lama) + bump PRISMA_CACHE_KEY di src/lib/db.ts.
+
+---
+Task ID: 6
+Agent: main (Z.ai Code)
+Task: QA menyeluruh fase sebelumnya, lalu implementasi 5 fitur baru (FAQ fullstack, JSON-LD SEO, lightbox galeri, filter rentang tanggal admin, print spec sheet) + perbaikan bug kritis containing-block
+
+Work Log:
+- **QA awal (fase sebelumnya stabil)**: server 200, lint bersih, DB utuh (10 mobil published, 12 artikel, 4 pesan BARU, 2 booking PENDING, 1 testimoni pending), sweep 9 halaman publik + 7 admin semua OK tanpa overflow. Temuan: slug mobil uji saya salah (`ertiga-hybrid` vs `all-new-ertiga-hybrid`) — bukan bug.
+- **Fitur 1: FAQ fullstack (DB → admin → publik)**:
+  - Schema: model `Faq` (kategori umum|pembelian|purnajual, pertanyaan, jawaban, urutan, is_published, @@index) → db:push → **bump PRISMA_CACHE_KEY ke `prisma_v4`** → restart daemon. Seed 8 FAQ realistis (DP, trade-in, kredit, test drive, servis, garansi, lokasi, suku cadang).
+  - Validasi zod: `faqUpsertSchema` (pertanyaan 8–200, jawaban 10–1500, urutan 0–999) + `faqToggleSchema`.
+  - API publik `GET /api/faqs` (hanya published, urut urutan); API admin `/api/admin/faqs` (GET+counts, POST, PUT, PATCH toggle, DELETE — semua requireAdmin).
+  - Publik: `faq-section.tsx` di halaman Kontak — accordion shadcn + pencarian (pertanyaan+jawaban) + chip filter kategori dgn counter + nomor urut + skeleton + empty state + CTA "Tanya Langsung via WhatsApp" (prefill kata kunci pencarian).
+  - Admin: menu sidebar "FAQ" (ikon HelpCircle) + `admin-faq-view.tsx`: 3 kartu statistik klikabel (Total/Tampil/Disembunyikan), filter kategori, search, list accordion dgn aksi Edit/Tampilkan-Sembunyikan/Naik-Turun urutan (swap nilai urutan antar item)/Hapus, dialog tambah/edit (kategori Select, counter karakter, checkbox tampil, validasi inline).
+- **Fitur 2: JSON-LD structured data (SEO)**:
+  - `src/lib/jsonld.ts` — builder murni: `dealerJsonLd` (AutoDealer: alamat, geo, jam buka, phone, priceRange, sameAs), `carJsonLd` (Product+Car: brand, image absolut, offers IDR+InStock, seatingCapacity/fuelType/vehicleTransmission), `artikelJsonLd` (Article: headline, datePublished/Modified, publisher, interactionStatistic views), `breadcrumbJsonLd`, `faqJsonLd` (FAQPage utk rich result).
+  - Komponen `<JsonLd>` menyuntik `<script type="application/ld+json">` dgn escaping `</script` anti XSS.
+  - Dipasang: dealer di root page.tsx; Car+Breadcrumb di mobil-detail; Article+Breadcrumb di artikel-detail; FAQPage di faq-section.
+  - Diverifikasi: JSON.parse valid di DOM untuk semua tipe; 2 script di kontak (dealer+FAQ), 3 di detail mobil/artikel.
+- **Fitur 3: Lightbox galeri fullscreen** (`lightbox.tsx`):
+  - Fullscreen overlay dgn backdrop-blur, counter "n / total", tombol prev/next besar (muncul saat hover di desktop, selalu di mobile), strip thumbnail (aktif auto-scrollIntoView + border merah + scale), tombol tutup, klik backdrop menutup.
+  - Keyboard: ←/→ navigasi, Esc tutup. Body scroll-lock saat terbuka + fokus awal ke tombol tutup. aria-modal + role=dialog + label.
+  - Integrasi: klik gambar utama (cursor-zoom-in) atau tombol "Perbesar" (Maximize2) di detail mobil; daftar gambar = galeri + foto warna (bila ada); index sinkron dgn galeri utama; warna aktif dgn gambar langsung buka lightbox pada foto warna tsb.
+- **Fitur 4: Filter rentang tanggal admin**:
+  - Komponen reusable `date-range-filter.tsx`: input dari/sampai (date, saling constraint min/max) + preset 7/30/90 hari + tombol bersihkan + counter "n dari m entri". Util `inRange` (inklusif, toleran satu sisi).
+  - Pesan Masuk: filter pada created_at; Test Drive: filter pada tanggal jadwal (dgn catatan penjelas) — menggantikan filter tanggal tunggal lama. Export CSV otomatis menghormati filter (memakai `filtered`).
+- **Fitur 5: Print stylesheet — lembar spesifikasi mobil**:
+  - `@media print` di globals.css: sembunyikan header/footer/tombol/link CTA/floating/comparison-bar (kelas `no-print`), grid 2 kolom → 1 kolom, break-inside avoid, warna brand dipertahankan, gambar max 300px.
+  - Header dokumen cetak `.print-header` (nama dealer + alamat + telp, garis aksen merah) — hidden di layar, tampil saat cetak.
+  - Tombol "Cetak Spesifikasi" (ikon Printer) di kolom CTA detail mobil → window.print().
+- **BUG KRITIS diperbaiki — containing block merusak position:fixed**:
+  - Gejala: lightbox TIDAK tercenter (dialog top -1518, image top -714) → ditemukan via VLM review + pengukuran bounding rect.
+  - Akar masalah: `.page-enter` memakai `animation-fill-mode: both` — Chromium MEMPERTAHANKAN matrix identitas (`matrix(1,0,0,1,0,0)`) setelah animasi selesai (bahkan bila keyframe `to` = `transform: none`!) → transform non-none menciptakan containing block → semua `position:fixed` turunan (lightbox, FloatingButtons) merujuk box halaman penuh, BUKAN viewport. Ini juga bug laten FloatingButtons sejak fase 3 (tombol "fixed" sebenarnya menempel di dasar halaman — hanya tampak benar saat scroll di bawah).
+  - Fix (2 lapis): (1) fill-mode `both` → `backwards` pada .page-enter & .badge-pop — setelah animasi selesai elemen kembali ke style natural (transform none); nilai akhir keyframe = style default jadi tanpa lompatan visual; (2) Lightbox di-render via **createPortal ke document.body** agar kebal terhadap ancestor apapun yg bikin containing block. Pola mounted-check pakai useSyncExternalStore (lolos rule react-hooks/set-state-in-effect).
+  - Diverifikasi: computed transform page-enter = "none" setelah animasi; floatingBtnBottom 876 (viewport 900) = benar-benar fixed ke viewport; lightbox dialog [0,900] full viewport, image tercenter (VLM: "perfectly centered").
+- **Bug/perilaku sandbox lain yang dicatat**:
+  - **Turbopack CSS stale**: edit globals.css TIDAK langsung tercermin di chunk CSS statis (curl selalu dapat versi lama) meski HMR ke browser aktif. SOLUSI: stop server → `rm -rf .next` → start daemon ulang. Terjadi 3x di fase ini (print CSS, keyframe fix). Jangan hanya touch file.
+  - Waktu sandbox = 2026 (bukan 2025!) — data backdated berada di 2026-06..09; testing filter tanggal harus pakai tahun 2026.
+  - `window.confirm` di-override ke `() => true` via eval untuk testing delete FAQ otomatis.
+
+Stage Summary:
+- 5 fitur baru lengkap & terverifikasi end-to-end via agent-browser + curl:
+  1. **FAQ fullstack**: tambah via dialog admin → muncul di API publik → tampil di halaman Kontak (accordion+search+chip filter); sembunyikan → hilang dari publik; reorder naik/turun bekerja (swap urutan); hapus → bersih. 8 FAQ realistis ter-seed. Search "garansi" → 1 hasil; kategori "Pembelian" → 3 hasil.
+  2. **JSON-LD**: AutoDealer di semua halaman, Product+Car di detail mobil, Article di detail artikel, FAQPage di kontak, BreadcrumbList di detail — semua JSON valid & terverifikasi di DOM.
+  3. **Lightbox**: buka via klik gambar/tombol Perbesar; keyboard ←/→/Esc bekerja; thumbnail aktif sinkron; counter live; body lock; di mobile 375px tanpa overflow & dialog fit; setelah fix portal → image tercenter sempurna (VLM PASS).
+  4. **Filter rentang tanggal**: preset 7 hari → "1 dari 6" pesan; range Jun–Agu 2026 → "4 dari 6" (cocok dgn data DB); test-drive filter jadwal Sep 27–28 → 2 dari 4 booking + tabel 2 baris; CSV export menghormati filter.
+  5. **Print spec sheet**: PDF via agent-browser → header dealer tampil, semua tombol/CTA/nav tersembunyi, spesifikasi & harga tercetak rapi (pdftotext verification). File: download/qa-print-spec-sheet.pdf.
+- Bug kritis fixed: containing-block (lightbox + latent FloatingButtons) — lesson penting: JANGAN pakai fill-mode `both` dgn keyframe transform di wrapper yg punya turunan position:fixed; gunakan `backwards` + nilai akhir = default, atau portal.
+- Kualitas akhir: lint 0 error; sweep final 8 halaman publik + 7 admin semua OK tanpa overflow; sitemap+robots 200; dev.log 0 error (200 baris terakhir); VLM review: FAQ section PASS, admin views PASS, lightbox FIXED (centered), car detail PASS.
+- Kredensial admin TIDAK berubah: admin@suzukibsb.id / SuzukiBSB#2025.
+
+### Status saat ini: blueprint lengkap + 5 fase polish/fitur selesai & terverifikasi (total fitur tambahan sejak blueprint: 15+).
+### Sisa / rekomendasi fase berikutnya:
+1. Fitur opsional lanjutan: notifikasi email/WA otomatis ke admin saat pesan/booking/testimoni baru (webhook/SMTP), pagination katalog (saat mobil > 12), gambar per warna via upload admin (field DB sudah siap), multibahasa (EN) bila perlu, rich result test di Google Search Console setelah deploy (validasi JSON-LD).
+2. Migrasi production (tetap): postgresql + Supabase, ADMIN_SESSION_SECRET kuat, ganti password admin, TURNSTILE_SECRET_KEY, NEXT_PUBLIC_SITE_URL asli (dipakai jsonld.ts & sitemap), next/image.
+3. Kualitas data: gambar CMS lama mengandung watermark "ANTARA" pada beberapa foto (VLM menandai) — ganti dgn foto bersih saat go-live; data demo backdate sengaja dibiarkan utk demo tren.
+4. Operasional sandbox (PENTING utk agent berikutnya):
+   - Dev server: `python3 /home/z/my-project/start-dev-daemon.py` (double-fork, persisten). JANGAN `bun run dev` via Bash biasa.
+   - Setelah `db:push`: bump PRISMA_CACHE_KEY di src/lib/db.ts + RESTART daemon (bump saja tidak cukup).
+   - Setelah edit globals.css: bila perubahan tidak tampak di fresh-load (curl chunk CSS), WAJIB stop server → `rm -rf .next` → start daemon ulang (Turbopack CSS cache stale).
+   - Waktu sandbox = tahun 2026.

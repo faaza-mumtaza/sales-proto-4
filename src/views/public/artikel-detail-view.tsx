@@ -12,6 +12,8 @@ import { ArticleSkeleton, ErrorState } from "@/components/site/states";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { formatDateID, waLink, type Artikel } from "@/lib/site-utils";
+import { JsonLd } from "@/components/site/json-ld";
+import { artikelJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 
 export function ArtikelDetailView({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
@@ -87,6 +89,18 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
 
   return (
     <SiteLayout>
+      {/* Data terstruktur schema.org untuk SEO */}
+      <JsonLd
+        data={[
+          artikelJsonLd(a),
+          breadcrumbJsonLd([
+            { label: "Home", to: "/" },
+            { label: "Artikel", to: "/artikel" },
+            { label: a.judul.length > 40 ? a.judul.slice(0, 40) + "…" : a.judul },
+          ]),
+        ]}
+      />
+
       <div className="bg-muted py-4 border-b border-border/60">
         <div className="container mx-auto px-4">
           <Breadcrumb

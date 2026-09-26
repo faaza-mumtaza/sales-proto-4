@@ -25,7 +25,7 @@ export function FloatingButtons() {
   const bottomClass = compareBarVisible ? "bottom-24" : "bottom-6";
 
   return (
-    <div className={`fixed ${bottomClass} right-6 z-40 flex flex-col gap-3 transition-all duration-300`}>
+    <div className={`fixed ${bottomClass} right-6 z-40 flex flex-col gap-3 transition-all duration-300 no-print`}>
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
