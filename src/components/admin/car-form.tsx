@@ -3,12 +3,12 @@
 import { useState } from "react";
 import slugify from "slugify";
 import { toast } from "sonner";
-import { Plus, Trash2, Eye, EyeOff, Save } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Save, Palette } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiPost, apiPut } from "@/lib/api";
 import { ImageUploader, GalleryUploader } from "./image-uploader";
 import { navigate } from "@/lib/router";
-import type { Mobil, SpecItem } from "@/lib/site-utils";
+import type { Mobil, SpecItem, WarnaItem } from "@/lib/site-utils";
 
 function cleanSlug(value: string) {
   return slugify(value, { lower: true, strict: true });
@@ -34,6 +34,7 @@ export interface CarFormPayload {
   spesifikasi: SpecItem[];
   gambar_utama: string | null;
   galeri_gambar: string[];
+  warna: WarnaItem[];
   is_new: boolean;
   is_published: boolean;
   urutan: number;
@@ -58,6 +59,7 @@ export function CarForm({ initial }: { initial?: Mobil }) {
     spesifikasi: initial?.spesifikasi ?? [{ label: "", value: "" }],
     gambar_utama: initial?.gambar_utama ?? null,
     galeri_gambar: initial?.galeri_gambar ?? [],
+    warna: initial?.warna ?? [],
     is_new: initial?.is_new ?? false,
     is_published: initial?.is_published ?? true,
     urutan: initial?.urutan ?? 0,
@@ -67,6 +69,13 @@ export function CarForm({ initial }: { initial?: Mobil }) {
     setForm((f) => ({
       ...f,
       spesifikasi: f.spesifikasi.map((s, i) => (i === index ? { ...s, ...patch } : s)),
+    }));
+  }
+
+  function setWarna(index: number, patch: Partial<WarnaItem>) {
+    setForm((f) => ({
+      ...f,
+      warna: f.warna.map((w, i) => (i === index ? { ...w, ...patch } : w)),
     }));
   }
 
@@ -93,6 +102,13 @@ export function CarForm({ initial }: { initial?: Mobil }) {
         fuel: normalizeNullable(form.fuel),
         transmission: normalizeNullable(form.transmission),
         spesifikasi: form.spesifikasi.filter((s) => s.label.trim() && s.value.trim()),
+        warna: form.warna
+          .filter((w) => w.nama.trim())
+          .map((w) => ({
+            nama: w.nama.trim(),
+            hex: /^#[0-9a-fA-F]{6}$/.test(w.hex) ? w.hex : "#cccccc",
+            gambar: normalizeNullable(w.gambar),
+          })),
         galeri_gambar:
           form.gambar_utama && !form.galeri_gambar.includes(form.gambar_utama)
             ? [form.gambar_utama, ...form.galeri_gambar]
@@ -329,6 +345,76 @@ export function CarForm({ initial }: { initial?: Mobil }) {
         label="Galeri (gambar pertama dipakai bila gambar utama kosong)"
         category="cars"
       />
+
+      {/* Warna tersedia */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <Palette className="w-4 h-4 text-suzuki-red" aria-hidden />
+            Warna Tersedia
+          </label>
+          <button
+            type="button"
+            onClick={() =>
+              setForm((f) => ({
+                ...f,
+                warna:
+                  f.warna.length < 12
+                    ? [...f.warna, { nama: "", hex: "#ffffff", gambar: "" }]
+                    : f.warna,
+              }))
+            }
+            disabled={form.warna.length >= 12}
+            className="inline-flex items-center gap-1 text-sm text-suzuki-red font-medium hover:underline disabled:opacity-50 disabled:no-underline"
+          >
+            <Plus className="w-4 h-4" aria-hidden /> Tambah Warna
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Tampil sebagai pilihan warna di halaman detail mobil (maks. 12). Kolom gambar
+          opsional — tempel URL gambar unit dengan warna tersebut.
+        </p>
+        <div className="space-y-2">
+          {form.warna.map((w, i) => (
+            <div key={i} className="flex flex-wrap sm:flex-nowrap gap-2 items-center bg-muted/40 rounded-lg p-2">
+              <input
+                type="color"
+                value={w.hex}
+                onChange={(e) => setWarna(i, { hex: e.target.value })}
+                aria-label={`Warna ${i + 1} kode warna`}
+                className="w-10 h-10 rounded-lg border border-input cursor-pointer bg-white p-1 shrink-0"
+              />
+              <input
+                className={`${inputCls} flex-1 min-w-32`}
+                value={w.nama}
+                onChange={(e) => setWarna(i, { nama: e.target.value })}
+                placeholder="Nama warna (mis. Solid White)"
+                aria-label={`Warna ${i + 1} nama`}
+              />
+              <input
+                className={`${inputCls} flex-[2] min-w-40`}
+                value={w.gambar ?? ""}
+                onChange={(e) => setWarna(i, { gambar: e.target.value })}
+                placeholder="URL gambar unit warna ini (opsional)"
+                aria-label={`Warna ${i + 1} gambar`}
+              />
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, warna: f.warna.filter((_, x) => x !== i) }))}
+                className="p-2 text-muted-foreground hover:text-suzuki-red shrink-0"
+                aria-label={`Hapus warna ${i + 1}`}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+          {form.warna.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              Belum ada warna — klik &quot;Tambah Warna&quot; untuk menambahkan pilihan warna unit.
+            </p>
+          )}
+        </div>
+      </div>
 
       <div className="flex flex-wrap gap-6">
         <label className="flex items-center gap-2 text-sm cursor-pointer">

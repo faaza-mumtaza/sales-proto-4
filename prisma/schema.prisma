@@ -39,6 +39,7 @@ model Mobil {
   spesifikasi   String   @default("{}") // JSON string: [{ label, value }]
   gambar_utama  String?
   galeri_gambar String   @default("[]") // JSON string: string[]
+  warna         String   @default("[]") // JSON string: [{ nama, hex, gambar? }]
   is_new        Boolean  @default(false)
   is_published  Boolean  @default(true)
   urutan        Int      @default(0)

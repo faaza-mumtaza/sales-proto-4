@@ -34,6 +34,22 @@ export function CarCard({ car }: { car: Mobil }) {
         <h3 className="font-bold text-lg text-suzuki-navy mb-2 group-hover:text-suzuki-red transition-colors">
           {car.nama}
         </h3>
+        {car.warna.length > 0 && (
+          <div className="flex items-center gap-1.5 mb-3" aria-label={`${car.warna.length} pilihan warna`}>
+            {car.warna.slice(0, 5).map((w, i) => (
+              <span
+                key={w.nama + i}
+                title={w.nama}
+                className="w-3.5 h-3.5 rounded-full border border-black/10 shadow-sm"
+                style={{ backgroundColor: w.hex }}
+                aria-hidden
+              />
+            ))}
+            {car.warna.length > 5 && (
+              <span className="text-[10px] text-muted-foreground ml-0.5">+{car.warna.length - 5}</span>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-4 text-muted-foreground text-xs mb-4">
           {car.seater != null && (
             <span className="flex items-center gap-1">

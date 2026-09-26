@@ -5,6 +5,7 @@ import { Car, FileText, Mail, Calendar, ArrowRight, CheckCircle2, Clock, Eye, Tr
 import { apiGet } from "@/lib/api";
 import { Link, usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
+import { TrendChart, type TrendPoint } from "@/components/admin/trend-chart";
 import { formatDateID } from "@/lib/site-utils";
 
 interface Stats {
@@ -16,6 +17,7 @@ interface Stats {
     pesanBaru: number;
     testDrivePending: number;
   };
+  trend: TrendPoint[];
   recentPesan: Array<{
     id: string;
     nama_lengkap: string;
@@ -125,6 +127,9 @@ export function AdminDashboardView() {
                 to="/admin/test-drive"
               />
             </div>
+
+            {/* Tren interaksi 6 bulan */}
+            {data.trend && data.trend.length > 0 && <TrendChart data={data.trend} />}
 
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Pesan terbaru */}

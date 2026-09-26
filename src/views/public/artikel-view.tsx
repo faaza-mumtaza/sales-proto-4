@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, X, Tag } from "lucide-react";
+import { Search, X, Tag, ChevronDown } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
 import { ArticleSkeleton, ErrorState, EmptyState } from "@/components/site/states";
@@ -10,6 +10,9 @@ import { Reveal } from "@/components/site/reveal";
 import { usePageMeta, useHashRoute } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { TIPE_ARTIKEL, type Artikel } from "@/lib/site-utils";
+
+/** Jumlah artikel per "halaman" saat memuat bertahap. */
+const PAGE_SIZE = 6;
 
 export function ArtikelView() {
   const route = useHashRoute();
@@ -19,6 +22,7 @@ export function ArtikelView() {
   );
   const [query, setQuery] = useState("");
   const [tag, setTag] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   usePageMeta("Artikel & Berita — Suzuki BSB Semarang");
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -54,12 +58,16 @@ export function ArtikelView() {
     return list;
   }, [data, tipe, tag, query]);
 
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = filtered.length > visibleCount;
+
   const hasActiveFilter = tipe !== "all" || tag !== null || query.trim() !== "";
 
   function resetFilters() {
     setTipe("all");
     setTag(null);
     setQuery("");
+    setVisibleCount(PAGE_SIZE);
   }
 
   return (
@@ -182,13 +190,29 @@ export function ArtikelView() {
               hint={hasActiveFilter ? "Coba ubah kata kunci atau reset filter." : undefined}
             />
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filtered.map((a, i) => (
-                <Reveal key={a.id} delay={Math.min(i, 5) * 80}>
-                  <ArticleCard article={a} />
-                </Reveal>
-              ))}
-            </div>
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {visible.map((a, i) => (
+                  <Reveal key={a.id} delay={Math.min(i % PAGE_SIZE, 5) * 80}>
+                    <ArticleCard article={a} />
+                  </Reveal>
+                ))}
+              </div>
+              {hasMore && (
+                <div className="flex flex-col items-center gap-2 mt-10">
+                  <button
+                    onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                    className="inline-flex items-center gap-2 px-8 py-3 border border-suzuki-navy/30 text-suzuki-navy hover:bg-suzuki-navy hover:text-white hover:border-suzuki-navy rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
+                  >
+                    Muat Lebih Banyak
+                    <ChevronDown className="w-4 h-4" aria-hidden />
+                  </button>
+                  <p className="text-xs text-muted-foreground" aria-live="polite">
+                    Menampilkan {visible.length} dari {filtered.length} artikel
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>

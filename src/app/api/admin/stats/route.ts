@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     await publishDueArtikels();
 
-    const [mobilTotal, mobilAktif, artikelTotal, artikelPublished, pesanBaru, tdPending, recentPesan, upcomingTD] =
+    const [mobilTotal, mobilAktif, artikelTotal, artikelPublished, pesanBaru, tdPending, recentPesan, upcomingTD, pesanRows, tdRows] =
       await Promise.all([
         db.mobil.count(),
         db.mobil.count({ where: { is_published: true } }),
@@ -28,7 +28,27 @@ export async function GET(req: NextRequest) {
           orderBy: [{ tanggal_diinginkan: "asc" }, { waktu_diinginkan: "asc" }],
           take: 5,
         }),
+        db.pesan.findMany({ select: { created_at: true }, orderBy: { created_at: "asc" } }),
+        db.testDrive.findMany({ select: { created_at: true }, orderBy: { created_at: "asc" } }),
       ]);
+
+    // Tren 6 bulan terakhir: jumlah pesan & booking test drive per bulan
+    const trend: Array<{ bulan: string; pesan: number; test_drive: number }> = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = d.toLocaleDateString("id-ID", { month: "short" });
+      const inMonth = (rows: Array<{ created_at: Date }>) =>
+        rows.filter((r) => {
+          const rd = r.created_at;
+          return rd.getFullYear() === d.getFullYear() && rd.getMonth() === d.getMonth();
+        }).length;
+      trend.push({
+        bulan: `${label} ${String(d.getFullYear()).slice(2)}`,
+        pesan: inMonth(pesanRows),
+        test_drive: inMonth(tdRows),
+      });
+    }
 
     return ok({
       counts: {
@@ -39,6 +59,7 @@ export async function GET(req: NextRequest) {
         pesanBaru,
         testDrivePending: tdPending,
       },
+      trend,
       recentPesan: recentPesan.map((p) => ({
         id: p.id,
         nama_lengkap: p.nama_lengkap,

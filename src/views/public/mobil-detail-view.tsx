@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Users, Fuel, Settings, CheckCircle, ArrowLeft, ChevronLeft, ChevronRight, Calendar, MessageCircle } from "lucide-react";
+import { Users, Fuel, Settings, CheckCircle, ArrowLeft, ChevronLeft, ChevronRight, Calendar, MessageCircle, Palette } from "lucide-react";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ErrorState, CardSkeleton } from "@/components/site/states";
@@ -23,11 +23,13 @@ const FEATURES = [
 
 export function MobilDetailView({ slug }: { slug: string }) {
   const [imgIndex, setImgIndex] = useState(0);
+  const [activeWarna, setActiveWarna] = useState<number | null>(null);
   // Reset galeri saat slug berubah (pola "adjust state during render" React)
   const [trackedSlug, setTrackedSlug] = useState(slug);
   if (trackedSlug !== slug) {
     setTrackedSlug(slug);
     setImgIndex(0);
+    setActiveWarna(null);
   }
 
   const { data, isLoading, isError, refetch } = useQuery({
@@ -78,7 +80,13 @@ export function MobilDetailView({ slug }: { slug: string }) {
   }
 
   const gallery = car.galeri_gambar.length > 0 ? car.galeri_gambar : car.gambar_utama ? [car.gambar_utama] : [];
-  const currentImage = gallery[imgIndex] ?? car.gambar_utama ?? CAR_FALLBACK_IMAGE;
+  const warnaAktif = activeWarna != null ? car.warna[activeWarna] : undefined;
+  const currentImage =
+    warnaAktif?.gambar ?? gallery[imgIndex] ?? car.gambar_utama ?? CAR_FALLBACK_IMAGE;
+
+  // Pesan WA menyertakan warna pilihan agar sales langsung paham konteksnya
+  const namaUntukWa =
+    car.nama + (warnaAktif ? ` warna ${warnaAktif.nama}` : "");
 
   return (
     <SiteLayout>
@@ -111,22 +119,33 @@ export function MobilDetailView({ slug }: { slug: string }) {
                 <div className="min-h-[280px] flex items-center justify-center">
                   <img
                     src={currentImage}
-                    alt={`${car.nama} — tampilan ${imgIndex + 1}`}
+                    alt={`${car.nama} — ${warnaAktif ? `warna ${warnaAktif.nama}` : `tampilan ${imgIndex + 1}`}`}
                     className="w-full h-auto max-h-[380px] object-contain group-hover:scale-[1.02] transition-transform duration-500"
                     loading="eager"
                   />
                 </div>
+                {warnaAktif && (
+                  <p className="text-center text-sm text-muted-foreground mt-3" aria-live="polite">
+                    Warna: <span className="font-semibold text-suzuki-navy">{warnaAktif.nama}</span>
+                  </p>
+                )}
                 {gallery.length > 1 && (
                   <>
                     <button
-                      onClick={() => setImgIndex((i) => (i - 1 + gallery.length) % gallery.length)}
+                      onClick={() => {
+                        setActiveWarna(null);
+                        setImgIndex((i) => (i - 1 + gallery.length) % gallery.length);
+                      }}
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90"
                       aria-label="Gambar sebelumnya"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => setImgIndex((i) => (i + 1) % gallery.length)}
+                      onClick={() => {
+                        setActiveWarna(null);
+                        setImgIndex((i) => (i + 1) % gallery.length);
+                      }}
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90"
                       aria-label="Gambar berikutnya"
                     >
@@ -136,11 +155,16 @@ export function MobilDetailView({ slug }: { slug: string }) {
                       {gallery.map((g, i) => (
                         <button
                           key={g + i}
-                          onClick={() => setImgIndex(i)}
+                          onClick={() => {
+                            setActiveWarna(null);
+                            setImgIndex(i);
+                          }}
                           aria-label={`Lihat gambar ${i + 1}`}
-                          aria-current={i === imgIndex}
+                          aria-current={i === imgIndex && activeWarna == null}
                           className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                            i === imgIndex ? "bg-suzuki-red scale-125" : "bg-border hover:bg-muted-foreground/40"
+                            i === imgIndex && activeWarna == null
+                              ? "bg-suzuki-red scale-125"
+                              : "bg-border hover:bg-muted-foreground/40"
                           }`}
                         />
                       ))}
@@ -174,6 +198,49 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   </span>
                 )}
               </div>
+
+              {/* Pilihan warna */}
+              {car.warna.length > 0 && (
+                <div className="mb-6">
+                  <h2 className="font-semibold text-suzuki-navy mb-3 text-lg flex items-center gap-3">
+                    <span className="inline-block w-8 h-1 rounded-full bg-suzuki-red" aria-hidden />
+                    Warna Tersedia
+                    <Palette className="w-4 h-4 text-muted-foreground" aria-hidden />
+                  </h2>
+                  <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Pilih warna">
+                    {car.warna.map((w, i) => {
+                      const selected = activeWarna === i;
+                      return (
+                        <button
+                          key={w.nama + i}
+                          role="radio"
+                          aria-checked={selected}
+                          onClick={() => setActiveWarna(selected ? null : i)}
+                          title={w.nama}
+                          className={`group/w flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all ${
+                            selected
+                              ? "border-suzuki-red bg-suzuki-red/5 shadow-sm"
+                              : "border-border hover:border-suzuki-red/40"
+                          }`}
+                        >
+                          <span
+                            className="w-9 h-9 rounded-full border border-black/10 shadow-inner transition-transform group-hover/w:scale-110"
+                            style={{ backgroundColor: w.hex }}
+                            aria-hidden
+                          />
+                          <span
+                            className={`text-[11px] font-medium max-w-20 truncate ${
+                              selected ? "text-suzuki-red" : "text-muted-foreground"
+                            }`}
+                          >
+                            {w.nama}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="bg-gradient-to-br from-suzuki-light to-white rounded-xl p-6 mb-6 border border-border">
                 <p className="text-sm text-muted-foreground mb-1">Harga mulai dari</p>
@@ -242,7 +309,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   Jadwalkan Test Drive
                 </Link>
                 <a
-                  href={waLink(`Halo, saya tertarik dengan ${car.nama}. Mohon info lebih lanjut.`)}
+                  href={waLink(`Halo, saya tertarik dengan ${namaUntukWa}. Mohon info lebih lanjut.`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 inline-flex items-center justify-center gap-2 text-center bg-suzuki-navy hover:bg-suzuki-navy/90 text-white font-semibold py-3 rounded-lg transition-all hover:shadow-lg hover:shadow-suzuki-navy/30 hover:-translate-y-0.5 active:scale-95"

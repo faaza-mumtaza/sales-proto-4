@@ -63,6 +63,12 @@ export interface SpecItem {
   value: string;
 }
 
+export interface WarnaItem {
+  nama: string;
+  hex: string;
+  gambar: string | null;
+}
+
 export interface Mobil {
   id: string;
   nama: string;
@@ -78,6 +84,7 @@ export interface Mobil {
   spesifikasi: SpecItem[];
   gambar_utama: string | null;
   galeri_gambar: string[];
+  warna: WarnaItem[];
   is_new: boolean;
   is_published: boolean;
   urutan: number;

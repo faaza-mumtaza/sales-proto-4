@@ -125,6 +125,19 @@ export const mobilUpsertSchema = z.object({
     .default([]),
   gambar_utama: imageRef,
   galeri_gambar: z.array(z.string().trim().max(2048)).max(12).default([]),
+  warna: z
+    .array(
+      z.object({
+        nama: z.string().trim().min(1, "Nama warna wajib").max(60),
+        hex: z
+          .string()
+          .trim()
+          .regex(/^#[0-9a-fA-F]{6}$/, "Kode warna harus format hex, mis. #ffffff"),
+        gambar: imageRef,
+      }),
+    )
+    .max(12)
+    .default([]),
   is_new: z.boolean().default(false),
   is_published: z.boolean().default(true),
   urutan: z.preprocess((v) => Number(v), z.number().int().min(0).max(9999)),

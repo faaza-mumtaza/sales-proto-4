@@ -8,6 +8,12 @@ export interface SpecItem {
   value: string;
 }
 
+export interface WarnaItem {
+  nama: string;
+  hex: string;
+  gambar: string | null;
+}
+
 export interface MobilDTO {
   id: string;
   nama: string;
@@ -23,6 +29,7 @@ export interface MobilDTO {
   spesifikasi: SpecItem[];
   gambar_utama: string | null;
   galeri_gambar: string[];
+  warna: WarnaItem[];
   is_new: boolean;
   is_published: boolean;
   urutan: number;
@@ -35,6 +42,7 @@ export function serializeMobil<T extends Record<string, unknown>>(m: T): MobilDT
     ...(m as unknown as MobilDTO),
     spesifikasi: safeParseArray(m.spesifikasi as string),
     galeri_gambar: safeParseArray(m.galeri_gambar as string),
+    warna: safeParseArray(m.warna as string),
     created_at: (m.created_at as Date).toISOString(),
     updated_at: (m.updated_at as Date).toISOString(),
   };
@@ -68,7 +76,9 @@ export function serializeArtikel<T extends Record<string, unknown>>(a: T): Artik
   };
 }
 
-function safeParseArray(raw: string | null | undefined): [] | string[] | SpecItem[] {
+function safeParseArray(
+  raw: string | null | undefined,
+): [] | string[] | SpecItem[] | WarnaItem[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
