@@ -1,13 +1,29 @@
 "use client";
 
 import { Link } from "@/lib/router";
-import { Users, Fuel, Settings } from "lucide-react";
+import { Users, Fuel, Settings, Scale, Check } from "lucide-react";
 import { useState } from "react";
 import { CAR_FALLBACK_IMAGE, formatPrice, type Mobil } from "@/lib/site-utils";
+import { useCompare } from "@/lib/use-compare";
+import { toast } from "sonner";
 
 export function CarCard({ car }: { car: Mobil }) {
   const [imgErr, setImgErr] = useState(false);
+  const { slugs, toggle, isFull } = useCompare();
+  const selected = slugs.includes(car.slug);
   const img = imgErr || !car.gambar_utama ? CAR_FALLBACK_IMAGE : car.gambar_utama;
+
+  function handleToggleCompare(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selected && isFull) {
+      toast.info(`Maksimal 3 mobil untuk dibandingkan. Hapus salah satu dulu.`);
+      return;
+    }
+    toggle(car.slug);
+    if (!selected) toast.success(`${car.nama} ditambahkan ke perbandingan`);
+  }
+
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-xl hover:shadow-suzuki-navy/10 hover:-translate-y-1 transition-all duration-300 group flex flex-col card-accent">
       <div className="relative p-4 pb-0">
@@ -19,6 +35,21 @@ export function CarCard({ car }: { car: Mobil }) {
             NEW
           </span>
         )}
+        <button
+          type="button"
+          onClick={handleToggleCompare}
+          aria-pressed={selected}
+          aria-label={selected ? `Keluarkan ${car.nama} dari perbandingan` : `Bandingkan ${car.nama} dengan mobil lain`}
+          title={selected ? "Keluarkan dari perbandingan" : "Bandingkan mobil ini"}
+          className={`absolute bottom-3 right-7 z-10 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold border transition-all duration-300 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0 ${
+            selected
+              ? "bg-suzuki-red text-white border-suzuki-red shadow-sm shadow-suzuki-red/40 scale-105"
+              : "bg-white/90 backdrop-blur text-suzuki-navy border-border hover:border-suzuki-red/50 hover:text-suzuki-red"
+          }`}
+        >
+          {selected ? <Check className="w-3.5 h-3.5" aria-hidden /> : <Scale className="w-3.5 h-3.5" aria-hidden />}
+          <span className="hidden sm:inline">{selected ? "Dibandingkan" : "Bandingkan"}</span>
+        </button>
         <div className="relative h-48 flex items-center justify-center bg-[#E8E8E8] rounded-lg overflow-hidden">
           <img
             src={img}

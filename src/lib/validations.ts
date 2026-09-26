@@ -179,3 +179,37 @@ export const testDriveStatusSchema = z.object({
 });
 
 export const idSchema = z.object({ id: z.string().min(1).max(64) });
+
+/** Form testimoni publik — honeypot menyatu (field website harus kosong). */
+export const testimoniSchema = z.object({
+  nama: z.string().trim().min(2, "Nama minimal 2 karakter").max(100),
+  rating: z.preprocess(
+    (v) => Number(v),
+    z.number().int("Rating harus angka bulat").min(1, "Rating minimal 1 bintang").max(5, "Rating maksimal 5 bintang"),
+  ),
+  pesan: z.string().trim().min(10, "Testimoni minimal 10 karakter").max(1000, "Testimoni maksimal 1000 karakter"),
+  website: z.string().max(0).optional(), // honeypot — harus kosong
+});
+export type TestimoniInput = z.infer<typeof testimoniSchema>;
+
+export const testimoniStatusSchema = z.object({
+  id: z.string().max(64),
+  status: z.enum(["PENDING", "APPROVED", "REJECTED"]),
+});
+
+/** Ganti password admin — password baru minimal 8 karakter, huruf + angka. */
+export const changePasswordSchema = z
+  .object({
+    password_lama: z.string().min(1, "Password lama wajib diisi").max(200),
+    password_baru: z
+      .string()
+      .min(8, "Password baru minimal 8 karakter")
+      .max(200)
+      .regex(/[a-zA-Z]/, "Password harus mengandung huruf")
+      .regex(/[0-9]/, "Password harus mengandung angka"),
+  })
+  .refine((d) => d.password_lama !== d.password_baru, {
+    message: "Password baru harus berbeda dari password lama",
+    path: ["password_baru"],
+  });
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

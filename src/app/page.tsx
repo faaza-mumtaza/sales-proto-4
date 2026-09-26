@@ -10,6 +10,7 @@ import { useHashRoute } from "@/lib/router";
 import { HomeView } from "@/views/public/home-view";
 import { MobilView } from "@/views/public/mobil-view";
 import { MobilDetailView } from "@/views/public/mobil-detail-view";
+import { BandingkanView } from "@/views/public/bandingkan-view";
 import { ArtikelView } from "@/views/public/artikel-view";
 import { ArtikelDetailView } from "@/views/public/artikel-detail-view";
 import { PromoView } from "@/views/public/promo-view";
@@ -25,6 +26,9 @@ import { AdminArtikelView } from "@/views/admin/admin-artikel-view";
 import { AdminArtikelFormView } from "@/views/admin/admin-artikel-form-view";
 import { AdminPesanView } from "@/views/admin/admin-pesan-view";
 import { AdminTestDriveView } from "@/views/admin/admin-test-drive-view";
+import { AdminTestimoniView } from "@/views/admin/admin-testimoni-view";
+
+import { ComparisonBar } from "@/components/site/comparison-bar";
 
 function AppRoutes() {
   const route = useHashRoute();
@@ -98,6 +102,12 @@ function AppRoutes() {
           <AdminTestDriveView />
         </div>
       );
+    if (seg2 === "testimoni")
+      return (
+        <div key="admin-testi" className="page-enter">
+          <AdminTestimoniView />
+        </div>
+      );
     return (
       <div key="admin-dash-2" className="page-enter">
         <AdminDashboardView />
@@ -121,6 +131,12 @@ function AppRoutes() {
       ) : (
         <div key="mobil" className="page-enter">
           <MobilView />
+        </div>
+      );
+    case "bandingkan":
+      return (
+        <div key="bandingkan" className="page-enter">
+          <BandingkanView />
         </div>
       );
     case "artikel":
@@ -177,6 +193,7 @@ export default function Page() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppRoutes />
+      <ComparisonBar />
     </QueryClientProvider>
   );
 }

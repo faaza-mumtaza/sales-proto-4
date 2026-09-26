@@ -1,11 +1,42 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { WHATSAPP_NUMBER } from "@/lib/site-utils";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, ArrowUp } from "lucide-react";
+import { useCompare } from "@/lib/use-compare";
+import { useHashRoute } from "@/lib/router";
 
 export function FloatingButtons() {
+  const [showTop, setShowTop] = useState(false);
+  const { slugs } = useCompare();
+  const route = useHashRoute();
+
+  // Munculkan tombol "kembali ke atas" setelah pengunjung scroll cukup jauh.
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 480);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Naikkan posisi saat bar perbandingan tampil (menghindari tumpang tindih)
+  const compareBarVisible =
+    slugs.length > 0 && route.segments[0] !== "bandingkan" && route.segments[0] !== "admin";
+  const bottomClass = compareBarVisible ? "bottom-24" : "bottom-6";
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+    <div className={`fixed ${bottomClass} right-6 z-40 flex flex-col gap-3 transition-all duration-300`}>
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Kembali ke atas"
+        title="Kembali ke atas"
+        className={`w-14 h-14 bg-suzuki-navy/90 hover:bg-suzuki-navy text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 focus-visible:ring-2 focus-visible:ring-suzuki-red/60 ${
+          showTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <ArrowUp className="w-6 h-6" aria-hidden />
+      </button>
       <a
         href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
           "Halo, saya tertarik dengan mobil Suzuki",

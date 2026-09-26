@@ -8,6 +8,7 @@ import { CarCatalog } from "@/components/site/car-catalog";
 import { ArticleCard } from "@/components/site/article-card";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Reveal } from "@/components/site/reveal";
+import { TestimonialSection } from "@/components/site/testimonial-section";
 import { CardSkeleton, ArticleSkeleton, ErrorState, EmptyState } from "@/components/site/states";
 import { Link, usePageMeta } from "@/lib/router";
 import { apiGet } from "@/lib/api";
@@ -111,6 +112,9 @@ export function HomeView() {
           </div>
         </div>
       </section>
+
+      {/* Testimoni pelanggan */}
+      <TestimonialSection />
 
       <section className="py-16 bg-suzuki-light" aria-labelledby="judul-promo">
         <div className="container mx-auto px-4">

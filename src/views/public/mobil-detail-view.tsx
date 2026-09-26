@@ -1,12 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Users, Fuel, Settings, CheckCircle, ArrowLeft, ChevronLeft, ChevronRight, Calendar, MessageCircle, Palette } from "lucide-react";
+import { Users, Fuel, Settings, CheckCircle, ChevronLeft, ChevronRight, Calendar, MessageCircle, Palette } from "lucide-react";
 import { useState } from "react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ErrorState, CardSkeleton } from "@/components/site/states";
 import { CarCard } from "@/components/site/car-card";
 import { CreditSimulator } from "@/components/site/credit-simulator";
+import { Breadcrumb } from "@/components/site/breadcrumb";
 import { Reveal } from "@/components/site/reveal";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { apiGet } from "@/lib/api";
@@ -90,15 +91,14 @@ export function MobilDetailView({ slug }: { slug: string }) {
 
   return (
     <SiteLayout>
-      <div className="bg-muted py-4">
+      <div className="bg-muted py-4 border-b border-border/60">
         <div className="container mx-auto px-4">
-          <Link
-            to="/mobil"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-suzuki-red transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" aria-hidden />
-            Kembali ke Katalog
-          </Link>
+          <Breadcrumb
+            items={[
+              { label: "Mobil", to: "/mobil" },
+              { label: car.nama },
+            ]}
+          />
         </div>
       </div>
 

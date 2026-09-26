@@ -2,23 +2,26 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Car, FileText, Mail, Calendar, LogOut, Menu, X, Globe } from "lucide-react";
+import { LayoutDashboard, Car, FileText, Mail, Calendar, Star, LogOut, Menu, X, Globe } from "lucide-react";
 import { apiGet, apiPost } from "@/lib/api";
 import { Link, useHashRoute, navigate } from "@/lib/router";
 import { SuzukiLogo } from "@/components/site/header";
+import { ChangePasswordDialog } from "@/components/admin/change-password-dialog";
 
-const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean; badgeKind?: "pesanBaru" | "testDrivePending" }> = [
+const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean; badgeKind?: "pesanBaru" | "testDrivePending" | "testimoniPending" }> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/katalog", label: "Katalog Mobil", icon: Car },
   { to: "/admin/artikel", label: "Artikel", icon: FileText },
   { to: "/admin/pesan", label: "Pesan Masuk", icon: Mail, badgeKind: "pesanBaru" },
   { to: "/admin/test-drive", label: "Test Drive", icon: Calendar, badgeKind: "testDrivePending" },
+  { to: "/admin/testimoni", label: "Testimoni", icon: Star, badgeKind: "testimoniPending" },
 ];
 
 interface AdminStats {
   counts: {
     pesanBaru: number;
     testDrivePending: number;
+    testimoniPending?: number;
   };
 }
 
@@ -50,8 +53,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
   });
   const pesanBaru = statsQuery.data?.counts?.pesanBaru ?? 0;
   const tdPending = statsQuery.data?.counts?.testDrivePending ?? 0;
-  const badgeFor = (kind?: "pesanBaru" | "testDrivePending") =>
-    kind === "pesanBaru" ? pesanBaru : kind === "testDrivePending" ? tdPending : 0;
+  const testiPending = statsQuery.data?.counts?.testimoniPending ?? 0;
+  const badgeFor = (kind?: "pesanBaru" | "testDrivePending" | "testimoniPending") =>
+    kind === "pesanBaru" ? pesanBaru : kind === "testDrivePending" ? tdPending : kind === "testimoniPending" ? testiPending : 0;
 
   // Guard: belum login → lempar ke halaman login
   useEffect(() => {
@@ -155,6 +159,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             <p className="text-xs text-white/50 truncate">{data.admin?.name}</p>
             <p className="text-[11px] text-white/40 truncate">{data.admin?.email}</p>
           </div>
+          <ChangePasswordDialog />
           <button
             onClick={() => void handleLogout()}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors"

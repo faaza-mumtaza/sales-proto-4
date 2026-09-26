@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     await publishDueArtikels();
 
-    const [mobilTotal, mobilAktif, artikelTotal, artikelPublished, pesanBaru, tdPending, recentPesan, upcomingTD, pesanRows, tdRows] =
+    const [mobilTotal, mobilAktif, artikelTotal, artikelPublished, pesanBaru, tdPending, testimoniPending, testimoniApproved, recentPesan, upcomingTD, pesanRows, tdRows] =
       await Promise.all([
         db.mobil.count(),
         db.mobil.count({ where: { is_published: true } }),
@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
         db.artikel.count({ where: { status: "PUBLISHED" } }),
         db.pesan.count({ where: { status: "BARU" } }),
         db.testDrive.count({ where: { status: "PENDING" } }),
+        db.testimoni.count({ where: { status: "PENDING" } }),
+        db.testimoni.count({ where: { status: "APPROVED" } }),
         db.pesan.findMany({ orderBy: { created_at: "desc" }, take: 5 }),
         db.testDrive.findMany({
           where: { status: { in: ["PENDING", "CONFIRMED"] } },
@@ -58,6 +60,8 @@ export async function GET(req: NextRequest) {
         artikelPublished,
         pesanBaru,
         testDrivePending: tdPending,
+        testimoniPending,
+        testimoniApproved,
       },
       trend,
       recentPesan: recentPesan.map((p) => ({

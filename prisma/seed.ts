@@ -417,6 +417,48 @@ async function main() {
     });
     console.log("✔ 2 contoh test drive ter-seed");
   }
+
+  // -------------------------------------------------------------- TESTIMONI
+  const testiCount = await db.testimoni.count();
+  if (testiCount === 0) {
+    await db.testimoni.createMany({
+      data: [
+        {
+          nama: "Budi Santoso",
+          rating: 5,
+          pesan:
+            "Proses kredit cepat dan mudah, sales sangat sabar menjelaskan semua perhitungan. Ertiga Hybrid kami terima sesuai janji. Recommended dealer Suzuki di Semarang!",
+          status: "APPROVED",
+          created_at: daysAgo(12),
+        },
+        {
+          nama: "Rina Kurniawati",
+          rating: 5,
+          pesan:
+            "Test drive dijadwalkan hari yang sama saat saya hubungi via WhatsApp. Mobil Fronx sangat nyaman, tim BSB ramah dan tidak memaksa beli. Sukses selalu!",
+          status: "APPROVED",
+          created_at: daysAgo(9),
+        },
+        {
+          nama: "Hendra Gunawan",
+          rating: 4,
+          pesan:
+            "Servis berkala XL7 rapi dan transparan biayanya. Ruang tunggu nyaman, tinggal tunggu notifikasi WA kalau unit sudah selesai. Puas dengan pelayanannya.",
+          status: "APPROVED",
+          created_at: daysAgo(6),
+        },
+        {
+          nama: "Siti Rahmawati",
+          rating: 5,
+          pesan:
+            "Grand Vitara impian keluarga akhirnya kesampaian lewat promo trade-in BSB. NPWP dan dokumen dibantu urus sampai jadi. Terima kasih banyak!",
+          status: "PENDING",
+          created_at: daysAgo(1),
+        },
+      ],
+    });
+    console.log("✔ 4 contoh testimoni ter-seed (3 approved, 1 pending)");
+  }
 }
 
 main()

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Car, FileText, Mail, Calendar, ArrowRight, CheckCircle2, Clock, Eye, TrendingUp } from "lucide-react";
+import { Car, FileText, Mail, Calendar, Star, ArrowRight, CheckCircle2, Clock, Eye, TrendingUp } from "lucide-react";
 import { apiGet } from "@/lib/api";
 import { Link, usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
@@ -16,6 +16,8 @@ interface Stats {
     artikelPublished: number;
     pesanBaru: number;
     testDrivePending: number;
+    testimoniPending?: number;
+    testimoniApproved?: number;
   };
   trend: TrendPoint[];
   recentPesan: Array<{
@@ -72,8 +74,8 @@ export function AdminDashboardView() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="bg-white rounded-xl p-5 border border-border">
                 <div className="w-10 h-10 bg-muted rounded-lg animate-pulse mb-3" />
                 <div className="h-7 w-16 bg-muted rounded animate-pulse mb-2" />
@@ -93,7 +95,7 @@ export function AdminDashboardView() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
               <StatCard
                 label="Mobil Aktif"
                 value={`${data.counts.mobilAktif}`}
@@ -125,6 +127,14 @@ export function AdminDashboardView() {
                 icon={Calendar}
                 color="bg-green-600"
                 to="/admin/test-drive"
+              />
+              <StatCard
+                label="Testimoni"
+                value={`${data.counts.testimoniPending ?? 0}`}
+                sub={`${data.counts.testimoniApproved ?? 0} tayang · menunggu moderasi`}
+                icon={Star}
+                color="bg-amber-500"
+                to="/admin/testimoni"
               />
             </div>
 

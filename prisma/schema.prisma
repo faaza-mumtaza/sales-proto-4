@@ -105,3 +105,16 @@ model TestDrive {
 
   @@map("test_drive")
 }
+
+model Testimoni {
+  id         String   @id @default(uuid())
+  nama       String
+  rating     Int      @default(5) // 1–5
+  pesan      String
+  status     String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  ip_address String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("testimoni")
+}

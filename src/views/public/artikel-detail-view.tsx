@@ -1,11 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, ArrowLeft, Tag, MessageCircle, Link2, Check } from "lucide-react";
+import { Calendar, Tag, MessageCircle, Link2, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
+import { Breadcrumb } from "@/components/site/breadcrumb";
 import { Reveal } from "@/components/site/reveal";
 import { ArticleSkeleton, ErrorState } from "@/components/site/states";
 import { Link, usePageMeta, navigate } from "@/lib/router";
@@ -86,15 +87,15 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
 
   return (
     <SiteLayout>
-      <div className="bg-muted py-4">
+      <div className="bg-muted py-4 border-b border-border/60">
         <div className="container mx-auto px-4">
-          <Link
-            to="/artikel"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-suzuki-red transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" aria-hidden />
-            Kembali ke Artikel
-          </Link>
+          <Breadcrumb
+            items={[
+              { label: "Artikel", to: "/artikel" },
+              { label: a.tipe === "PROMO" ? "Promo" : a.tipe === "KEGIATAN" ? "Kegiatan" : "Berita", to: a.tipe === "PROMO" ? "/promo" : "/artikel" },
+              { label: a.judul.length > 40 ? a.judul.slice(0, 40) + "…" : a.judul },
+            ]}
+          />
         </div>
       </div>
 

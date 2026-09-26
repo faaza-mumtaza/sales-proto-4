@@ -165,3 +165,49 @@ Stage Summary:
 2. Migrasi production (tetap): postgresql + Supabase, ADMIN_SESSION_SECRET kuat, ganti password admin, TURNSTILE_SECRET_KEY, next/image.
 3. Data demo backdate di DB sengaja dibiarkan utk demo tren — bersihkan sebelum go-live.
 4. Bila dev server mati: jalankan `python3 /home/z/my-project/start-dev-daemon.py` (JANGAN `bun run dev` via Bash biasa — akan terbunuh saat perintah selesai; JANGAN hapus .next saat server jalan).
+
+---
+Task ID: 5
+Agent: main (Z.ai Code)
+Task: QA menyeluruh fase sebelumnya via agent-browser, lalu implementasi 3 fitur baru (perbandingan mobil, testimoni pelanggan fullstack, ganti password admin) + detail styling lanjutan (breadcrumb, back-to-top)
+
+Work Log:
+- **QA awal (fase sebelumnya stabil, tidak ada bug)**: server hidup (200), lint bersih, DB utuh (10 mobil, 12 artikel published + 1 terjadwal, 4 pesan BARU, 2 booking PENDING, badge sidebar OK). Sweep 5 halaman publik + detail mobil (warna + simulasi kredit) + detail artikel + 5 halaman admin → semua OK. Mobile 375px (viewport via `agent-browser set viewport`) tanpa overflow di semua halaman uji. Form kontak lengkap (nama/telp/email/subjek/pesan/honeypot/captcha). CATATAN: `window.resizeTo()` tidak berfungsi di agent-browser — selalu pakai `agent-browser set viewport 375 812`; `agent-browser find text "..."` gagal untuk teks yang terpecah di beberapa node — gunakan eval + querySelector/click.
+- **Fitur 1: Perbandingan Mobil (bandingkan 2–3 mobil)**:
+  - `src/lib/compare-store.ts` — localStorage + custom event; cache snapshot di globalThis (`__suzukiCompareCache`) AGAR getSnapshot mengembalikan referensi stabil (syarat wajib useSyncExternalStore — lihat bug di bawah).
+  - `src/lib/use-compare.ts` — hook useSyncExternalStore (server snapshot kosong → bebas hydration mismatch).
+  - CarCard: tombol "Bandingkan" (muncul saat hover di desktop, selalu tampil mobile; state terpilih merah + ikon check; toast saat tambah/penuh).
+  - `src/components/site/comparison-bar.tsx` — bar fixed bawah (thumbnail + nama per mobil, hapus per item, kosongkan, CTA "Bandingkan Sekarang (n)" disabled < 2 mobil, hint "pilih hingga N lagi", spacer h-20 agar footer tak tertutup, auto-hilang di halaman bandingkan & admin).
+  - `src/views/public/bandingkan-view.tsx` — tabel berdampingan: header (foto+nama+badge kategori+harga+CTA Detail/Tanya Sales), baris ringkas (penumpang/bahan bakar/transmisi/warna), GABUNGAN label spesifikasi semua mobil terpilih + zebra + **titik amber penanda nilai yang berbeda antar mobil**, deskripsi, CTA "Minta Rekomendasi Sales" (WA dengan nama semua mobil dibandingkan), empty state 0/1 mobil + CTA katalog. Kolom pertama sticky saat scroll horizontal (mobile).
+  - FloatingButtons otomatis naik (bottom-24) saat bar perbandingan tampil.
+  - Route `#/bandingkan` terdaftar di page.tsx.
+- **Fitur 2: Testimoni Pelanggan (fullstack, dimoderasi)**:
+  - Schema Prisma: model `Testimoni` (nama, rating 1–5, pesan, status PENDING|APPROVED|REJECTED, ip_address) → db:push → **bump PRISMA_CACHE_KEY ke `prisma_v3`** → RESTART dev server via `python3 start-dev-daemon.py` (karena Turbopack memegang @prisma/client LAMA di memori — bump key saja TIDAK cukup bila server tidak di-restart!).
+  - Seed 4 testimoni (3 approved utk tampilan + 1 pending utk demo moderasi).
+  - API publik `GET/POST /api/testimonials` (GET: hanya APPROVED, take maks 24; POST: rate-limit 3/15 menit + honeypot `website` + zod).
+  - API admin `GET/PATCH/DELETE /api/admin/testimonials` (filter status + counts; PATCH ubah status; DELETE).
+  - Publik: `src/components/site/testimonial-section.tsx` di home (kartu: bintang, ikon quote watermark, avatar inisial gradient, tanggal; subtitle rata-rata rating; tombol "Tulis Testimoni" → form: nama + rating bintang interaktif (hover/keyboard) + pesan + counter 1000 + honeypot; sukses → toast "menunggu persetujuan admin").
+  - Admin: `admin-testimoni-view.tsx` (4 kartu filter jumlah klikabel, search, tombol Setujui/Tolak/Kembalikan/Hapus, badge status berwarna, IP ditampilkan), menu sidebar "Testimoni" + badge PENDING, dashboard kini 5 kartu statistik (+kartu Testimoni amber), stats API + testiPending/testiApproved.
+- **Fitur 3: Ganti Password Admin**:
+  - `POST /api/admin/change-password` (requireAdmin + rate-limit 5/15m + verifikasi password lama scrypt + validasi: min 8, huruf+angka, harus beda dari lama).
+  - `src/components/admin/change-password-dialog.tsx` (Dialog shadcn di sidebar bawah: lama/baru/konfirmasi, pesan error, sukses auto-tutup).
+- **Styling (wajib)**: Breadcrumb component (`breadcrumb.tsx`) di detail mobil & artikel (menggantikan link teks polos, dengan chevron + aria-current); tombol back-to-top (muncul scroll > 480px, smooth scroll, animasi); polish tabel perbandingan & kartu testimoni.
+- **VERIFIKASI END-TO-END (semua lewat agent-browser + curl)**:
+  - Perbandingan: toggle 2 mobil → bar muncul → klik CTA → halaman bandingkan render tabel 14 baris, kolom GV+FRONX, penanda beda, CTA WA; tambah mobil ke-3 OK, percobaan ke-4 DITOLAK (localStorage tetap 3); hapus mobil di halaman bandingkan OK; empty state OK; mobile 375px tanpa overflow + kolom sticky.
+  - Testimoni: submit via browser (nama "QA Browser Tester", rating 5) → masuk DB status PENDING + IP tercatat → Setujui via UI admin → langsung muncul di API publik → Tolak → hilang dari publik → data QA dihapus (bersih, 3 testimoni realistis tersisa). Validasi: nama pendek / rating 9 / honeypot / rate-limit 429 semua bekerja.
+  - Ganti password: ganti via UI (SuzukiBSB#2025 → TestPass#2025x) → logout → LOGIN DENGAN PASSWORD BARU BERHASIL → kembalikan ke password asli → login asli OK + password salah ditolak. API guards: password lama salah (401), tanpa angka, sama dengan lama, tanpa session (401) — semua benar.
+  - VLM review 4 screenshot (katalog+bar, bandingkan, home testimoni, admin testimoni): "production-ready design, no visible visual bugs, misalignments, or overlapping elements".
+  - Regression sweep 11 halaman (publik + admin) semua OK tanpa overflow; lint 0 error; dev.log bersih.
+
+Stage Summary:
+- 3 fitur baru lengkap & terverifikasi end-to-end: (1) Perbandingan mobil 2–3 unit dgn highlight perbedaan + integrasi WA; (2) Testimoni pelanggan fullstack (publik → moderasi admin → tayang); (3) Ganti password admin (aman, teruji ganti & kembalikan).
+- Styling: breadcrumb detail, back-to-top, 5-kartu dashboard, polish tabel/kartu baru — VLM menilai production-ready.
+- Bug diperbaiki: (1) KRITIS "The result of getSnapshot should be cached" (infinite loop React) — compare-store di-cache di globalThis dengan invalidasi saat write; (2) PrismaClient basi setelah db:push → server WAJIB di-restart via daemon (bump prisma_v3 saja tidak cukup); (3) session admin hangus setelah restart server (perilaku normal, login ulang).
+- Kredensial admin TIDAK berubah: admin@suzukibsb.id / SuzukiBSB#2025.
+
+### Status saat ini: blueprint lengkap + 4 fase polish/fitur selesai & terverifikasi (semua halaman regression OK).
+### Sisa / rekomendasi fase berikutnya:
+1. Fitur opsional lanjutan: notifikasi email/WA otomatis ke admin saat pesan/booking/testimoni baru, filter rentang tanggal pesan/booking, pagination katalog (saat mobil > 12), gambar per warna via upload admin (field DB sudah siap).
+2. Migrasi production (tetap, belum berubah): postgresql + Supabase, ADMIN_SESSION_SECRET kuat, ganti password admin (UI ganti password kini TERSEDIA — tinggal dipakai), TURNSTILE_SECRET_KEY, pertimbangkan next/image.
+3. Data demo backdate (pesan/booking/testimoni seeded) sengaja dibiarkan utk demo tren & tampilan — bersihkan sebelum go-live.
+4. Operasional sandbox: bila dev server mati jalankan `python3 /home/z/my-project/start-dev-daemon.py`; JANGAN hapus .next saat server jalan; setelah `db:push` WAJIB restart server (Turbopack memegang Prisma client lama) + bump PRISMA_CACHE_KEY di src/lib/db.ts.

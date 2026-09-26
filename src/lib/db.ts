@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client'
 // (mis. prisma_v3) bila Anda mengubah schema dan instance lama masih menempel
 // di memori dev server.
 
-const PRISMA_CACHE_KEY = 'prisma_v2'
+const PRISMA_CACHE_KEY = 'prisma_v3'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
