@@ -217,3 +217,184 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ---------------------------------------------------------------- */
+/* Animasi & transisi halus                                          */
+/* ---------------------------------------------------------------- */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes shimmer-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes badge-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Scroll-reveal (dikendalikan komponen <Reveal>) */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal[data-variant="fade"] {
+  transform: none;
+}
+.reveal[data-variant="zoom"] {
+  transform: scale(0.95);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Transisi antar halaman SPA */
+.page-enter {
+  animation: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hover kartu: garis aksen merah muncul dari kiri */
+.card-accent {
+  position: relative;
+}
+.card-accent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--suzuki-red), var(--suzuki-navy));
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+.card-accent:hover::after,
+.card-accent:focus-within::after {
+  transform: scaleX(1);
+}
+
+/* Efek "kilau" lembut pada badge hero */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 70%
+  );
+  animation: shimmer-sweep 3.5s ease-in-out infinite;
+}
+
+/* Ikon kecil mengambang (dekorasi hero) */
+.floaty {
+  animation: float-soft 5s ease-in-out infinite;
+}
+.floaty-delay {
+  animation: float-soft 6s ease-in-out 1.2s infinite;
+}
+
+/* Badge notifikasi admin muncul dengan pop */
+.badge-pop {
+  animation: badge-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Placeholder pattern untuk kartu artikel tanpa cover */
+.pattern-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+/* Fokus keyboard yang jelas & konsisten */
+:focus-visible {
+  outline: 2px solid var(--suzuki-red);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Sembunyikan elemen dekoratif dari screen reader */
+.decoration {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Hormati preferensi pengguna: kurangi gerakan */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .page-enter,
+  .floaty,
+  .floaty-delay,
+  .shimmer::before,
+  .badge-pop {
+    animation: none !important;
+  }
+  .card-accent::after {
+    transition: none;
+  }
+}

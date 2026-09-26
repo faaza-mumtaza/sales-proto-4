@@ -1,14 +1,21 @@
 "use client";
 
 import { Link } from "@/lib/router";
-import { Calendar, ArrowRight, Tag } from "lucide-react";
+import { Calendar, ArrowRight, Tag, Megaphone, Newspaper, Users } from "lucide-react";
 import { formatDateID, type Artikel } from "@/lib/site-utils";
 
+const TIPE_ICON: Record<string, typeof Megaphone> = {
+  PROMO: Megaphone,
+  BERITA: Newspaper,
+  KEGIATAN: Users,
+};
+
 export function ArticleCard({ article }: { article: Artikel }) {
+  const FallbackIcon = TIPE_ICON[article.tipe] ?? Newspaper;
   return (
     <Link
       to={`/artikel/${article.slug}`}
-      className="bg-card rounded-xl border border-border overflow-hidden group hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col"
+      className="bg-card rounded-xl border border-border overflow-hidden group hover:shadow-xl hover:shadow-suzuki-navy/10 hover:-translate-y-1 transition-all duration-300 flex flex-col card-accent"
     >
       {article.cover_image ? (
         <div className="relative aspect-[5/3] overflow-hidden bg-muted">
@@ -16,15 +23,19 @@ export function ArticleCard({ article }: { article: Artikel }) {
             src={article.cover_image}
             alt={article.judul}
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <span className="absolute top-4 left-4 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full shadow">
             {article.tipe}
           </span>
         </div>
       ) : (
-        <div className="relative aspect-[5/3] overflow-hidden bg-gradient-to-br from-suzuki-navy to-suzuki-navy/70 flex items-center justify-center">
-          <span className="px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full">
+        <div className="relative aspect-[5/3] overflow-hidden bg-gradient-to-br from-suzuki-navy via-suzuki-navy to-[#2c3e63] flex items-center justify-center pattern-dots">
+          <FallbackIcon
+            className="w-14 h-14 text-white/25 group-hover:text-white/40 group-hover:scale-110 transition-all duration-500"
+            aria-hidden
+          />
+          <span className="absolute top-4 left-4 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full shadow">
             {article.tipe}
           </span>
         </div>
@@ -53,7 +64,7 @@ export function ArticleCard({ article }: { article: Artikel }) {
             ))}
           </div>
         )}
-        <span className="mt-auto inline-flex items-center gap-1 text-suzuki-red font-medium text-sm group-hover:gap-2 transition-all">
+        <span className="mt-auto inline-flex items-center gap-1 text-suzuki-red font-medium text-sm group-hover:gap-2.5 transition-all">
           Baca Selengkapnya <ArrowRight className="w-4 h-4" aria-hidden />
         </span>
       </div>

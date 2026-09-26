@@ -1,9 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, ArrowUpDown } from "lucide-react";
 import { CarCard } from "./car-card";
+import { Reveal } from "./reveal";
 import { KATEGORI, type Mobil } from "@/lib/site-utils";
+
+type SortMode = "default" | "price-asc" | "price-desc" | "name-asc";
+
+const SORT_OPTIONS: Array<{ id: SortMode; label: string }> = [
+  { id: "default", label: "Urutan Standar" },
+  { id: "price-asc", label: "Harga Terendah" },
+  { id: "price-desc", label: "Harga Tertinggi" },
+  { id: "name-asc", label: "Nama (A–Z)" },
+];
 
 export function CarCatalog({
   cars,
@@ -14,6 +24,7 @@ export function CarCatalog({
 }) {
   const [active, setActive] = useState<string>("all");
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortMode>("default");
 
   const filtered = useMemo(() => {
     let list = active === "all" ? cars : cars.filter((c) => c.kategori === active);
@@ -25,8 +36,22 @@ export function CarCatalog({
           c.kategori_label.toLowerCase().includes(q),
       );
     }
+    switch (sort) {
+      case "price-asc":
+        list = [...list].sort((a, b) => (a.harga_mulai ?? Infinity) - (b.harga_mulai ?? Infinity));
+        break;
+      case "price-desc":
+        list = [...list].sort((a, b) => (b.harga_mulai ?? -1) - (a.harga_mulai ?? -1));
+        break;
+      case "name-asc":
+        list = [...list].sort((a, b) => a.nama.localeCompare(b.nama, "id"));
+        break;
+      default:
+        // urutan sudah sesuai field `urutan` dari API
+        break;
+    }
     return list;
-  }, [active, cars, query]);
+  }, [active, cars, query, sort]);
 
   return (
     <section className="py-16 bg-background">
@@ -68,6 +93,28 @@ export function CarCatalog({
               </button>
             ))}
           </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <label className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+              <ArrowUpDown className="w-4 h-4" aria-hidden />
+              <span className="sr-only sm:not-sr-only">Urutkan:</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortMode)}
+                aria-label="Urutkan katalog"
+                className="px-3 py-2 rounded-full border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <span className="text-sm text-muted-foreground" aria-live="polite">
+              {filtered.length} mobil
+            </span>
+          </div>
         </div>
 
         {filtered.length === 0 ? (
@@ -82,8 +129,10 @@ export function CarCatalog({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((c) => (
-              <CarCard key={c.id} car={c} />
+            {filtered.map((c, i) => (
+              <Reveal key={c.id} delay={Math.min(i, 7) * 70}>
+                <CarCard car={c} />
+              </Reveal>
             ))}
           </div>
         )}

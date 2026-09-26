@@ -27,6 +27,9 @@ export function KontakView() {
 
   // Mobil default untuk test drive (dari tombol CTA halaman detail mobil)
   const defaultMobilId = route.query.get("mobil") ?? undefined;
+  // Prefill subjek/pesan untuk form kontak (dari CTA simulasi kredit)
+  const defaultSubjek = route.query.get("subjek") ?? "";
+  const defaultPesan = route.query.get("pesan") ?? "";
 
   // Sinkronkan bila hash berubah (pola "adjust state during render" React):
   // CTA dari halaman lain bisa membawa ?form=test-drive setelah komponen hidup.
@@ -137,7 +140,7 @@ export function KontakView() {
               {active === "kontak" ? (
                 <>
                   <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Kirim Pesan</h2>
-                  <ContactForm />
+                  <ContactForm defaultSubjek={defaultSubjek} defaultPesan={defaultPesan} />
                 </>
               ) : carsQuery.isLoading ? (
                 <p className="text-center text-muted-foreground py-8">Memuat form test drive…</p>

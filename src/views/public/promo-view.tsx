@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
+import { Reveal } from "@/components/site/reveal";
 import { ArticleSkeleton, ErrorState, EmptyState } from "@/components/site/states";
 import { usePageMeta } from "@/lib/router";
 import { apiGet } from "@/lib/api";
@@ -20,9 +21,15 @@ export function PromoView() {
 
   return (
     <SiteLayout>
-      <section className="bg-suzuki-red py-16 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Promo Terbaru</h1>
+      <section className="bg-suzuki-red py-16 text-white relative overflow-hidden">
+        <div className="decoration absolute -top-16 -left-16 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="decoration absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-suzuki-navy/20 blur-3xl" />
+        <div className="container mx-auto px-4 text-center relative">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-4">
+            <span className="inline-block w-10 h-1.5 rounded-full bg-white/70" aria-hidden />
+            Promo Terbaru
+            <span className="inline-block w-10 h-1.5 rounded-full bg-white/70" aria-hidden />
+          </h1>
           <p className="text-white/85 max-w-2xl mx-auto">
             Penawaran spesial, bunga ringan, dan paket layanan dari Suzuki BSB Semarang —
             diperbarui langsung oleh tim dealer kami.
@@ -44,8 +51,10 @@ export function PromoView() {
             <EmptyState message="Belum ada promo saat ini. Nantikan penawaran menarik berikutnya!" />
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {promos.map((a) => (
-                <ArticleCard key={a.id} article={a} />
+              {promos.map((a, i) => (
+                <Reveal key={a.id} delay={Math.min(i, 5) * 80}>
+                  <ArticleCard article={a} />
+                </Reveal>
               ))}
             </div>
           )}

@@ -5,7 +5,21 @@ import { toast } from "sonner";
 import { apiPost } from "@/lib/api";
 import { CaptchaChallenge, HoneypotField } from "./captcha-challenge";
 
-export function ContactForm() {
+const SUBJEK_OPTIONS = [
+  "Informasi Produk",
+  "Booking Service",
+  "Simulasi Kredit",
+  "Lainnya",
+] as const;
+
+export function ContactForm({
+  defaultSubjek = "",
+  defaultPesan = "",
+}: {
+  /** Prefill dari CTA halaman lain (mis. simulator kredit) */
+  defaultSubjek?: string;
+  defaultPesan?: string;
+}) {
   const [pending, setPending] = useState(false);
   const [captcha, setCaptcha] = useState({ captchaId: "", captchaAnswer: "" });
   const [captchaNonce, setCaptchaNonce] = useState(0);
@@ -13,8 +27,8 @@ export function ContactForm() {
     nama_lengkap: "",
     no_telepon: "",
     email: "",
-    subjek: "",
-    pesan: "",
+    subjek: SUBJEK_OPTIONS.includes(defaultSubjek as never) ? defaultSubjek : "",
+    pesan: defaultPesan.slice(0, 2000),
   });
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -105,10 +119,11 @@ export function ContactForm() {
           className={inputCls}
         >
           <option value="">Pilih subjek</option>
-          <option value="Informasi Produk">Informasi Produk</option>
-          <option value="Booking Service">Booking Service</option>
-          <option value="Simulasi Kredit">Simulasi Kredit</option>
-          <option value="Lainnya">Lainnya</option>
+          {SUBJEK_OPTIONS.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
         </select>
       </div>
       <div>

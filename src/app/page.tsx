@@ -32,45 +32,131 @@ function AppRoutes() {
 
   // ----- Admin (login berada DI LUAR shell terproteksi) -----
   if (seg1 === "admin") {
-    if (seg2 === "login") return <AdminLoginView />;
-    if (seg2 === undefined) return <AdminDashboardView />;
+    if (seg2 === "login")
+      return (
+        <div key="admin-login" className="page-enter">
+          <AdminLoginView />
+        </div>
+      );
+    if (seg2 === undefined)
+      return (
+        <div key="admin-dash" className="page-enter">
+          <AdminDashboardView />
+        </div>
+      );
     if (seg2 === "katalog") {
-      if (seg3 === "tambah") return <AdminKatalogFormView />;
+      if (seg3 === "tambah")
+        return (
+          <div key="admin-katalog-tambah" className="page-enter">
+            <AdminKatalogFormView />
+          </div>
+        );
       if (seg3) {
         // /admin/katalog/:id/edit
-        return <AdminKatalogFormView key={seg3} carId={seg3} />;
+        return (
+          <div key={`admin-katalog-${seg3}`} className="page-enter">
+            <AdminKatalogFormView key={seg3} carId={seg3} />
+          </div>
+        );
       }
-      return <AdminKatalogView />;
+      return (
+        <div key="admin-katalog" className="page-enter">
+          <AdminKatalogView />
+        </div>
+      );
     }
     if (seg2 === "artikel") {
-      if (seg3 === "tambah") return <AdminArtikelFormView />;
+      if (seg3 === "tambah")
+        return (
+          <div key="admin-artikel-tambah" className="page-enter">
+            <AdminArtikelFormView />
+          </div>
+        );
       if (seg3) {
         // /admin/artikel/:id/edit
-        return <AdminArtikelFormView key={seg3} artikelId={seg3} />;
+        return (
+          <div key={`admin-artikel-${seg3}`} className="page-enter">
+            <AdminArtikelFormView key={seg3} artikelId={seg3} />
+          </div>
+        );
       }
-      return <AdminArtikelView />;
+      return (
+        <div key="admin-artikel" className="page-enter">
+          <AdminArtikelView />
+        </div>
+      );
     }
-    if (seg2 === "pesan") return <AdminPesanView />;
-    if (seg2 === "test-drive") return <AdminTestDriveView />;
-    return <AdminDashboardView />;
+    if (seg2 === "pesan")
+      return (
+        <div key="admin-pesan" className="page-enter">
+          <AdminPesanView />
+        </div>
+      );
+    if (seg2 === "test-drive")
+      return (
+        <div key="admin-td" className="page-enter">
+          <AdminTestDriveView />
+        </div>
+      );
+    return (
+      <div key="admin-dash-2" className="page-enter">
+        <AdminDashboardView />
+      </div>
+    );
   }
 
   // ----- Website publik -----
   switch (seg1) {
     case undefined:
-      return <HomeView />;
+      return (
+        <div key="home" className="page-enter">
+          <HomeView />
+        </div>
+      );
     case "mobil":
-      return seg2 ? <MobilDetailView key={seg2} slug={seg2} /> : <MobilView />;
+      return seg2 ? (
+        <div key={`mobil-${seg2}`} className="page-enter">
+          <MobilDetailView key={seg2} slug={seg2} />
+        </div>
+      ) : (
+        <div key="mobil" className="page-enter">
+          <MobilView />
+        </div>
+      );
     case "artikel":
-      return seg2 ? <ArtikelDetailView key={seg2} slug={seg2} /> : <ArtikelView />;
+      return seg2 ? (
+        <div key={`artikel-${seg2}`} className="page-enter">
+          <ArtikelDetailView key={seg2} slug={seg2} />
+        </div>
+      ) : (
+        <div key="artikel" className="page-enter">
+          <ArtikelView />
+        </div>
+      );
     case "promo":
-      return <PromoView />;
+      return (
+        <div key="promo" className="page-enter">
+          <PromoView />
+        </div>
+      );
     case "tentang-kami":
-      return <TentangKamiView />;
+      return (
+        <div key="tentang" className="page-enter">
+          <TentangKamiView />
+        </div>
+      );
     case "kontak":
-      return <KontakView key={route.query.toString()} />;
+      return (
+        <div key={`kontak-${route.query.toString()}`} className="page-enter">
+          <KontakView key={route.query.toString()} />
+        </div>
+      );
     default:
-      return <NotFoundView />;
+      return (
+        <div key="not-found" className="page-enter">
+          <NotFoundView />
+        </div>
+      );
   }
 }
 

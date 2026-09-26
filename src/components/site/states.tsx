@@ -1,6 +1,8 @@
 "use client";
 
-// Skeleton loading bersama untuk kartu & section.
+// Skeleton & state (loading / error / kosong) bersama untuk kartu & section.
+
+import { AlertTriangle, Inbox, SearchX } from "lucide-react";
 
 export function CardSkeleton() {
   return (
@@ -40,17 +42,20 @@ export function ArticleSkeleton() {
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <div className="text-center py-12 px-4">
-      <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-suzuki-red/10 flex items-center justify-center">
-        <span className="text-suzuki-red text-2xl" aria-hidden>
-          !
-        </span>
+      <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-suzuki-red/10 flex items-center justify-center ring-8 ring-suzuki-red/5">
+        <AlertTriangle className="w-7 h-7 text-suzuki-red" aria-hidden />
       </div>
-      <p className="text-muted-foreground mb-4">{message}</p>
+      <p className="text-foreground font-medium mb-1">Terjadi kendala</p>
+      <p className="text-muted-foreground text-sm mb-5">{message}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="px-5 py-2.5 bg-suzuki-red text-white text-sm font-semibold rounded-lg hover:bg-suzuki-red/90 transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-suzuki-red text-white text-sm font-semibold rounded-lg hover:bg-suzuki-red/90 hover:shadow-lg hover:shadow-suzuki-red/25 transition-all active:scale-95"
         >
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+            <path d="M3 12a9 9 0 1 0 3-6.7" strokeLinecap="round" />
+            <path d="M3 4v5h5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           Coba Lagi
         </button>
       )}
@@ -58,15 +63,25 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   );
 }
 
-export function EmptyState({ message }: { message: string }) {
+export function EmptyState({
+  message,
+  icon = "inbox",
+  hint,
+}: {
+  message: string;
+  icon?: "inbox" | "search";
+  /** baris kecil penjelas tambahan */
+  hint?: string;
+}) {
+  const Icon = icon === "search" ? SearchX : Inbox;
   return (
     <div className="text-center py-12 px-4">
-      <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-        <span className="text-muted-foreground text-2xl" aria-hidden>
-          ∅
-        </span>
+      <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-muted flex items-center justify-center ring-8 ring-muted/50">
+        <Icon className="w-7 h-7 text-muted-foreground" aria-hidden />
       </div>
-      <p className="text-muted-foreground">{message}</p>
+      <p className="text-foreground font-medium mb-1">Tidak ada data</p>
+      <p className="text-muted-foreground text-sm">{message}</p>
+      {hint && <p className="text-muted-foreground/70 text-xs mt-2">{hint}</p>}
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { useState } from "react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ErrorState, CardSkeleton } from "@/components/site/states";
 import { CarCard } from "@/components/site/car-card";
+import { CreditSimulator } from "@/components/site/credit-simulator";
+import { Reveal } from "@/components/site/reveal";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { CAR_FALLBACK_IMAGE, formatPrice, waLink, type Mobil } from "@/lib/site-utils";
@@ -96,13 +98,13 @@ export function MobilDetailView({ slug }: { slug: string }) {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Galeri */}
-            <div>
-              <div className="relative bg-card rounded-xl p-8 border border-border overflow-hidden">
-                <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-sm font-semibold rounded-full">
+            <Reveal variant="zoom">
+              <div className="relative bg-card rounded-xl p-8 border border-border overflow-hidden group">
+                <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-sm font-semibold rounded-full shadow-sm">
                   {car.kategori_label}
                 </span>
                 {car.is_new && (
-                  <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-sm font-semibold rounded-full">
+                  <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-sm font-semibold rounded-full shadow-sm">
                     NEW
                   </span>
                 )}
@@ -110,7 +112,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   <img
                     src={currentImage}
                     alt={`${car.nama} — tampilan ${imgIndex + 1}`}
-                    className="w-full h-auto max-h-[380px] object-contain"
+                    className="w-full h-auto max-h-[380px] object-contain group-hover:scale-[1.02] transition-transform duration-500"
                     loading="eager"
                   />
                 </div>
@@ -118,14 +120,14 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   <>
                     <button
                       onClick={() => setImgIndex((i) => (i - 1 + gallery.length) % gallery.length)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white transition-colors"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90"
                       aria-label="Gambar sebelumnya"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => setImgIndex((i) => (i + 1) % gallery.length)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 border border-border flex items-center justify-center hover:bg-white hover:shadow-md transition-all active:scale-90"
                       aria-label="Gambar berikutnya"
                     >
                       <ChevronRight className="w-5 h-5" />
@@ -136,8 +138,9 @@ export function MobilDetailView({ slug }: { slug: string }) {
                           key={g + i}
                           onClick={() => setImgIndex(i)}
                           aria-label={`Lihat gambar ${i + 1}`}
-                          className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                            i === imgIndex ? "bg-suzuki-red" : "bg-border"
+                          aria-current={i === imgIndex}
+                          className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                            i === imgIndex ? "bg-suzuki-red scale-125" : "bg-border hover:bg-muted-foreground/40"
                           }`}
                         />
                       ))}
@@ -145,10 +148,10 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   </>
                 )}
               </div>
-            </div>
+            </Reveal>
 
             {/* Info */}
-            <div>
+            <Reveal variant="up" delay={100}>
               <h1 className="text-3xl md:text-4xl font-bold text-suzuki-navy mb-4">{car.nama}</h1>
 
               <div className="flex items-center gap-6 mb-6 text-muted-foreground flex-wrap">
@@ -172,7 +175,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
                 )}
               </div>
 
-              <div className="bg-suzuki-light rounded-xl p-6 mb-6 border border-border">
+              <div className="bg-gradient-to-br from-suzuki-light to-white rounded-xl p-6 mb-6 border border-border">
                 <p className="text-sm text-muted-foreground mb-1">Harga mulai dari</p>
                 <p className="text-3xl font-bold text-suzuki-red">
                   {car.harga_label ?? formatPrice(car.harga_mulai)}
@@ -187,15 +190,23 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   `${car.nama} adalah kendaraan andal dari Suzuki yang dirancang untuk memenuhi kebutuhan mobilitas Anda.`}
               </p>
 
+              {/* Simulasi kredit */}
+              <div className="mb-6">
+                <CreditSimulator carName={car.nama} price={car.harga_mulai} />
+              </div>
+
               {/* Spesifikasi */}
               {car.spesifikasi.length > 0 && (
                 <div className="mb-8">
-                  <h2 className="font-semibold text-suzuki-navy mb-3 text-lg">Spesifikasi</h2>
+                  <h2 className="font-semibold text-suzuki-navy mb-3 text-lg flex items-center gap-3">
+                    <span className="inline-block w-8 h-1 rounded-full bg-suzuki-red" aria-hidden />
+                    Spesifikasi
+                  </h2>
                   <dl className="rounded-xl border border-border overflow-hidden">
                     {car.spesifikasi.map((s, i) => (
                       <div
                         key={s.label + i}
-                        className={`grid grid-cols-[auto_1fr] sm:grid-cols-2 gap-x-6 px-4 py-3 text-sm ${
+                        className={`grid grid-cols-[auto_1fr] sm:grid-cols-2 gap-x-6 px-4 py-3 text-sm transition-colors hover:bg-suzuki-red/5 ${
                           i % 2 === 0 ? "bg-card" : "bg-muted/50"
                         }`}
                       >
@@ -208,7 +219,10 @@ export function MobilDetailView({ slug }: { slug: string }) {
               )}
 
               <div className="mb-8">
-                <h2 className="font-semibold text-suzuki-navy mb-4 text-lg">Keunggulan:</h2>
+                <h2 className="font-semibold text-suzuki-navy mb-4 text-lg flex items-center gap-3">
+                  <span className="inline-block w-8 h-1 rounded-full bg-suzuki-red" aria-hidden />
+                  Keunggulan:
+                </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {FEATURES.map((f, i) => (
                     <div key={i} className="flex items-center gap-2">
@@ -222,7 +236,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to={`/kontak?form=test-drive&mobil=${car.id}`}
-                  className="flex-1 inline-flex items-center justify-center gap-2 text-center bg-suzuki-red hover:bg-suzuki-red/90 text-white font-semibold py-3 rounded-lg transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-2 text-center bg-suzuki-red hover:bg-suzuki-red/90 text-white font-semibold py-3 rounded-lg transition-all hover:shadow-lg hover:shadow-suzuki-red/30 hover:-translate-y-0.5 active:scale-95"
                 >
                   <Calendar className="w-4 h-4" aria-hidden />
                   Jadwalkan Test Drive
@@ -231,13 +245,13 @@ export function MobilDetailView({ slug }: { slug: string }) {
                   href={waLink(`Halo, saya tertarik dengan ${car.nama}. Mohon info lebih lanjut.`)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-2 text-center bg-suzuki-navy hover:bg-suzuki-navy/90 text-white font-semibold py-3 rounded-lg transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-2 text-center bg-suzuki-navy hover:bg-suzuki-navy/90 text-white font-semibold py-3 rounded-lg transition-all hover:shadow-lg hover:shadow-suzuki-navy/30 hover:-translate-y-0.5 active:scale-95"
                 >
                   <MessageCircle className="w-4 h-4" aria-hidden />
                   Hubungi Sales
                 </a>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </article>
@@ -245,12 +259,16 @@ export function MobilDetailView({ slug }: { slug: string }) {
       {related.length > 0 && (
         <section className="py-12 bg-suzuki-light border-t border-border" aria-labelledby="judul-serupa">
           <div className="container mx-auto px-4">
-            <h2 id="judul-serupa" className="text-2xl font-bold text-suzuki-navy mb-8 text-center">
+            <h2 id="judul-serupa" className="text-2xl font-bold text-suzuki-navy mb-8 text-center flex items-center justify-center gap-4">
+              <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
               Mobil Suzuki Lainnya
+              <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {related.map((c) => (
-                <CarCard key={c.id} car={c} />
+              {related.map((c, i) => (
+                <Reveal key={c.id} delay={i * 80}>
+                  <CarCard car={c} />
+                </Reveal>
               ))}
             </div>
           </div>

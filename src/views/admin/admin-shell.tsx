@@ -7,13 +7,20 @@ import { apiGet, apiPost } from "@/lib/api";
 import { Link, useHashRoute, navigate } from "@/lib/router";
 import { SuzukiLogo } from "@/components/site/header";
 
-const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean }> = [
+const NAV: Array<{ to: string; label: string; icon: typeof Car; exact?: boolean; badgeKind?: "pesanBaru" | "testDrivePending" }> = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/katalog", label: "Katalog Mobil", icon: Car },
   { to: "/admin/artikel", label: "Artikel", icon: FileText },
-  { to: "/admin/pesan", label: "Pesan Masuk", icon: Mail },
-  { to: "/admin/test-drive", label: "Test Drive", icon: Calendar },
+  { to: "/admin/pesan", label: "Pesan Masuk", icon: Mail, badgeKind: "pesanBaru" },
+  { to: "/admin/test-drive", label: "Test Drive", icon: Calendar, badgeKind: "testDrivePending" },
 ];
+
+interface AdminStats {
+  counts: {
+    pesanBaru: number;
+    testDrivePending: number;
+  };
+}
 
 export function useAdminSession() {
   return useQuery({
@@ -31,6 +38,20 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const { data, isLoading } = useAdminSession();
   const [open, setOpen] = useState(false);
+
+  // Badge notifikasi ringan — refresh tiap 60 detik selama admin aktif
+  const statsQuery = useQuery({
+    queryKey: ["admin", "stats"],
+    queryFn: () => apiGet<AdminStats>("/api/admin/stats"),
+    enabled: !isLoading && !!data?.authenticated,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    retry: false,
+  });
+  const pesanBaru = statsQuery.data?.counts?.pesanBaru ?? 0;
+  const tdPending = statsQuery.data?.counts?.testDrivePending ?? 0;
+  const badgeFor = (kind?: "pesanBaru" | "testDrivePending") =>
+    kind === "pesanBaru" ? pesanBaru : kind === "testDrivePending" ? tdPending : 0;
 
   // Guard: belum login → lempar ke halaman login
   useEffect(() => {
@@ -93,13 +114,15 @@ export function AdminShell({ children }: { children: ReactNode }) {
           {NAV.map((n) => {
             const active = n.exact ? route.path === n.to : route.path.startsWith(n.to);
             const Icon = n.icon;
+            const badge = badgeFor(n.badgeKind);
             return (
               <Link
                 key={n.to}
                 to={n.to}
                 onClick={() => setOpen(false)}
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors ${
+                aria-label={badge > 0 ? `${n.label} — ${badge} butuh perhatian` : undefined}
+                className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors ${
                   active
                     ? "bg-suzuki-red text-white font-medium"
                     : "text-white/70 hover:bg-white/10 hover:text-white"
@@ -107,6 +130,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
               >
                 <Icon className="w-4 h-4" aria-hidden />
                 {n.label}
+                {badge > 0 && (
+                  <span
+                    className="badge-pop ml-auto min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center bg-suzuki-red text-white ring-2 ring-suzuki-navy"
+                    title={`${badge} butuh perhatian`}
+                  >
+                    {badge > 99 ? "99+" : badge}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -137,7 +168,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       {/* Overlay mobile */}
       {open && (
         <div
-          className="md:hidden fixed inset-0 bg-black/40 z-30"
+          className="md:hidden fixed inset-0 bg-black/40 z-30 backdrop-blur-sm"
           onClick={() => setOpen(false)}
           aria-hidden
         />

@@ -9,13 +9,13 @@ export function CarCard({ car }: { car: Mobil }) {
   const [imgErr, setImgErr] = useState(false);
   const img = imgErr || !car.gambar_utama ? CAR_FALLBACK_IMAGE : car.gambar_utama;
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all group flex flex-col">
+    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-xl hover:shadow-suzuki-navy/10 hover:-translate-y-1 transition-all duration-300 group flex flex-col card-accent">
       <div className="relative p-4 pb-0">
-        <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full">
+        <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full shadow-sm">
           {car.kategori_label}
         </span>
         {car.is_new && (
-          <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-xs font-semibold rounded-full">
+          <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-xs font-semibold rounded-full shadow-sm">
             NEW
           </span>
         )}
@@ -23,15 +23,17 @@ export function CarCard({ car }: { car: Mobil }) {
           <img
             src={img}
             alt={car.nama}
-            onError={() => setImgErr(true)}
+            onError={() => setImgError(true)}
             loading="lazy"
-            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
+            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
           />
         </div>
       </div>
 
       <div className="p-4 pt-4 flex flex-col flex-1">
-        <h3 className="font-bold text-lg text-suzuki-navy mb-2">{car.nama}</h3>
+        <h3 className="font-bold text-lg text-suzuki-navy mb-2 group-hover:text-suzuki-red transition-colors">
+          {car.nama}
+        </h3>
         <div className="flex items-center gap-4 text-muted-foreground text-xs mb-4">
           {car.seater != null && (
             <span className="flex items-center gap-1">

@@ -83,3 +83,46 @@ Stage Summary:
 2. Fitur tambahan: pencarian artikel, pagination/filter harga katalog, export CSV pesan/booking, notifikasi WA otomatis (deep link API), galeri warna per mobil.
 3. Migrasi production: ganti provider sqlite→postgresql + DATABASE_URL Supabase, NEXT_PUBLIC_SITE_URL, ADMIN_SESSION_SECRET kuat, ganti password admin, pasang TURNSTILE_SECRET_KEY, pertimbangkan next/image untuk optimasi gambar.
 4. Uji beban & Lighthouse setelah deploy Vercel.
+
+---
+Task ID: 3
+Agent: main (Z.ai Code)
+Task: QA menyeluruh fase sebelumnya via agent-browser, lalu peningkatan styling menyeluruh + fitur baru (pencarian artikel, sort katalog, simulasi kredit, export CSV, badge notifikasi admin)
+
+Work Log:
+- **QA ulang seluruh aplikasi** (fase sebelumnya): home, katalog+search, detail mobil, list+detail artikel, form kontak dengan captcha (pesan masuk DB & tampil di dashboard), guard admin→login, login, dashboard, ubah status, responsif 375px & 1440px tanpa horizontal overflow. Semua fungsi inti TERVERIFIKASI jalan. Lint & dev.log bersih. Temuan minor: 1 artikel demo tanpa cover image tampil polos.
+- **Styling (global)**: tambah keyframes & util CSS di globals.css (fade-in-up/fade/scale/float/shimmer/badge-pop, .reveal + .page-enter, .card-accent garis aksen merah saat hover, .pattern-dots fallback cover, :focus-visible ring konsisten, .decoration, semua di-disable otomatis via prefers-reduced-motion).
+- **Komponen baru**:
+  - `src/components/site/reveal.tsx` — scroll-reveal IntersectionObserver TANPA state React (kelas is-visible via DOM langsung → lolos rule react-hooks/set-state-in-effect, tanpa hydration mismatch, fallback browser lawas).
+  - `src/components/site/section-heading.tsx` — heading section konsisten dgn aksen bar merah (align center/left + slot action).
+  - `src/components/site/credit-simulator.tsx` — kalkulator simulasi kredit (DP slider 10–50%, tenor 1–6 th, bunga flat 1–12% adjustable, hasil live: angsuran/pokok/total; CTA "Ajukan Simulasi Ini" → form kontak dengan prefill).
+  - `src/lib/csv.ts` — util export CSV client-side (escaping kutip, anti CSV-injection prefiks ' untuk sel berawalan =+-@, BOM UTF-8 utk Excel).
+- **Polish styling**: hero (Reveal zoom/up, badge shimmer, underline SVG "Impian Anda", tombol hover shadow+lift+active scale, dekorasi floaty); car-card & article-card (hover lift + shadow + zoom gambar + card-accent + judul berubah merah); fallback cover artikel (gradient navy + pattern dots + ikon per tipe PROMO/BERITA/KEGIATAN); states.tsx (ikon lucide AlertTriangle/Inbox/SearchX, ring halus, tombol retry dengan ikon reload + active scale, EmptyState dengan hint); transisi antar halaman (.page-enter di page.tsx semua route); header section semua halaman publik dgn aksen bar + dekorasi blur; overlay admin mobile + backdrop-blur.
+- **Fitur baru halaman publik**:
+  - Artikel: pencarian (judul/ringkasan/tags) + filter chip tag (12 tag terpopuler, toggle) + counter hasil "Menampilkan X dari Y artikel" + tombol reset filter + empty-state khusus pencarian.
+  - Katalog mobil: dropdown urutkan (standar/harga terendah/tertinggi/nama A–Z) + counter jumlah mobil.
+  - Detail mobil: panel Simulasi Kredit (collapsible, default tertutup; perhitungan diverifikasi: Ertiga Hybrid 293,2jt DP20% → angsuran 4.788.933/bln; DP30% → 4.190.317) + spesifikasi row hover + gallery dot scale.
+  - Detail artikel: tombol "Salin Tautan" (Clipboard API + fallback execCommand, state berubah "Tersalin!") + fallback cover di halaman (gradient+pattern).
+  - Kontak: dukungan query param ?subjek= & ?pesan= untuk prefill form (dipakai CTA simulasi kredit).
+- **Fitur baru admin**:
+  - Sidebar: badge notifikasi merah (jumlah pesan BARU & booking PENDING, poll /api/admin/stats tiap 60 dtk, animasi badge-pop, aria-label, cap 99+).
+  - Pesan Masuk & Test Drive: tombol "Export CSV" (menghormati filter aktif; file terverifikasi: header benar, escaping kutip benar, BOM UTF-8 ada; nama file带 tanggal).
+- **Bug diperbaiki selama development**: (1) import typo sementara @components-null di artikel-detail-view → langsung dibersihkan; (2) 3 error lint react-compiler (setState-in-effect di Reveal → refactor ke DOM-class manipulation; exportCsv direferensikan sebelum useMemo filtered → dipindah setelahnya); (3) stray </div> di tentang-kami setelah refactor Reveal.
+
+Stage Summary:
+- QA fase sebelumnya: SEMUA fitur blueprint tetap berfungsi (tidak ada regresi).
+- 5 fitur baru aktif & terverifikasi end-to-end via agent-browser:
+  1. Pencarian artikel + filter tag (uji: "test drive" → 3 hasil; tag #kredit → 1 hasil)
+  2. Sort katalog (uji price-asc: 183,7jt → 185,1jt → 188,9jt urut benar)
+  3. Simulasi kredit: matematika benar, slider live-update, prefill form kontak terverifikasi sampai DB (pesan "Simulasi Tester" dgn subjek "Simulasi Kredit" tersimpan)
+  4. Export CSV pesan (file ~/Downloads terdownload, isi valid) & booking (blob CSV terverifikasi via intercept; toast "4 booking diexport")
+  5. Badge sidebar admin (3 pesan BARU, 2 booking PENDING sesuai stats) + tombol salin tautan artikel (state "Tersalin!" OK)
+- VLM review visual (desktop): home & detail+simulator dinilai profesional, rapi tanpa overlap, branding konsisten.
+- Responsif: 375px tanpa overflow di semua halaman termasuk halaman baru (artikel search, sort, simulator, kontak prefill, admin).
+- Lint BERSIH (0 error), dev.log bersih, sanity sweep 9 halaman publik + 4 halaman admin semua OK.
+
+### Status saat ini: blueprint lengkap + fase polish styling & 5 fitur tambahan selesai & terverifikasi.
+### Sisa / rekomendasi fase berikutnya:
+1. Fitur lanjutan opsional: galeri warna per mobil, pagination "muat lagi" artikel (saat jumlah sudah banyak), notifikasi email/WA otomatis ke admin saat ada pesan/booking baru, dashboard grafik tren per bulan.
+2. Migrasi production (dari fase sebelumnya, belum berubah): postgresql + DATABASE_URL Supabase, NEXT_PUBLIC_SITE_URL, ADMIN_SESSION_SECRET kuat, ganti password admin, TURNSTILE_SECRET_KEY, pertimbangkan next/image.
+3. Data demo "QA Tester"/"Simulasi Tester"/"QA Browser Tester" di DB sengaja dibiarkan sebagai contoh — bisa dihapus via UI admin (tombol hapus) sebelum go-live.

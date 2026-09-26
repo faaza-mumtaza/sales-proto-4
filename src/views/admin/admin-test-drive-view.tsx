@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Phone, Mail, MessageCircle, Car, Trash2 } from "lucide-react";
+import { Calendar, Phone, Mail, MessageCircle, Car, Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPatch } from "@/lib/api";
 import { Link, usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
-import { formatDateID, phoneToWaNumber, type TestDrive } from "@/lib/site-utils";
+import { formatDateID, formatDateTimeID, phoneToWaNumber, type TestDrive } from "@/lib/site-utils";
+import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
 
 const STATUSES = ["PENDING", "CONFIRMED", "DONE", "CANCELLED"] as const;
 
@@ -83,6 +84,26 @@ export function AdminTestDriveView() {
     return list;
   }, [data, filter, dateFilter]);
 
+  function exportCsv() {
+    if (filtered.length === 0) {
+      toast.info("Tidak ada booking untuk diexport sesuai filter saat ini.");
+      return;
+    }
+    const csv = buildCsv(filtered, [
+      { header: "Nama", value: (t) => t.nama_lengkap },
+      { header: "No. Telepon", value: (t) => t.no_telepon },
+      { header: "Email", value: (t) => t.email },
+      { header: "Mobil", value: (t) => t.mobil_pilihan },
+      { header: "Tanggal Test Drive", value: (t) => formatDateID(t.tanggal_diinginkan) },
+      { header: "Waktu", value: (t) => `${t.waktu_diinginkan} WIB` },
+      { header: "Catatan", value: (t) => t.catatan ?? "" },
+      { header: "Status", value: (t) => STATUS_LABEL[t.status] ?? t.status },
+      { header: "Dibuat", value: (t) => formatDateTimeID(t.created_at) },
+    ]);
+    downloadCsv(`booking-test-drive-suzuki-bsb-${fileDatestamp()}.csv`, csv);
+    toast.success(`${filtered.length} booking diexport ke CSV.`);
+  }
+
   // Ringkasan jadwal mendatang
   const todayStr = new Date().toISOString().slice(0, 10);
   const upcoming = filtered
@@ -141,7 +162,7 @@ export function AdminTestDriveView() {
               </button>
             ))}
           </div>
-          <div className="sm:ml-auto flex items-center gap-2">
+          <div className="sm:ml-auto flex items-center gap-2 flex-wrap">
             <label htmlFor="td-date" className="text-xs text-muted-foreground whitespace-nowrap">
               Filter tanggal:
             </label>
@@ -160,6 +181,13 @@ export function AdminTestDriveView() {
                 reset
               </button>
             )}
+            <button
+              onClick={exportCsv}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
+            >
+              <Download className="w-4 h-4" aria-hidden />
+              Export CSV
+            </button>
           </div>
         </div>
 

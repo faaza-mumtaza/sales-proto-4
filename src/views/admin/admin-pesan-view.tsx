@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Mail, Phone, MessageCircle, Trash2, Search } from "lucide-react";
+import { Mail, Phone, MessageCircle, Trash2, Search, Download } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPatch } from "@/lib/api";
 import { usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
-import { formatDateID, phoneToWaNumber, type Pesan } from "@/lib/site-utils";
+import { formatDateID, formatDateTimeID, phoneToWaNumber, type Pesan } from "@/lib/site-utils";
+import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
 
 const STATUSES = ["BARU", "DIBACA", "DIBALAS", "SELESAI"] as const;
 
@@ -68,6 +69,24 @@ export function AdminPesanView() {
     return list;
   }, [data, filter, search]);
 
+  function exportCsv() {
+    if (filtered.length === 0) {
+      toast.info("Tidak ada pesan untuk diexport sesuai filter saat ini.");
+      return;
+    }
+    const csv = buildCsv(filtered, [
+      { header: "Tanggal", value: (p) => formatDateTimeID(p.created_at) },
+      { header: "Nama", value: (p) => p.nama_lengkap },
+      { header: "No. Telepon", value: (p) => p.no_telepon },
+      { header: "Email", value: (p) => p.email ?? "" },
+      { header: "Subjek", value: (p) => p.subjek ?? "" },
+      { header: "Pesan", value: (p) => p.pesan },
+      { header: "Status", value: (p) => p.status },
+    ]);
+    downloadCsv(`pesan-kontak-suzuki-bsb-${fileDatestamp()}.csv`, csv);
+    toast.success(`${filtered.length} pesan diexport ke CSV.`);
+  }
+
   return (
     <AdminShell>
       <div className="space-y-6">
@@ -113,6 +132,13 @@ export function AdminPesanView() {
               className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
             />
           </div>
+          <button
+            onClick={exportCsv}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
+          >
+            <Download className="w-4 h-4" aria-hidden />
+            Export CSV
+          </button>
         </div>
 
         {isLoading ? (
