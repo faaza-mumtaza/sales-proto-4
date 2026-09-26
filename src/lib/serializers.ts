@@ -76,7 +76,7 @@ export function serializeArtikel<T extends Record<string, unknown>>(a: T): Artik
   };
 }
 
-function safeParseArray(
+export function safeParseArray(
   raw: string | null | undefined,
 ): [] | string[] | SpecItem[] | WarnaItem[] {
   if (!raw) return [];

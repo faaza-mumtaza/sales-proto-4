@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Tag, MessageCircle } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
@@ -8,11 +9,42 @@ import { Breadcrumb } from "@/components/site/breadcrumb";
 import { Reveal } from "@/components/site/reveal";
 import { ArticleSkeleton, ErrorState } from "@/components/site/states";
 import { ShareButtons } from "@/components/site/share-buttons";
+import { ReadingProgress } from "@/components/site/reading-progress";
+import { ArticleToc, type TocItem } from "@/components/site/article-toc";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { formatDateID, waLink, type Artikel } from "@/lib/site-utils";
 import { JsonLd } from "@/components/site/json-ld";
 import { artikelJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
+
+interface TocResult {
+  items: TocItem[];
+  /** HTML konten dengan id heading tertanam (aman dari re-render React
+   *  yang menyeting ulang innerHTML — id tidak pernah hilang). */
+  html: string;
+}
+
+/** Parsing daftar isi dari HTML konten artikel + menanam id pada tiap heading
+ *  (murni, client-side; dipanggil dalam useMemo agar hasil stabil). */
+function buildToc(konten: string): TocResult {
+  if (!konten || typeof window === "undefined") return { items: [], html: konten };
+  try {
+    const doc = new DOMParser().parseFromString(konten, "text/html");
+    const headings = [...doc.querySelectorAll("h2, h3")];
+    const items = headings.map((h, i) => {
+      const id = `bagian-${i + 1}`;
+      h.id = id;
+      return {
+        id,
+        text: (h.textContent ?? "").trim().slice(0, 90) || `Bagian ${i + 1}`,
+        level: h.tagName === "H2" ? (2 as const) : (3 as const),
+      };
+    });
+    return { items, html: doc.body.innerHTML };
+  } catch {
+    return { items: [], html: konten };
+  }
+}
 
 export function ArtikelDetailView({ slug }: { slug: string }) {
   const { data, isLoading, isError, refetch } = useQuery({
@@ -26,6 +58,44 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
 
   const a = data?.article;
   usePageMeta(a ? `${a.judul} — Suzuki BSB Semarang` : "Artikel — Suzuki BSB Semarang");
+
+  // ---- Daftar isi (TOC): parsing h2/h3 dari konten + tanam id heading ke
+  // HTML sebelum dirender (aman di client — konten hanya muncul setelah
+  // fetch, tidak saat SSR; id tertanam di string sehingga kebal re-render). ----
+  const proseRef = useRef<HTMLDivElement>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const konten = a?.konten ?? "";
+  const { items: tocItems, html: tocHtml } = useMemo(() => buildToc(konten), [konten]);
+
+  // Heading aktif mengikuti posisi scroll — query elemen SEGAR setiap event
+  // (tahan bila React menyeting ulang innerHTML) + rAF agar hemat.
+  useEffect(() => {
+    if (tocItems.length === 0) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      let current: string | null = null;
+      for (const t of tocItems) {
+        const el = document.getElementById(t.id);
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= 120) current = t.id;
+        else break;
+      }
+      setActiveId(current ?? tocItems[0]?.id ?? null);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    // Update awal dijadwalkan lewat rAF (bukan sync di body effect)
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [tocItems]);
+
+  const showToc = tocItems.length >= 3;
 
   if (isLoading) {
     return (
@@ -61,6 +131,9 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
 
   return (
     <SiteLayout>
+      {/* Bilah progres membaca — selalu tampil di halaman artikel */}
+      <ReadingProgress />
+
       {/* Data terstruktur schema.org untuk SEO */}
       <JsonLd
         data={[
@@ -104,7 +177,20 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
         </Reveal>
       )}
 
-      <article className="container mx-auto px-4 py-12 max-w-3xl">
+      <div className="container mx-auto px-4 py-12 max-w-6xl flex gap-10 items-start">
+        {showToc && (
+          <aside className="hidden xl:block w-64 shrink-0 self-stretch">
+            <div className="sticky top-24">
+              <ArticleToc items={tocItems} activeId={activeId} variant="sidebar" />
+            </div>
+          </aside>
+        )}
+        <article className="max-w-3xl flex-1 min-w-0 w-full">
+        {showToc && (
+          <div className="xl:hidden mb-8">
+            <ArticleToc items={tocItems} activeId={activeId} variant="inline" />
+          </div>
+        )}
         <span className="inline-block px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full mb-4">
           {a.tipe}
         </span>
@@ -120,8 +206,9 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
           <span>{a.views.toLocaleString("id-ID")} kali dibaca</span>
         </div>
 
-        {/* Konten sudah disanitasi server-side sebelum disimpan */}
-        <div className="prose-artikel" dangerouslySetInnerHTML={{ __html: a.konten }} />
+        {/* Konten sudah disanitasi server-side sebelum disimpan; id heading
+            TOC sudah tertanam di HTML (buildToc) sehingga kebal re-render */}
+        <div ref={proseRef} className="prose-artikel" dangerouslySetInnerHTML={{ __html: tocHtml }} />
 
         {a.tags.length > 0 && (
           <div className="mt-10 flex flex-wrap gap-2">
@@ -151,7 +238,8 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
             </a>
           </div>
         </div>
-      </article>
+        </article>
+      </div>
 
       {data?.related && data.related.length > 0 && (
         <section className="py-12 bg-suzuki-light border-t border-border" aria-labelledby="judul-terkait">

@@ -1,12 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, ArrowUpDown, SlidersHorizontal, RotateCcw, Fuel, Settings } from "lucide-react";
+import { Search, ArrowUpDown, SlidersHorizontal, RotateCcw, Fuel, Settings, ChevronDown } from "lucide-react";
 import { CarCard } from "./car-card";
 import { Reveal } from "./reveal";
 import { KATEGORI, formatPriceShort, type Mobil } from "@/lib/site-utils";
 
 type SortMode = "default" | "price-asc" | "price-desc" | "name-asc";
+
+/** Jumlah kartu per “halaman” (8 = 2 baris penuh di grid xl:4-kolom / lg:3-kolom+1). */
+const PAGE_SIZE = 8;
 
 const SORT_OPTIONS: Array<{ id: SortMode; label: string }> = [
   { id: "default", label: "Urutan Standar" },
@@ -37,6 +40,7 @@ export function CarCatalog({
   const [budget, setBudget] = useState<string>("all");
   const [transmission, setTransmission] = useState<string>("all");
   const [fuel, setFuel] = useState<string>("all");
+  const [visible, setVisible] = useState<number>(PAGE_SIZE);
 
   // Opsi dinamis dari data: hanya tampilkan filter yang bermakna (≥2 variasi)
   const transmissionOptions = useMemo(() => {
@@ -101,6 +105,19 @@ export function CarCatalog({
     }
     return list;
   }, [active, cars, query, sort, budget, transmission, fuel]);
+
+  // Reset tampilan saat filter/sort berubah — pola "set state saat render"
+  // (resmi dari dokumen React, lolos rule set-state-in-effect): bila key
+  // filter berubah, visible dikembalikan ke satu halaman sebelum commit.
+  const filterKey = `${active}|${query}|${sort}|${budget}|${transmission}|${fuel}|${cars.length}`;
+  const [prevKey, setPrevKey] = useState(filterKey);
+  if (filterKey !== prevKey) {
+    setPrevKey(filterKey);
+    setVisible(PAGE_SIZE);
+  }
+
+  const shown = useMemo(() => filtered.slice(0, visible), [filtered, visible]);
+  const remaining = filtered.length - shown.length;
 
   function resetAdvanced() {
     setBudget("all");
@@ -284,13 +301,31 @@ export function CarCatalog({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((c, i) => (
-              <Reveal key={c.id} delay={Math.min(i, 7) * 70}>
-                <CarCard car={c} />
-              </Reveal>
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {shown.map((c, i) => (
+                <Reveal key={c.id} delay={Math.min(i % PAGE_SIZE, 7) * 70}>
+                  <CarCard car={c} />
+                </Reveal>
+              ))}
+            </div>
+
+            {remaining > 0 && (
+              <div className="flex flex-col items-center gap-2.5 mt-10">
+                <button
+                  onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                  className="group inline-flex items-center gap-2 px-8 py-3 rounded-full bg-suzuki-navy text-white text-sm font-semibold hover:bg-suzuki-navy/90 transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                >
+                  Tampilkan {Math.min(PAGE_SIZE, remaining)} Mobil Lagi
+                  <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" aria-hidden />
+                </button>
+                <p className="text-xs text-muted-foreground" aria-live="polite">
+                  Menampilkan <strong className="text-suzuki-navy">{shown.length}</strong> dari{" "}
+                  {filtered.length} mobil
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

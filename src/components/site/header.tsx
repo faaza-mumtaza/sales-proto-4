@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useHashRoute } from "@/lib/router";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
+import { SearchCommand } from "./search-command";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -55,10 +56,27 @@ export function SuzukiLogo({ className = "h-7 w-auto" }: { className?: string })
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const route = useHashRoute();
+
+  // Shortcut keyboard global: Ctrl/Cmd + K membuka pencarian situs
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  const openSearch = useCallback(() => setSearchOpen(true), []);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
+      {/* Command palette pencarian global (Ctrl/Cmd+K) */}
+      <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center shrink-0" aria-label="Beranda Suzuki BSB">
@@ -77,20 +95,33 @@ export function Header() {
                     key={link.to}
                     to={link.to}
                     aria-current={isActive ? "page" : undefined}
-                    className={`relative px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`nav-link relative px-4 py-2 text-sm font-medium transition-colors ${
                       isActive
                         ? "text-suzuki-navy font-bold"
                         : "text-gray-500 hover:text-suzuki-navy"
                     }`}
                   >
                     {link.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-4 right-4 h-0.5 bg-suzuki-red rounded-full" />
-                    )}
+                    <span
+                      aria-hidden
+                      className={`nav-underline ${isActive ? "scale-x-100" : ""}`}
+                    />
                   </Link>
                 );
               })}
             </nav>
+            {/* Pemicu pencarian global */}
+            <button
+              type="button"
+              onClick={openSearch}
+              aria-label="Cari di situs (Ctrl K)"
+              title="Cari di situs (Ctrl+K)"
+              className="group inline-flex items-center gap-2 px-3.5 py-2 rounded-full border border-gray-200 text-gray-400 hover:border-suzuki-red/50 hover:text-suzuki-navy transition-all hover:shadow-sm"
+            >
+              <Search className="w-4 h-4" aria-hidden />
+              <span className="hidden xl:inline text-sm">Cari…</span>
+              <kbd className="search-kbd hidden xl:inline-flex group-hover:border-suzuki-red/40">Ctrl K</kbd>
+            </button>
             <Link
               to="/kontak?form=test-drive"
               className="hidden lg:inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-suzuki-red hover:bg-suzuki-red/90 text-white text-sm font-semibold rounded-full transition-colors shadow-sm"
@@ -99,23 +130,46 @@ export function Header() {
             </Link>
           </div>
 
-          <button
-            className="md:hidden p-2.5 -mr-2.5"
-            onClick={() => setOpen(!open)}
-            aria-label={open ? "Tutup menu" : "Buka menu"}
-            aria-expanded={open}
-          >
-            {open ? (
-              <X className="h-6 w-6 text-suzuki-navy" />
-            ) : (
-              <Menu className="h-6 w-6 text-suzuki-navy" />
-            )}
-          </button>
+          <div className="flex items-center gap-1 md:hidden">
+            <button
+              type="button"
+              onClick={openSearch}
+              aria-label="Cari di situs"
+              title="Cari (Ctrl+K)"
+              className="p-2.5 -mr-1 text-suzuki-navy"
+            >
+              <Search className="h-[22px] w-[22px]" aria-hidden />
+            </button>
+            <button
+              className="p-2.5 -mr-2.5"
+              onClick={() => setOpen(!open)}
+              aria-label={open ? "Tutup menu" : "Buka menu"}
+              aria-expanded={open}
+            >
+              {open ? (
+                <X className="h-6 w-6 text-suzuki-navy" />
+              ) : (
+                <Menu className="h-6 w-6 text-suzuki-navy" />
+              )}
+            </button>
+          </div>
         </div>
 
         {open && (
           <nav className="md:hidden pb-4 border-t border-gray-100 pt-3" aria-label="Navigasi mobile">
             <div className="flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  openSearch();
+                }}
+                className="flex items-center gap-3 text-sm font-medium py-3 px-4 rounded-lg text-suzuki-navy bg-suzuki-light hover:bg-gray-100 transition-colors"
+              >
+                <Search className="w-4 h-4" aria-hidden />
+                Cari mobil, promo, atau artikel…
+                <kbd className="search-kbd ml-auto">Ctrl K</kbd>
+              </button>
               {navLinks.map((link) => {
                 const isActive =
                   link.to === "/"

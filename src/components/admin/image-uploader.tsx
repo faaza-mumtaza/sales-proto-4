@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Upload, Loader2, LinkIcon } from "lucide-react";
 import { apiPost } from "@/lib/api";
 
-function fileToBase64(file: File): Promise<string> {
+/** Konversi File ke string base64 (tanpa prefix data URL). */
+export function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
     r.onload = () => {

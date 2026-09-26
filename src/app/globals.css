@@ -307,6 +307,13 @@
   dl {
     break-inside: avoid;
   }
+
+  /* TOC & elemen navigasi artikel tidak ikut dicetak */
+  .toc-sidebar,
+  .toc-inline,
+  .reading-progress {
+    display: none !important;
+  }
 }
 
 /* ---------------------------------------------------------------- */
@@ -505,6 +512,96 @@ h3 {
 /* Badge notifikasi admin muncul dengan pop (backwards: lihat catatan page-enter) */
 .badge-pop {
   animation: badge-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* ---------------------------------------------------------------- */
+/* Navigasi header: underline animasi (hover & aktif)                */
+/* ---------------------------------------------------------------- */
+.nav-underline {
+  position: absolute;
+  bottom: 0;
+  left: 1rem;
+  right: 1rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--suzuki-red), #f0625f);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover .nav-underline,
+.nav-link:focus-visible .nav-underline,
+.nav-underline.scale-x-100 {
+  transform: scaleX(1);
+}
+
+/* ---------------------------------------------------------------- */
+/* Kbd chip — indikator shortcut (Ctrl K / Enter)                    */
+/* ---------------------------------------------------------------- */
+.search-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4em;
+  padding: 0.15em 0.5em;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  pointer-events: none;
+  user-select: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+/* ---------------------------------------------------------------- */
+/* Bilah progres membaca (halaman artikel)                           */
+/* ---------------------------------------------------------------- */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 60; /* di atas header sticky (z-50) */
+  pointer-events: none;
+}
+.reading-progress-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--suzuki-red) 0%, #f0625f 55%, var(--suzuki-navy) 100%);
+  border-radius: 0 999px 999px 0;
+}
+
+/* ---------------------------------------------------------------- */
+/* Daftar isi (TOC) artikel                                          */
+/* ---------------------------------------------------------------- */
+/* Heading artikel tidak tertutup header sticky saat lompat ke bagian */
+.prose-artikel h2,
+.prose-artikel h3 {
+  scroll-margin-top: 5.25rem;
+}
+/* Garis aksen kiri pada heading — visual anchor saat scroll */
+.prose-artikel h2 {
+  position: relative;
+  padding-left: 0.85em;
+}
+.prose-artikel h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.18em;
+  bottom: 0.18em;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--suzuki-red), #f0625f);
+}
+.toc-link {
+  border-radius: 0 8px 8px 0;
 }
 
 /* Placeholder pattern untuk kartu artikel tanpa cover */

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import slugify from "slugify";
 import { toast } from "sonner";
-import { Plus, Trash2, Eye, EyeOff, Save, Palette } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Save, Palette, Image as ImageIcon } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiPost, apiPut } from "@/lib/api";
 import { ImageUploader, GalleryUploader } from "./image-uploader";
+import { WarnaImageInput } from "./warna-image-input";
 import { navigate } from "@/lib/router";
 import type { Mobil, SpecItem, WarnaItem } from "@/lib/site-utils";
 
@@ -371,41 +372,53 @@ export function CarForm({ initial }: { initial?: Mobil }) {
           </button>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
-          Tampil sebagai pilihan warna di halaman detail mobil (maks. 12). Kolom gambar
-          opsional — tempel URL gambar unit dengan warna tersebut.
+          Tampil sebagai pilihan warna di halaman detail mobil (maks. 12). Foto per
+          warna opsional — upload file atau tempel URL; foto tampil di galeri
+          detail saat warna dipilih.
         </p>
         <div className="space-y-2">
           {form.warna.map((w, i) => (
-            <div key={i} className="flex flex-wrap sm:flex-nowrap gap-2 items-center bg-muted/40 rounded-lg p-2">
-              <input
-                type="color"
-                value={w.hex}
-                onChange={(e) => setWarna(i, { hex: e.target.value })}
-                aria-label={`Warna ${i + 1} kode warna`}
-                className="w-10 h-10 rounded-lg border border-input cursor-pointer bg-white p-1 shrink-0"
-              />
-              <input
-                className={`${inputCls} flex-1 min-w-32`}
-                value={w.nama}
-                onChange={(e) => setWarna(i, { nama: e.target.value })}
-                placeholder="Nama warna (mis. Solid White)"
-                aria-label={`Warna ${i + 1} nama`}
-              />
-              <input
-                className={`${inputCls} flex-[2] min-w-40`}
-                value={w.gambar ?? ""}
-                onChange={(e) => setWarna(i, { gambar: e.target.value })}
-                placeholder="URL gambar unit warna ini (opsional)"
-                aria-label={`Warna ${i + 1} gambar`}
-              />
-              <button
-                type="button"
-                onClick={() => setForm((f) => ({ ...f, warna: f.warna.filter((_, x) => x !== i) }))}
-                className="p-2 text-muted-foreground hover:text-suzuki-red shrink-0"
-                aria-label={`Hapus warna ${i + 1}`}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+            <div key={i} className="flex flex-col gap-2 bg-muted/40 rounded-lg p-2.5">
+              <div className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
+                <input
+                  type="color"
+                  value={w.hex}
+                  onChange={(e) => setWarna(i, { hex: e.target.value })}
+                  aria-label={`Warna ${i + 1} kode warna`}
+                  className="w-10 h-10 rounded-lg border border-input cursor-pointer bg-white p-1 shrink-0"
+                  title={w.nama || `Warna ${i + 1}`}
+                />
+                <input
+                  className={`${inputCls} flex-1 min-w-32`}
+                  value={w.nama}
+                  onChange={(e) => setWarna(i, { nama: e.target.value })}
+                  placeholder="Nama warna (mis. Solid White)"
+                  aria-label={`Warna ${i + 1} nama`}
+                />
+                {w.gambar && (
+                  <span
+                    className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full shrink-0"
+                    title="Warna ini punya foto unit sendiri"
+                  >
+                    <ImageIcon className="w-3 h-3" aria-hidden /> Ada foto
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, warna: f.warna.filter((_, x) => x !== i) }))}
+                  className="p-2 text-muted-foreground hover:text-suzuki-red shrink-0"
+                  aria-label={`Hapus warna ${i + 1}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="sm:pl-12">
+                <WarnaImageInput
+                  value={w.gambar}
+                  onChange={(url) => setWarna(i, { gambar: url })}
+                  index={i}
+                />
+              </div>
             </div>
           ))}
           {form.warna.length === 0 && (
