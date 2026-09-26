@@ -178,6 +178,16 @@ export interface Faq {
   jawaban: string;
 }
 
+export type NewsletterStatus = "AKTIF" | "BERHENTI";
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  status: string;
+  ip_address?: string | null;
+  created_at: string;
+}
+
 /** Label ramah untuk kategori FAQ. */
 export const FAQ_KATEGORI_LABEL: Record<string, string> = {
   umum: "Umum",

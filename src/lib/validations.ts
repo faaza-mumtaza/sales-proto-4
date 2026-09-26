@@ -328,3 +328,27 @@ export const faqToggleSchema = z.object({
   id: z.string().max(64),
   is_published: z.boolean(),
 });
+
+/** Form langganan newsletter publik (footer) — honeypot menyatu. */
+export const newsletterSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email("Email tidak valid")
+    .max(255, "Email maksimal 255 karakter"),
+  website: z.string().max(0).optional(), // honeypot — harus kosong
+});
+export type NewsletterInput = z.infer<typeof newsletterSchema>;
+
+/** Unsubscribe newsletter — email + token HMAC (dibuat server, ditempel di link email). */
+export const newsletterUnsubscribeSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Email tidak valid").max(255),
+  token: z.string().trim().min(16).max(128),
+});
+
+/** Aksi massal newsletter — aktifkan / hentikan langganan banyak subscriber. */
+export const newsletterBulkStatusSchema = z.object({
+  ids: bulkIdsField,
+  status: z.enum(["AKTIF", "BERHENTI"]),
+});

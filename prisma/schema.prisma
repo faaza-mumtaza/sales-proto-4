@@ -134,6 +134,18 @@ model Faq {
   @@map("faqs")
 }
 
+model SubscriberNewsletter {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  status     String   @default("AKTIF") // AKTIF | BERHENTI (unsubscribe)
+  ip_address String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status, created_at])
+  @@map("newsletter_subscribers")
+}
+
 model BookingServis {
   id                 String   @id @default(uuid())
   nama_lengkap       String

@@ -70,4 +70,6 @@ export const RATE_LIMITS = {
   changePassword: { max: 5, windowMs: 15 * 60_000 },
   captcha: { max: 30, windowMs: 60_000 },
   upload: { max: 40, windowMs: 10 * 60_000 },
+  newsletter: { max: 5, windowMs: 10 * 60_000 },
+  newsletterUnsub: { max: 10, windowMs: 10 * 60_000 },
 } as const;
