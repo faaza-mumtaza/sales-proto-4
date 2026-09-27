@@ -6,7 +6,6 @@ import { Calendar, Tag, MessageCircle, Clock3, Printer } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
 import { Breadcrumb } from "@/components/site/breadcrumb";
-import { Reveal } from "@/components/site/reveal";
 import { ArticleSkeleton, ErrorState } from "@/components/site/states";
 import { ShareButtons } from "@/components/site/share-buttons";
 import { ReadingProgress } from "@/components/site/reading-progress";
@@ -20,7 +19,7 @@ import { artikelJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 interface TocResult {
   items: TocItem[];
   /** HTML konten dengan id heading tertanam (aman dari re-render React
-   *  yang menyeting ulang innerHTML — id tidak pernah hilang). */
+   * yang menyeting ulang innerHTML — id tidak pernah hilang). */
   html: string;
 }
 
@@ -33,7 +32,7 @@ function readingMinutes(html: string): number {
   return Math.max(1, Math.round(words / 200));
 }
 /** Parsing daftar isi dari HTML konten + menanam id pada tiap heading
- *  (murni, client-side; dipanggil dalam useMemo agar hasil stabil). */
+ * (murni, client-side; dipanggil dalam useMemo agar hasil stabil). */
 function buildToc(konten: string): TocResult {
   if (!konten || typeof window === "undefined") return { items: [], html: konten };
   try {
@@ -167,7 +166,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
           <Breadcrumb
             items={[
               { label: "Artikel", to: "/artikel" },
-              { label: a.tipe === "PROMO" ? "Promo" : a.tipe === "KEGIATAN" ? "Kegiatan" : "Berita", to: a.tipe === "PROMO" ? "/promo" : "/artikel" },
+              { label: a.tipe === "PROMO" ? "Promo" : a.tipe === "KEGIATAN" ? "Kegiatan" : "Berita", to: a.tipe === "PROMO" ? "/artikel?tipe=PROMO" : "/artikel" },
               { label: a.judul.length > 40 ? a.judul.slice(0, 40) + "…" : a.judul },
             ]}
           />
@@ -175,7 +174,6 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
       </div>
 
       {a.cover_image ? (
-        <Reveal variant="zoom">
           <div className="w-full aspect-[21/9] max-h-[500px] overflow-hidden bg-muted relative group">
             <img
               src={a.cover_image}
@@ -184,13 +182,10 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
               loading="eager"
             />
           </div>
-        </Reveal>
       ) : (
-        <Reveal variant="zoom">
           <div className="w-full aspect-[21/9] max-h-[500px] overflow-hidden bg-gradient-to-br from-suzuki-navy via-suzuki-navy to-[#2c3e63] pattern-dots flex items-center justify-center">
             <Tag className="w-20 h-20 text-white/20" aria-hidden />
           </div>
-        </Reveal>
       )}
 
       <div className="container mx-auto px-4 py-12 max-w-6xl flex gap-10 items-start">
@@ -210,7 +205,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
         <span className="inline-block px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full mb-4">
           {a.tipe}
         </span>
-        <h1 className="text-3xl md:text-4xl font-bold text-suzuki-navy dark:text-foreground mb-4 leading-tight">
+        <h1 className="text-3xl md:text-4xl font-bold text-suzuki-navy mb-4 leading-tight">
           {a.judul}
         </h1>
         <div className="flex items-center gap-3 text-sm text-muted-foreground mb-8 flex-wrap">
@@ -273,16 +268,14 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
       {data?.related && data.related.length > 0 && (
         <section className="py-12 bg-suzuki-light border-t border-border print-hide" aria-labelledby="judul-terkait">
           <div className="container mx-auto px-4">
-            <h2 id="judul-terkait" className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-8 text-center flex items-center justify-center gap-4">
+            <h2 id="judul-terkait" className="text-2xl font-bold text-suzuki-navy mb-8 text-center flex items-center justify-center gap-4">
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
               Artikel Terkait
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {data.related.map((r, i) => (
-                <Reveal key={r.id} delay={i * 80}>
-                  <ArticleCard article={r} />
-                </Reveal>
+              {data.related.map((r) => (
+                  <ArticleCard key={r.id} article={r} />
               ))}
             </div>
           </div>

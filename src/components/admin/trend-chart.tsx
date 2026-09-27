@@ -26,14 +26,14 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
   const totalTd = data.reduce((s, d) => s + d.test_drive, 0);
 
   return (
-    <div className="bg-white dark:bg-card rounded-xl border border-border p-6">
+    <div className="bg-white rounded-xl border border-border p-6">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-suzuki-red/10 rounded-lg flex items-center justify-center">
             <ChartColumn className="w-5 h-5 text-suzuki-red" aria-hidden />
           </div>
           <div>
-            <h2 className="font-bold text-suzuki-navy dark:text-foreground">Tren Interaksi Pengunjung</h2>
+            <h2 className="font-bold text-suzuki-navy">Tren Interaksi Pengunjung</h2>
             <p className="text-xs text-muted-foreground">
               Pesan kontak &amp; booking test drive — 6 bulan terakhir
             </p>
@@ -42,12 +42,12 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
         <div className="flex gap-4 text-sm">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm bg-suzuki-red inline-block" aria-hidden />
-            <span className="font-semibold text-suzuki-navy dark:text-foreground">{totalPesan}</span>
+            <span className="font-semibold text-suzuki-navy">{totalPesan}</span>
             <span className="text-muted-foreground">pesan</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-suzuki-navy dark:bg-foreground inline-block" aria-hidden />
-            <span className="font-semibold text-suzuki-navy dark:text-foreground">{totalTd}</span>
+            <span className="w-3 h-3 rounded-sm bg-suzuki-navy inline-block" aria-hidden />
+            <span className="font-semibold text-suzuki-navy">{totalTd}</span>
             <span className="text-muted-foreground">booking</span>
           </span>
         </div>

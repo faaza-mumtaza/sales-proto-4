@@ -31,7 +31,7 @@ export function AdminArtikelFormView({ artikelId }: { artikelId?: string }) {
             <ArrowLeft className="w-4 h-4" aria-hidden />
             Kembali ke Artikel
           </Link>
-          <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground">
+          <h1 className="text-2xl font-bold text-suzuki-navy">
             {isEdit ? "Edit Artikel" : "Tulis Artikel Baru"}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -40,18 +40,18 @@ export function AdminArtikelFormView({ artikelId }: { artikelId?: string }) {
         </div>
 
         {isEdit && isLoading ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
+          <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat artikel…
           </div>
         ) : isEdit && (isError || !artikel) ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center">
+          <div className="bg-white rounded-xl border border-border p-8 text-center">
             <p className="text-muted-foreground text-sm mb-3">Artikel tidak ditemukan.</p>
             <Link to="/admin/artikel" className="text-suzuki-red underline text-sm">
               Kembali ke daftar artikel
             </Link>
           </div>
         ) : (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-6 md:p-8">
+          <div className="bg-white rounded-xl border border-border p-6 md:p-8">
             <ArtikelEditor initial={artikel} />
           </div>
         )}

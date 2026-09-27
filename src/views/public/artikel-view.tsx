@@ -6,7 +6,6 @@ import { Search, X, Tag, ChevronDown, Flame, Eye } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
 import { ArticleSkeleton, ErrorState, EmptyState } from "@/components/site/states";
-import { Reveal } from "@/components/site/reveal";
 import { usePageMeta, useHashRoute, Link } from "@/lib/router";
 import { apiGet } from "@/lib/api";
 import { TIPE_ARTIKEL, type Artikel } from "@/lib/site-utils";
@@ -80,14 +79,9 @@ export function ArtikelView() {
 
   return (
     <SiteLayout>
-      <section className="bg-suzuki-navy py-16 text-white relative overflow-hidden">
-        <div className="decoration absolute -top-20 -right-20 w-72 h-72 rounded-full bg-suzuki-red/10 blur-3xl" />
-        <div className="container mx-auto px-4 text-center relative">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-4">
-            <span className="inline-block w-10 h-1.5 rounded-full bg-suzuki-red" aria-hidden />
-            Artikel &amp; Berita
-            <span className="inline-block w-10 h-1.5 rounded-full bg-suzuki-red" aria-hidden />
-          </h1>
+      <section className="bg-suzuki-navy py-16 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Artikel &amp; Berita</h1>
           <p className="text-white/70 max-w-2xl mx-auto">
             Informasi promo terbaru, berita otomotif, dan kegiatan Suzuki BSB Semarang.
           </p>
@@ -130,7 +124,7 @@ export function ArtikelView() {
                 className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
                   tipe === t.id
                     ? "bg-suzuki-red text-white shadow-md shadow-suzuki-red/30"
-                    : "bg-muted text-muted-foreground hover:text-suzuki-navy dark:hover:text-white hover:bg-border/60"
+                    : "bg-muted text-muted-foreground hover:text-suzuki-navy hover:bg-border/60"
                 }`}
               >
                 {t.label}
@@ -152,7 +146,7 @@ export function ArtikelView() {
                   className={`px-3 py-1 rounded-full text-xs transition-all ${
                     tag === t
                       ? "bg-suzuki-navy text-white font-medium"
-                      : "bg-muted text-muted-foreground hover:text-suzuki-navy dark:hover:text-white"
+                      : "bg-muted text-muted-foreground hover:text-suzuki-navy"
                   }`}
                 >
                   #{t}
@@ -181,9 +175,8 @@ export function ArtikelView() {
 
           {/* Artikel terpopuler — strip peringkat berdasarkan jumlah pembaca */}
           {!isLoading && !isError && popular.length >= 3 && (
-            <Reveal variant="fade">
               <div className="mb-10 rounded-2xl border border-border bg-card p-5 sm:p-6">
-                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-suzuki-navy dark:text-foreground mb-4">
+                <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-suzuki-navy mb-4">
                   <Flame className="w-4 h-4 text-suzuki-red" aria-hidden />
                   Artikel Terpopuler
                   <span className="ml-auto text-[11px] font-medium normal-case tracking-normal text-muted-foreground">
@@ -207,7 +200,7 @@ export function ArtikelView() {
                         >
                           {i + 1}
                         </span>
-                        <span className="text-xs font-semibold text-suzuki-navy dark:text-foreground leading-snug line-clamp-3 group-hover:text-suzuki-red transition-colors">
+                        <span className="text-xs font-semibold text-suzuki-navy leading-snug line-clamp-3 group-hover:text-suzuki-red transition-colors">
                           {a.judul}
                         </span>
                         <span className="mt-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -221,7 +214,6 @@ export function ArtikelView() {
                   ))}
                 </ol>
               </div>
-            </Reveal>
           )}
 
           {isLoading ? (
@@ -245,17 +237,15 @@ export function ArtikelView() {
           ) : (
             <>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {visible.map((a, i) => (
-                  <Reveal key={a.id} delay={Math.min(i % PAGE_SIZE, 5) * 80}>
-                    <ArticleCard article={a} />
-                  </Reveal>
+                {visible.map((a) => (
+                    <ArticleCard key={a.id} article={a} />
                 ))}
               </div>
               {hasMore && (
                 <div className="flex flex-col items-center gap-2 mt-10">
                   <button
                     onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-                    className="inline-flex items-center gap-2 px-8 py-3 border border-suzuki-navy/30 dark:border-white/20 text-suzuki-navy dark:text-white hover:bg-suzuki-navy dark:hover:bg-white hover:text-white dark:hover:text-suzuki-navy hover:border-suzuki-navy dark:hover:border-white rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
+                    className="inline-flex items-center gap-2 px-8 py-3 border border-suzuki-navy/30 text-suzuki-navy hover:bg-suzuki-navy hover:text-white hover:border-suzuki-navy rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:shadow-suzuki-navy/20 hover:-translate-y-0.5 active:scale-95"
                   >
                     Muat Lebih Banyak
                     <ChevronDown className="w-4 h-4" aria-hidden />

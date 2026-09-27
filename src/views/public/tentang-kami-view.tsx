@@ -1,7 +1,6 @@
 "use client";
 
 import { SiteLayout } from "@/components/site/site-layout";
-import { Reveal } from "@/components/site/reveal";
 import { usePageMeta } from "@/lib/router";
 
 export function TentangKamiView() {
@@ -9,14 +8,9 @@ export function TentangKamiView() {
 
   return (
     <SiteLayout>
-      <section className="bg-suzuki-navy py-16 text-white relative overflow-hidden">
-        <div className="decoration absolute -top-20 -right-20 w-72 h-72 rounded-full bg-suzuki-red/10 blur-3xl" />
-        <div className="container mx-auto px-4 text-center relative">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-4">
-            <span className="inline-block w-10 h-1.5 rounded-full bg-suzuki-red" aria-hidden />
-            Tentang Kami
-            <span className="inline-block w-10 h-1.5 rounded-full bg-suzuki-red" aria-hidden />
-          </h1>
+      <section className="bg-suzuki-navy py-16 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Tentang Kami</h1>
           <p className="text-white/70 max-w-2xl mx-auto">
             Dealer resmi Suzuki BSB Semarang, mitra terpercaya untuk kebutuhan kendaraan
             Anda.
@@ -27,8 +21,7 @@ export function TentangKamiView() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <Reveal>
-              <h2 className="text-2xl md:text-3xl font-bold text-suzuki-navy dark:text-foreground mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-suzuki-navy mb-6">
                 Dealer Resmi Suzuki Terpercaya di Semarang
               </h2>
               <div className="space-y-4 text-muted-foreground">
@@ -56,8 +49,6 @@ export function TentangKamiView() {
                   serta garansi resmi hanya di Suzuki BSB Semarang.
                 </p>
               </div>
-            </Reveal>
-            <Reveal variant="zoom" delay={120}>
               <div className="aspect-[4/3] rounded-xl overflow-hidden shadow-lg group">
                 <img
                   src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&q=80"
@@ -66,7 +57,6 @@ export function TentangKamiView() {
                   loading="lazy"
                 />
               </div>
-            </Reveal>
           </div>
         </div>
       </section>
@@ -74,7 +64,6 @@ export function TentangKamiView() {
       <section className="py-16 bg-suzuki-light">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8">
-            <Reveal delay={0}>
               <div className="bg-suzuki-navy text-white rounded-xl p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
                 <h3 className="text-xl font-bold mb-4">Visi Kami</h3>
                 <p className="text-white/80">
@@ -83,8 +72,6 @@ export function TentangKamiView() {
                   setiap pelanggan.
                 </p>
               </div>
-            </Reveal>
-            <Reveal delay={100}>
               <div className="bg-suzuki-red text-white rounded-xl p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full">
                 <h3 className="text-xl font-bold mb-4">Misi Kami</h3>
                 <ul className="text-white/90 space-y-2">
@@ -94,14 +81,13 @@ export function TentangKamiView() {
                   <li>• Terus berinovasi dalam layanan dan teknologi</li>
                 </ul>
               </div>
-            </Reveal>
           </div>
         </div>
       </section>
 
       <section className="py-8 pb-16" aria-labelledby="judul-lokasi">
         <div className="container mx-auto px-4">
-          <h2 id="judul-lokasi" className="text-2xl md:text-3xl font-bold text-suzuki-navy dark:text-foreground mb-6 text-center">
+          <h2 id="judul-lokasi" className="text-2xl md:text-3xl font-bold text-suzuki-navy mb-6 text-center">
             Lokasi Kami
           </h2>
           <div className="rounded-xl overflow-hidden border border-border shadow-sm">

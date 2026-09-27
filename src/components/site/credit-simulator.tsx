@@ -2,7 +2,7 @@
 
 // Kalkulator simulasi kredit (estimasi) untuk halaman detail mobil.
 // Perhitungan memakai model bunga flat yang umum dipakai dealer di Indonesia:
-//   angsuran = (pokok + pokok × bunga% × tenor) / (tenor × 12)
+// angsuran = (pokok + pokok × bunga% × tenor) / (tenor × 12)
 // Angka bersifat estimasi — angka final mengikuti leasing/polinan Suzuki.
 
 import { useMemo, useState } from "react";
@@ -160,19 +160,19 @@ export function CreditSimulator({
               <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm">
                 <div>
                   <dt className="text-xs text-muted-foreground">Pokok pinjaman</dt>
-                  <dd className="font-semibold text-suzuki-navy dark:text-foreground">
+                  <dd className="font-semibold text-suzuki-navy">
                     {calc ? formatPrice(calc.pokok) : "-"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Total bunga</dt>
-                  <dd className="font-semibold text-suzuki-navy dark:text-foreground">
+                  <dd className="font-semibold text-suzuki-navy">
                     {calc ? formatPrice(calc.totalBunga) : "-"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Total pembayaran</dt>
-                  <dd className="font-semibold text-suzuki-navy dark:text-foreground">
+                  <dd className="font-semibold text-suzuki-navy">
                     {calc ? formatPrice(calc.totalBayar) : "-"}
                   </dd>
                 </div>

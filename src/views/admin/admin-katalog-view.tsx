@@ -102,7 +102,7 @@ export function AdminKatalogView() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground">Katalog Mobil</h1>
+            <h1 className="text-2xl font-bold text-suzuki-navy">Katalog Mobil</h1>
             <p className="text-muted-foreground text-sm mt-1">
               Kelola daftar mobil yang tampil di website — tambah, edit, urutan, dan tampil/sembunyi.
             </p>
@@ -116,9 +116,9 @@ export function AdminKatalogView() {
           </Link>
         </div>
 
-        <div className="bg-white dark:bg-card rounded-xl border border-border overflow-hidden">
+        <div className="bg-white rounded-xl border border-border overflow-hidden">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b">
-            <h2 className="font-semibold text-suzuki-navy dark:text-foreground">
+            <h2 className="font-semibold text-suzuki-navy">
               Daftar Mobil <span className="text-muted-foreground font-normal">({filtered.length})</span>
             </h2>
             <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
@@ -137,7 +137,7 @@ export function AdminKatalogView() {
               </div>
               <button
                 onClick={exportCsv}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white dark:bg-white/5 text-sm text-suzuki-navy dark:text-foreground font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
               >
                 <Download className="w-4 h-4" aria-hidden />
                 Export CSV
@@ -215,7 +215,7 @@ export function AdminKatalogView() {
                               <div className="w-14 h-10 bg-muted rounded" />
                             )}
                             <div className="min-w-0">
-                              <p className="font-medium text-suzuki-navy dark:text-foreground truncate">
+                              <p className="font-medium text-suzuki-navy truncate">
                                 {m.nama}
                                 {m.is_new && (
                                   <span className="ml-2 text-[10px] bg-suzuki-navy text-white px-1.5 py-0.5 rounded align-middle">
@@ -235,7 +235,7 @@ export function AdminKatalogView() {
                               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
                                 topDemand?.id === m.id
                                   ? "bg-gradient-to-r from-suzuki-red to-orange-500 text-white shadow-sm"
-                                  : "bg-orange-50 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300"
+                                  : "bg-orange-50 text-orange-700"
                               }`}
                               title={`${m.jumlah_minat} permintaan test drive nyata melalui website`}
                             >
@@ -255,8 +255,8 @@ export function AdminKatalogView() {
                             title={m.is_published ? "Sembunyikan dari website" : "Tampilkan di website"}
                             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                               m.is_published
-                                ? "bg-green-100 dark:bg-green-950/70 dark:text-green-300 text-green-800 hover:bg-green-200 dark:hover:bg-green-900"
-                                : "bg-red-100 dark:bg-red-950/70 dark:text-red-300 text-red-700 hover:bg-red-200 dark:hover:bg-red-900"
+                                ? "bg-green-100 text-green-800 hover:bg-green-200"
+                                : "bg-red-100 text-red-700 hover:bg-red-200"
                             }`}
                           >
                             {m.is_published ? (
@@ -275,14 +275,14 @@ export function AdminKatalogView() {
                             <Link
                               to={`/mobil/${m.slug}`}
                               title="Lihat di website"
-                              className="p-2 text-muted-foreground hover:text-suzuki-navy dark:hover:text-white rounded-lg hover:bg-muted transition-colors"
+                              className="p-2 text-muted-foreground hover:text-suzuki-navy rounded-lg hover:bg-muted transition-colors"
                             >
                               <ExternalLink className="w-4 h-4" />
                             </Link>
                             <Link
                               to={`/admin/katalog/${m.id}/edit`}
                               title="Edit mobil"
-                              className="p-2 text-muted-foreground hover:text-suzuki-navy dark:hover:text-white rounded-lg hover:bg-muted transition-colors"
+                              className="p-2 text-muted-foreground hover:text-suzuki-navy rounded-lg hover:bg-muted transition-colors"
                             >
                               <Pencil className="w-4 h-4" />
                             </Link>
@@ -290,7 +290,7 @@ export function AdminKatalogView() {
                               onClick={() => void onDelete(m.id, m.nama)}
                               disabled={deleting === m.id}
                               title="Hapus mobil"
-                              className="p-2 text-muted-foreground hover:text-suzuki-red rounded-lg hover:bg-red-50 dark:hover:bg-red-950/60 transition-colors disabled:opacity-50"
+                              className="p-2 text-muted-foreground hover:text-suzuki-red rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -318,7 +318,7 @@ export function AdminKatalogView() {
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-suzuki-navy dark:text-foreground truncate">
+                        <p className="text-sm font-medium text-suzuki-navy truncate">
                           {m.nama}
                           {m.is_new && (
                             <span className="ml-1.5 text-[10px] bg-suzuki-navy text-white px-1.5 py-0.5 rounded">
@@ -328,7 +328,7 @@ export function AdminKatalogView() {
                         </p>
                         <span
                           className={`text-[10px] px-2 py-0.5 rounded-full shrink-0 ${
-                            m.is_published ? "bg-green-100 dark:bg-green-950/70 dark:text-green-300 text-green-800" : "bg-red-100 dark:bg-red-950/70 dark:text-red-300 text-red-700"
+                            m.is_published ? "bg-green-100 text-green-800" : "bg-red-100 text-red-700"
                           }`}
                         >
                           {m.is_published ? "Tampil" : "Disembunyikan"}
@@ -343,7 +343,7 @@ export function AdminKatalogView() {
                             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                               topDemand?.id === m.id
                                 ? "bg-gradient-to-r from-suzuki-red to-orange-500 text-white"
-                                : "bg-orange-50 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300"
+                                : "bg-orange-50 text-orange-700"
                           }`}
                             title={`${m.jumlah_minat} permintaan test drive nyata melalui website`}
                           >
@@ -355,13 +355,13 @@ export function AdminKatalogView() {
                       <div className="mt-2.5 flex flex-wrap gap-2">
                         <Link
                           to={`/admin/katalog/${m.id}/edit`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-white dark:bg-white/5 text-xs text-suzuki-navy dark:text-foreground"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-white text-xs text-suzuki-navy"
                         >
                           <Pencil className="w-3.5 h-3.5" aria-hidden /> Edit
                         </Link>
                         <button
                           onClick={() => void togglePublish(m)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-white dark:bg-white/5 text-xs text-suzuki-navy dark:text-foreground"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-white text-xs text-suzuki-navy"
                         >
                           {m.is_published ? (
                             <>
@@ -376,7 +376,7 @@ export function AdminKatalogView() {
                         <button
                           onClick={() => void onDelete(m.id, m.nama)}
                           disabled={deleting === m.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-white dark:bg-white/5 text-xs text-suzuki-red disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-white text-xs text-suzuki-red disabled:opacity-50"
                         >
                           <Trash2 className="w-3.5 h-3.5" aria-hidden /> Hapus
                         </button>

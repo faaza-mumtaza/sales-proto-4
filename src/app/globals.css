@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Dark mode DINONAKTIFKAN: varian dark mengikat ke class .dark yang tidak
+   pernah dipasang di mana pun (tanpa next-themes). Ini membuat semua kelas
+   dark: pada komponen shadcn/ui menjadi inert — termasuk pada perangkat
+   dengan prefers-color-scheme: dark. */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -77,47 +81,6 @@
   --suzuki-light: #f8fafc;
 }
 
-.dark {
-  /* Palet gelap "Suzuki Night": navy pekat berlapis — halaman paling gelap,
-     kartu lebih terang (elevasi), dan --suzuki-light diubah menjadi nilai
-     tengah agar section bg-suzuki-light otomatis menyesuaikan tanpa edit komponen. */
-  --background: #0d1526;
-  --foreground: #e8edf6;
-  --card: #16223c;
-  --card-foreground: #e8edf6;
-  --popover: #16223c;
-  --popover-foreground: #e8edf6;
-  --primary: #e32322;
-  --primary-foreground: #ffffff;
-  --secondary: #1c2a47;
-  --secondary-foreground: #e8edf6;
-  --muted: #1c2a47;
-  --muted-foreground: #94a3b8;
-  --accent: #e32322;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #243354;
-  --input: #243354;
-  --ring: #e32322;
-
-  /* Brand surfaces tetap brand (merah & navy tidak berubah);
-     suzuki-light menjadi "section gelap" di antara background & card. */
-  --suzuki-light: #111c32;
-
-  /* Kontrol formulir bawaan browser (select, scrollbar, autofill) ikut gelap */
-  color-scheme: dark;
-}
-
-/* Wordmark logo Suzuki: navy di mode terang, terang di mode gelap.
-   (Filter brightness-0 invert pada pemakaian di atas permukaan navy tetap menang.) */
-.logo-wordmark {
-  fill: #1a2942;
-}
-.dark .logo-wordmark {
-  fill: #f1f5f9;
-}
-
 @layer base {
   * {
     border-color: var(--color-border);
@@ -145,26 +108,17 @@
   margin: 1.5em 0 0.6em;
   color: var(--suzuki-navy);
 }
-.dark .prose-artikel h1 {
-  color: var(--foreground);
-}
 .prose-artikel h2 {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 1.4em 0 0.5em;
   color: var(--suzuki-navy);
 }
-.dark .prose-artikel h2 {
-  color: var(--foreground);
-}
 .prose-artikel h3 {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 1.2em 0 0.4em;
   color: var(--suzuki-navy);
-}
-.dark .prose-artikel h3 {
-  color: var(--foreground);
 }
 .prose-artikel p {
   margin: 0.9em 0;
@@ -231,18 +185,6 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--suzuki-red);
 }
-.dark ::-webkit-scrollbar-thumb {
-  background: #33456b;
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: var(--suzuki-red);
-}
-.dark .scroll-thin::-webkit-scrollbar-thumb {
-  background: #33456b;
-}
-.dark .scroll-thin::-webkit-scrollbar-thumb:hover {
-  background: var(--suzuki-red);
-}
 
 /* Line clamp util (Tailwind v4 sudah punya, jaga kompatibilitas kustom) */
 .line-clamp-2 {
@@ -266,30 +208,104 @@
   display: none;
 }
 
+/* Scrollbar tipis untuk daftar panjang di dalam panel */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--suzuki-navy) transparent;
+}
+.scroll-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--suzuki-navy);
+  border-radius: 999px;
+}
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--suzuki-red);
+}
+
+/* Placeholder pattern untuk panel gambar tanpa foto */
+.pattern-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1.5px, transparent 1.5px);
+  background-size: 14px 14px;
+}
+
+/* Kbd chip — indikator shortcut (Ctrl K / Enter) */
+.search-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4em;
+  padding: 0.15em 0.5em;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------------------------------------------------------------- */
+/* Daftar isi (TOC) & progres membaca artikel                        */
+/* ---------------------------------------------------------------- */
+/* Heading artikel tidak tertutup header sticky saat lompat ke bagian */
+.prose-artikel h2,
+.prose-artikel h3 {
+  scroll-margin-top: 5.25rem;
+}
+.toc-link {
+  border-radius: 0 8px 8px 0;
+}
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 60; /* di atas header sticky (z-50) */
+  pointer-events: none;
+}
+.reading-progress-bar {
+  height: 100%;
+  width: 0;
+  background: var(--suzuki-red);
+  border-radius: 0 999px 999px 0;
+}
+
+/* Fokus keyboard yang jelas & konsisten */
+:focus-visible {
+  outline: 2px solid var(--suzuki-red);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Checkbox & radio memakai warna aksen brand */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--suzuki-red);
+}
+
+/* Baris terpilih pada tabel/kartu admin (aksi massal) */
+.row-selected {
+  background-color: color-mix(in srgb, var(--suzuki-red) 5%, transparent);
+}
+tr.row-selected:hover {
+  background-color: color-mix(in srgb, var(--suzuki-red) 8%, transparent);
+}
+
 /* ---------------------------------------------------------------- */
 /* Print stylesheet — lembar spesifikasi mobil & cetak artikel/PDF  */
 /* ---------------------------------------------------------------- */
 @media print {
-  /* Cetak SELALU terang: jika pengguna sedang dalam dark mode, kembalikan
-     semua token warna ke nilai terang supaya teks tetap gelap & terbaca
-     di kertas putih (html.dark lebih spesifik daripada .dark). */
-  html.dark {
-    --background: #ffffff;
-    --foreground: #1a2942;
-    --card: #f8fafc;
-    --card-foreground: #1a2942;
-    --popover: #ffffff;
-    --popover-foreground: #1a2942;
-    --secondary: #1a2942;
-    --secondary-foreground: #ffffff;
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    --border: #e2e8f0;
-    --input: #e2e8f0;
-    --suzuki-light: #f8fafc;
-    color-scheme: light;
-  }
-
   /* Sembunyikan semua elemen non-konten */
   header,
   footer,
@@ -373,362 +389,5 @@
   .toc-inline,
   .reading-progress {
     display: none !important;
-  }
-}
-
-/* ---------------------------------------------------------------- */
-/* Animasi & transisi halus                                          */
-/* ---------------------------------------------------------------- */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    /* PENTING: harus `none`, bukan translateY(0) — nilai transform apa pun
-       (termasuk identitas) membuat containing block yang MERUSAK position:fixed
-       milik elemen turunannya (tombol melayang, lightbox). */
-    transform: none;
-  }
-}
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes float-soft {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-@keyframes shimmer-sweep {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-@keyframes badge-pop {
-  0% {
-    transform: scale(0.4);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: none;
-    opacity: 1;
-  }
-}
-@keyframes bulk-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-.animate-bulk-in {
-  animation: bulk-in 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Scroll-reveal (dikendalikan komponen <Reveal>) */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
-}
-.reveal[data-variant="fade"] {
-  transform: none;
-}
-.reveal[data-variant="zoom"] {
-  transform: scale(0.95);
-}
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* Transisi antar halaman SPA.
-   PENTING: fill-mode `backwards` (BUKAN `both`) — setelah animasi selesai
-   elemen kembali ke style natural-nya (transform: none). Dengan `both`,
-   Chromium mempertahankan matrix identitas yang menciptakan containing
-   block dan MERUSAK position:fixed milik turunannya (lightbox, tombol
-   melayang). Nilai akhir keyframe sengaja = style default agar tanpa lompatan. */
-.page-enter {
-  animation: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-
-/* Hover kartu: garis aksen merah muncul dari kiri */
-.card-accent {
-  position: relative;
-}
-.card-accent::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 3px;
-  width: 100%;
-  transform: scaleX(0);
-  transform-origin: left;
-  background: linear-gradient(90deg, var(--suzuki-red), var(--suzuki-navy));
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  border-radius: 0 0 0.75rem 0.75rem;
-}
-.card-accent:hover::after,
-.card-accent:focus-within::after {
-  transform: scaleX(1);
-}
-
-/* Efek "kilau" lembut pada badge hero */
-.shimmer {
-  position: relative;
-  overflow: hidden;
-}
-.shimmer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    100deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.45) 50%,
-    transparent 70%
-  );
-  animation: shimmer-sweep 3.5s ease-in-out infinite;
-}
-
-/* Ikon kecil mengambang (dekorasi hero) */
-.floaty {
-  animation: float-soft 5s ease-in-out infinite;
-}
-.floaty-delay {
-  animation: float-soft 6s ease-in-out 1.2s infinite;
-}
-
-/* ---------------------------------------------------------------- */
-/* Detail tipografi & micro-polish                                   */
-/* ---------------------------------------------------------------- */
-
-/* Warna seleksi teks — sentuhan brand Suzuki */
-::selection {
-  background: var(--suzuki-red);
-  color: #fff;
-}
-
-/* Heading multi-baris terpotong lebih seimbang (typografi modern) */
-h1,
-h2,
-h3 {
-  text-wrap: balance;
-}
-
-/* Drop cap merah untuk paragraf pembuka artikel (desktop saja) */
-@media (min-width: 768px) {
-  .prose-artikel > p:first-child::first-letter {
-    float: left;
-    font-size: 3.1em;
-    line-height: 0.84;
-    padding-right: 0.09em;
-    padding-top: 0.06em;
-    font-weight: 700;
-    color: var(--suzuki-red);
-  }
-}
-
-/* Scrollbar tipis untuk daftar panjang di dalam panel */
-.scroll-thin {
-  scrollbar-width: thin;
-  scrollbar-color: var(--suzuki-navy) transparent;
-}
-.scroll-thin::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-.scroll-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scroll-thin::-webkit-scrollbar-thumb {
-  background: var(--suzuki-navy);
-  border-radius: 999px;
-}
-.scroll-thin::-webkit-scrollbar-thumb:hover {
-  background: var(--suzuki-red);
-}
-
-/* Badge notifikasi admin muncul dengan pop (backwards: lihat catatan page-enter) */
-.badge-pop {
-  animation: badge-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-
-/* ---------------------------------------------------------------- */
-/* Navigasi header: underline animasi (hover & aktif)                */
-/* ---------------------------------------------------------------- */
-.nav-underline {
-  position: absolute;
-  bottom: 0;
-  left: 1rem;
-  right: 1rem;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--suzuki-red), #f0625f);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.nav-link:hover .nav-underline,
-.nav-link:focus-visible .nav-underline,
-.nav-underline.scale-x-100 {
-  transform: scaleX(1);
-}
-
-/* ---------------------------------------------------------------- */
-/* Kbd chip — indikator shortcut (Ctrl K / Enter)                    */
-/* ---------------------------------------------------------------- */
-.search-kbd {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.4em;
-  padding: 0.15em 0.5em;
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--muted-foreground);
-  background: var(--muted);
-  border: 1px solid var(--border);
-  border-bottom-width: 2px;
-  border-radius: 6px;
-  pointer-events: none;
-  user-select: none;
-  transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-/* ---------------------------------------------------------------- */
-/* Bilah progres membaca (halaman artikel)                           */
-/* ---------------------------------------------------------------- */
-.reading-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  z-index: 60; /* di atas header sticky (z-50) */
-  pointer-events: none;
-}
-.reading-progress-bar {
-  height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, var(--suzuki-red) 0%, #f0625f 55%, var(--suzuki-navy) 100%);
-  border-radius: 0 999px 999px 0;
-}
-
-/* ---------------------------------------------------------------- */
-/* Daftar isi (TOC) artikel                                          */
-/* ---------------------------------------------------------------- */
-/* Heading artikel tidak tertutup header sticky saat lompat ke bagian */
-.prose-artikel h2,
-.prose-artikel h3 {
-  scroll-margin-top: 5.25rem;
-}
-/* Garis aksen kiri pada heading — visual anchor saat scroll */
-.prose-artikel h2 {
-  position: relative;
-  padding-left: 0.85em;
-}
-.prose-artikel h2::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.18em;
-  bottom: 0.18em;
-  width: 4px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, var(--suzuki-red), #f0625f);
-}
-.toc-link {
-  border-radius: 0 8px 8px 0;
-}
-
-/* Placeholder pattern untuk kartu artikel tanpa cover */
-.pattern-dots {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1.5px, transparent 1.5px);
-  background-size: 14px 14px;
-}
-
-/* Fokus keyboard yang jelas & konsisten */
-:focus-visible {
-  outline: 2px solid var(--suzuki-red);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Checkbox & radio memakai warna aksen brand */
-input[type="checkbox"],
-input[type="radio"] {
-  accent-color: var(--suzuki-red);
-}
-
-/* Baris terpilih pada tabel/kartu admin (aksi massal) */
-.row-selected {
-  background-color: color-mix(in srgb, var(--suzuki-red) 5%, transparent);
-}
-tr.row-selected:hover {
-  background-color: color-mix(in srgb, var(--suzuki-red) 8%, transparent);
-}
-
-/* Sembunyikan elemen dekoratif dari screen reader */
-.decoration {
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Hormati preferensi pengguna: kurangi gerakan */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  .reveal {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-  }
-  .page-enter,
-  .floaty,
-  .floaty-delay,
-  .shimmer::before,
-  .badge-pop,
-  .animate-bulk-in {
-    animation: none !important;
-  }
-  .card-accent::after {
-    transition: none;
   }
 }

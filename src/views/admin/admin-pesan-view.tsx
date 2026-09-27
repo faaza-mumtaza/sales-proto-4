@@ -17,9 +17,9 @@ const STATUSES = ["BARU", "DIBACA", "DIBALAS", "SELESAI"] as const;
 
 const STATUS_STYLE: Record<string, string> = {
   BARU: "bg-suzuki-red text-white",
-  DIBACA: "bg-blue-100 dark:bg-blue-950/70 dark:text-blue-300 text-blue-800",
-  DIBALAS: "bg-green-100 dark:bg-green-950/70 dark:text-green-300 text-green-800",
-  SELESAI: "bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-slate-300",
+  DIBACA: "bg-blue-100 text-blue-800",
+  DIBALAS: "bg-green-100 text-green-800",
+  SELESAI: "bg-gray-200 text-gray-700",
 };
 
 export function AdminPesanView() {
@@ -140,7 +140,7 @@ export function AdminPesanView() {
     <AdminShell>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground">Pesan Masuk</h1>
+          <h1 className="text-2xl font-bold text-suzuki-navy">Pesan Masuk</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Pesan dari form kontak website — balas langsung via WhatsApp atau ubah statusnya.
           </p>
@@ -151,7 +151,7 @@ export function AdminPesanView() {
             <button
               onClick={() => setFilter("all")}
               className={`px-4 py-1.5 rounded-full text-sm transition-colors ${
-                filter === "all" ? "bg-suzuki-red text-white font-medium" : "bg-white dark:bg-card border border-border text-muted-foreground hover:text-suzuki-navy dark:hover:text-white"
+                filter === "all" ? "bg-suzuki-red text-white font-medium" : "bg-white border border-border text-muted-foreground hover:text-suzuki-navy"
               }`}
             >
               Semua
@@ -161,7 +161,7 @@ export function AdminPesanView() {
                 key={s}
                 onClick={() => setFilter(s)}
                 className={`px-4 py-1.5 rounded-full text-sm capitalize transition-colors ${
-                  filter === s ? "bg-suzuki-red text-white font-medium" : "bg-white dark:bg-card border border-border text-muted-foreground hover:text-suzuki-navy dark:hover:text-white"
+                  filter === s ? "bg-suzuki-red text-white font-medium" : "bg-white border border-border text-muted-foreground hover:text-suzuki-navy"
                 }`}
               >
                 {s.toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
@@ -178,12 +178,12 @@ export function AdminPesanView() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama / isi pesan…"
               aria-label="Cari pesan"
-              className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm bg-white dark:bg-card focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
+              className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
             />
           </div>
           <button
             onClick={exportCsv}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white dark:bg-card text-sm text-suzuki-navy dark:text-foreground font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
           >
             <Download className="w-4 h-4" aria-hidden />
             Export CSV
@@ -191,7 +191,7 @@ export function AdminPesanView() {
         </div>
 
         {/* Filter rentang tanggal (memengaruhi daftar & export CSV) */}
-        <div className="bg-white dark:bg-card rounded-lg border border-border px-3.5 py-2.5">
+        <div className="bg-white rounded-lg border border-border px-3.5 py-2.5">
           <DateRangeFilter
             value={dateRange}
             onChange={setDateRange}
@@ -218,18 +218,18 @@ export function AdminPesanView() {
         />
 
         {isLoading ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
+          <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat pesan…
           </div>
         ) : isError ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center">
+          <div className="bg-white rounded-xl border border-border p-8 text-center">
             <p className="text-muted-foreground text-sm mb-2">Gagal memuat pesan.</p>
             <button onClick={() => void refetch()} className="text-suzuki-red underline text-sm">
               Coba lagi
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-10 text-center">
+          <div className="bg-white rounded-xl border border-border p-10 text-center">
             <Mail className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
             <p className="text-muted-foreground text-sm">
               {filter === "all" && !search && !isRangeActive(dateRange)
@@ -245,7 +245,7 @@ export function AdminPesanView() {
               return (
                 <div
                   key={p.id}
-                  className={`bg-white dark:bg-card rounded-xl border p-5 transition-all ${
+                  className={`bg-white rounded-xl border p-5 transition-all ${
                     isSel
                       ? "border-suzuki-red/60 ring-1 ring-suzuki-red/40 row-selected"
                       : p.status === "BARU"
@@ -263,7 +263,7 @@ export function AdminPesanView() {
                           aria-label={`Pilih pesan dari ${p.nama_lengkap}`}
                           className="w-4 h-4 shrink-0 cursor-pointer"
                         />
-                        <strong className="text-suzuki-navy dark:text-foreground">{p.nama_lengkap}</strong>
+                        <strong className="text-suzuki-navy">{p.nama_lengkap}</strong>
                         <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[p.status]}`}>
                           {p.status}
                         </span>
@@ -318,7 +318,7 @@ export function AdminPesanView() {
                         value={p.status}
                         onChange={(e) => void setStatus(p.id, e.target.value)}
                         aria-label="Ubah status pesan"
-                        className="text-xs px-2.5 py-2 border border-input rounded-lg bg-white dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
+                        className="text-xs px-2.5 py-2 border border-input rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
                       >
                         {STATUSES.map((s) => (
                           <option key={s} value={s}>
@@ -329,7 +329,7 @@ export function AdminPesanView() {
                       <button
                         onClick={() => void onDelete(p.id)}
                         title="Hapus pesan"
-                        className="p-2 text-muted-foreground hover:text-suzuki-red rounded-lg hover:bg-red-50 dark:hover:bg-red-950/60 transition-colors justify-center"
+                        className="p-2 text-muted-foreground hover:text-suzuki-red rounded-lg hover:bg-red-50 transition-colors justify-center"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

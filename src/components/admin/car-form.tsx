@@ -385,7 +385,7 @@ export function CarForm({ initial }: { initial?: Mobil }) {
                   value={w.hex}
                   onChange={(e) => setWarna(i, { hex: e.target.value })}
                   aria-label={`Warna ${i + 1} kode warna`}
-                  className="w-10 h-10 rounded-lg border border-input cursor-pointer bg-white dark:bg-white/5 p-1 shrink-0"
+                  className="w-10 h-10 rounded-lg border border-input cursor-pointer bg-white p-1 shrink-0"
                   title={w.nama || `Warna ${i + 1}`}
                 />
                 <input
@@ -397,7 +397,7 @@ export function CarForm({ initial }: { initial?: Mobil }) {
                 />
                 {w.gambar && (
                   <span
-                    className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 px-2 py-1 rounded-full shrink-0"
+                    className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full shrink-0"
                     title="Warna ini punya foto unit sendiri"
                   >
                     <ImageIcon className="w-3 h-3" aria-hidden /> Ada foto
@@ -501,7 +501,7 @@ export function CarForm({ initial }: { initial?: Mobil }) {
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="font-bold text-lg text-suzuki-navy dark:text-foreground mb-2">{form.nama || "Nama Mobil"}</h3>
+                <h3 className="font-bold text-lg text-suzuki-navy mb-2">{form.nama || "Nama Mobil"}</h3>
                 <div className="flex gap-4 text-muted-foreground text-xs mb-4">
                   {form.seater && <span>{form.seater} kursi</span>}
                   {form.fuel && <span>{form.fuel}</span>}

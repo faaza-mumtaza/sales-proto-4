@@ -89,9 +89,8 @@ export function KontakView() {
 
   return (
     <SiteLayout>
-      <section className="bg-suzuki-navy py-16 text-white relative overflow-hidden">
-        <div className="decoration absolute -top-20 -right-20 w-72 h-72 rounded-full bg-suzuki-red/10 blur-3xl" />
-        <div className="container mx-auto px-4 text-center relative">
+      <section className="bg-suzuki-navy py-16 text-white">
+        <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
             {HEADER_COPY[active].title}
           </h1>
@@ -105,7 +104,7 @@ export function KontakView() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-6">Informasi Kontak</h2>
+              <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Informasi Kontak</h2>
               <div className="space-y-6">
                 {[
                   {
@@ -146,7 +145,7 @@ export function KontakView() {
                       <c.icon className="w-6 h-6 text-suzuki-red" aria-hidden />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-suzuki-navy dark:text-foreground mb-1">{c.title}</h3>
+                      <h3 className="font-semibold text-suzuki-navy mb-1">{c.title}</h3>
                       <div className="text-muted-foreground">{c.body}</div>
                     </div>
                   </div>
@@ -157,7 +156,7 @@ export function KontakView() {
             <div className="bg-card rounded-xl border border-border p-6 md:p-8">
               <div className="flex justify-center mb-8">
                 <div
-                  className="inline-flex flex-wrap justify-center gap-1 bg-gray-100 dark:bg-white/10 rounded-2xl sm:rounded-full p-1"
+                  className="inline-flex flex-wrap justify-center gap-1 bg-gray-100 rounded-2xl sm:rounded-full p-1"
                   role="tablist"
                   aria-label="Pilih jenis form"
                 >
@@ -170,7 +169,7 @@ export function KontakView() {
                       className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                         active === t.id
                           ? "bg-suzuki-red text-white shadow-sm"
-                          : "text-gray-500 dark:text-slate-400 hover:text-suzuki-navy dark:hover:text-white"
+                          : "text-gray-500 hover:text-suzuki-navy"
                       }`}
                     >
                       <t.icon className="w-4 h-4" aria-hidden />
@@ -182,7 +181,7 @@ export function KontakView() {
 
               {active === "kontak" ? (
                 <>
-                  <h2 className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-6">Kirim Pesan</h2>
+                  <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Kirim Pesan</h2>
                   <ContactForm defaultSubjek={defaultSubjek} defaultPesan={defaultPesan} />
                 </>
               ) : active === "status" ? (
@@ -197,7 +196,7 @@ export function KontakView() {
                   />
                 ) : (
                   <>
-                    <h2 className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-6">Form Booking Servis</h2>
+                    <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Form Booking Servis</h2>
                     <ServiceBookingForm cars={cars} defaultMobilId={defaultMobilId} />
                   </>
                 )
@@ -210,7 +209,7 @@ export function KontakView() {
                 />
               ) : (
                 <>
-                  <h2 className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-6">Form Test Drive</h2>
+                  <h2 className="text-2xl font-bold text-suzuki-navy mb-6">Form Test Drive</h2>
                   <TestDriveForm cars={cars} defaultMobilId={defaultMobilId} />
                 </>
               )}

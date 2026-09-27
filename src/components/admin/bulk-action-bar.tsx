@@ -40,7 +40,7 @@ export function BulkActionBar({
 
   return (
     <div
-      className="sticky top-4 z-30 no-print animate-bulk-in"
+      className="sticky top-4 z-30 no-print"
       role="toolbar"
       aria-label="Aksi massal item terpilih"
     >

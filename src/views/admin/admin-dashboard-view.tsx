@@ -6,7 +6,6 @@ import { apiGet } from "@/lib/api";
 import { Link, usePageMeta } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
 import { TrendChart, type TrendPoint } from "@/components/admin/trend-chart";
-import { CountUp } from "@/components/site/count-up";
 import { formatDateID, formatRelativeID } from "@/lib/site-utils";
 
 interface Stats {
@@ -65,7 +64,7 @@ export function AdminDashboardView() {
       <div className="space-y-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-suzuki-navy">Dashboard</h1>
             <p className="text-muted-foreground text-sm mt-1">
               Ringkasan aktivitas dealer hari ini.
             </p>
@@ -89,7 +88,7 @@ export function AdminDashboardView() {
         {isLoading ? (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white dark:bg-card rounded-xl p-5 border border-border">
+              <div key={i} className="bg-white rounded-xl p-5 border border-border">
                 <div className="w-10 h-10 bg-muted rounded-lg animate-pulse mb-3" />
                 <div className="h-7 w-16 bg-muted rounded animate-pulse mb-2" />
                 <div className="h-3 w-24 bg-muted rounded animate-pulse" />
@@ -97,7 +96,7 @@ export function AdminDashboardView() {
             ))}
           </div>
         ) : isError || !data ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center">
+          <div className="bg-white rounded-xl border border-border p-8 text-center">
             <p className="text-muted-foreground mb-3">Gagal memuat statistik.</p>
             <button
               onClick={() => void refetch()}
@@ -164,9 +163,9 @@ export function AdminDashboardView() {
 
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Pesan terbaru */}
-              <div className="bg-white dark:bg-card rounded-xl border border-border p-6">
+              <div className="bg-white rounded-xl border border-border p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold text-suzuki-navy dark:text-foreground">Pesan Terbaru</h2>
+                  <h2 className="font-bold text-suzuki-navy">Pesan Terbaru</h2>
                   <Link
                     to="/admin/pesan"
                     className="inline-flex items-center gap-1 text-xs text-suzuki-red font-medium hover:gap-2 transition-all"
@@ -181,7 +180,7 @@ export function AdminDashboardView() {
                     {data.recentPesan.map((p) => (
                       <li key={p.id} className="text-sm border-b pb-3 last:border-0">
                         <div className="flex items-center justify-between gap-2">
-                          <strong className="text-suzuki-navy dark:text-foreground truncate">{p.nama_lengkap}</strong>
+                          <strong className="text-suzuki-navy truncate">{p.nama_lengkap}</strong>
                           <span
                             className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
                               p.status === "BARU" ? "bg-suzuki-red text-white" : "bg-muted text-muted-foreground"
@@ -201,9 +200,9 @@ export function AdminDashboardView() {
               </div>
 
               {/* Jadwal test drive terdekat */}
-              <div className="bg-white dark:bg-card rounded-xl border border-border p-6">
+              <div className="bg-white rounded-xl border border-border p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold text-suzuki-navy dark:text-foreground">Jadwal Test Drive Terdekat</h2>
+                  <h2 className="font-bold text-suzuki-navy">Jadwal Test Drive Terdekat</h2>
                   <Link
                     to="/admin/test-drive"
                     className="inline-flex items-center gap-1 text-xs text-suzuki-red font-medium hover:gap-2 transition-all"
@@ -218,12 +217,12 @@ export function AdminDashboardView() {
                     {data.upcomingTestDrive.map((t) => (
                       <li key={t.id} className="text-sm border-b pb-3 last:border-0">
                         <div className="flex items-center justify-between gap-2">
-                          <strong className="text-suzuki-navy dark:text-foreground truncate">{t.nama_lengkap}</strong>
+                          <strong className="text-suzuki-navy truncate">{t.nama_lengkap}</strong>
                           <span
                             className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full shrink-0 ${
                               t.status === "CONFIRMED"
-                                ? "bg-green-100 dark:bg-green-950/70 dark:text-green-300 text-green-800"
-                                : "bg-orange-100 dark:bg-orange-950/70 dark:text-orange-300 text-orange-800"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-orange-100 text-orange-800"
                             }`}
                           >
                             {t.status === "CONFIRMED" ? (
@@ -246,9 +245,9 @@ export function AdminDashboardView() {
 
             {/* Timeline aktivitas terbaru — gabungan semua entitas */}
             {data.activity && data.activity.length > 0 && (
-              <div className="bg-white dark:bg-card rounded-xl border border-border p-6">
+              <div className="bg-white rounded-xl border border-border p-6">
                 <div className="flex items-center justify-between mb-5">
-                  <h2 className="font-bold text-suzuki-navy dark:text-foreground flex items-center gap-2">
+                  <h2 className="font-bold text-suzuki-navy flex items-center gap-2">
                     <History className="w-4.5 h-4.5 text-suzuki-red" aria-hidden />
                     Aktivitas Terbaru
                   </h2>
@@ -271,7 +270,7 @@ export function AdminDashboardView() {
                         )}
                         <span
                           aria-hidden
-                          className={`relative z-10 mt-1 w-8 h-8 rounded-full ${meta.dotBg} flex items-center justify-center shrink-0 ring-4 ring-white dark:ring-card`}
+                          className={`relative z-10 mt-1 w-8 h-8 rounded-full ${meta.dotBg} flex items-center justify-center shrink-0 ring-4 ring-white`}
                         >
                           <meta.icon className={`w-3.5 h-3.5 ${meta.iconCls}`} aria-hidden />
                         </span>
@@ -280,7 +279,7 @@ export function AdminDashboardView() {
                           className="group flex-1 min-w-0 pb-5 -mt-0.5"
                         >
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-sm font-semibold text-suzuki-navy dark:text-foreground truncate group-hover:text-suzuki-red transition-colors">
+                            <p className="text-sm font-semibold text-suzuki-navy truncate group-hover:text-suzuki-red transition-colors">
                               {item.title}
                             </p>
                             <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0 mt-0.5">
@@ -357,13 +356,13 @@ function StatCard({
   return (
     <Link
       to={to}
-      className="bg-white dark:bg-card rounded-xl p-5 border border-border hover:shadow-md hover:-translate-y-0.5 transition-all group"
+      className="bg-white rounded-xl p-5 border border-border hover:shadow-md hover:-translate-y-0.5 transition-all group"
     >
       <div className={`w-10 h-10 ${color} text-white rounded-lg flex items-center justify-center mb-3`}>
         <Icon className="w-5 h-5" aria-hidden />
       </div>
-      <p className="text-2xl font-bold text-suzuki-navy dark:text-foreground group-hover:text-suzuki-red transition-colors">
-        <CountUp value={value} duration={800} />
+      <p className="text-2xl font-bold text-suzuki-navy group-hover:text-suzuki-red transition-colors">
+        {value.toLocaleString("id-ID")}
       </p>
       <p className="text-xs text-muted-foreground mt-1">
         {label}
@@ -389,41 +388,41 @@ const ACTIVITY_META: Record<
     label: "Pesan",
     to: "/admin/pesan",
     icon: Mail,
-    dotBg: "bg-orange-100 dark:bg-orange-950/70",
-    iconCls: "text-orange-600 dark:text-orange-300",
-    labelCls: "bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300",
+    dotBg: "bg-orange-100",
+    iconCls: "text-orange-600",
+    labelCls: "bg-orange-50 text-orange-700",
   },
   TEST_DRIVE: {
     label: "Test Drive",
     to: "/admin/test-drive",
     icon: Calendar,
-    dotBg: "bg-green-100 dark:bg-green-950/70",
-    iconCls: "text-green-700 dark:text-green-300",
-    labelCls: "bg-green-50 dark:bg-green-950/60 text-green-700 dark:text-green-300",
+    dotBg: "bg-green-100",
+    iconCls: "text-green-700",
+    labelCls: "bg-green-50 text-green-700",
   },
   SERVIS: {
     label: "Servis",
     to: "/admin/servis",
     icon: Wrench,
-    dotBg: "bg-teal-100 dark:bg-teal-950/70",
-    iconCls: "text-teal-700 dark:text-teal-300",
-    labelCls: "bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300",
+    dotBg: "bg-teal-100",
+    iconCls: "text-teal-700",
+    labelCls: "bg-teal-50 text-teal-700",
   },
   TESTIMONI: {
     label: "Testimoni",
     to: "/admin/testimoni",
     icon: Star,
-    dotBg: "bg-amber-100 dark:bg-amber-950/70",
-    iconCls: "text-amber-600 dark:text-amber-300",
-    labelCls: "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300",
+    dotBg: "bg-amber-100",
+    iconCls: "text-amber-600",
+    labelCls: "bg-amber-50 text-amber-700",
   },
   ARTIKEL: {
     label: "Artikel",
     to: "/admin/artikel",
     icon: Newspaper,
-    dotBg: "bg-purple-100 dark:bg-purple-950/70",
-    iconCls: "text-purple-600 dark:text-purple-300",
-    labelCls: "bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300",
+    dotBg: "bg-purple-100",
+    iconCls: "text-purple-600",
+    labelCls: "bg-purple-50 text-purple-700",
   },
 };
 
@@ -434,18 +433,18 @@ function statusCls(status: string): string {
     case "PENDING":
     case "DRAFT":
     case "TERJADWAL":
-      return "border-orange-200 dark:border-orange-900 bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300";
+      return "border-orange-200 bg-orange-50 text-orange-700";
     case "DIBACA":
     case "CONFIRMED":
-      return "border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300";
+      return "border-blue-200 bg-blue-50 text-blue-700";
     case "DIBALAS":
     case "APPROVED":
     case "PUBLISHED":
     case "DONE":
-      return "border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/60 text-green-700 dark:text-green-300";
+      return "border-green-200 bg-green-50 text-green-700";
     case "REJECTED":
     case "CANCELLED":
-      return "border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300";
+      return "border-red-200 bg-red-50 text-red-700";
     default:
       return "border-border bg-muted text-muted-foreground";
   }

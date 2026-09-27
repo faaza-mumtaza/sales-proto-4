@@ -35,7 +35,7 @@ export function Breadcrumb({ items }: { items: Crumb[] }) {
                 </Link>
               ) : (
                 <span
-                  className={last ? "text-suzuki-navy dark:text-foreground font-medium" : undefined}
+                  className={last ? "text-suzuki-navy font-medium" : undefined}
                   aria-current={last ? "page" : undefined}
                 >
                   {item.label}

@@ -49,16 +49,11 @@ export function AdminLoginView() {
 
   const inputWrap = "relative";
   const inputCls =
-    "w-full pl-11 pr-4 py-3 rounded-lg border border-input bg-white dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-suzuki-red/50";
+    "w-full pl-11 pr-4 py-3 rounded-lg border border-input bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50";
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-suzuki-navy via-suzuki-navy to-suzuki-dark px-4 py-12 relative overflow-hidden">
-      {/* Dekorasi latar — glow merah + pattern dots, konsisten dgn visual language situs */}
-      <div className="decoration absolute -top-24 -right-24 w-80 h-80 rounded-full bg-suzuki-red/15 blur-3xl" />
-      <div className="decoration absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-suzuki-red/10 blur-3xl" />
-      <div className="decoration absolute inset-0 pattern-dots opacity-40" />
-
-      <div className="w-full max-w-md relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-suzuki-navy via-suzuki-navy to-suzuki-dark px-4 py-12">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-block bg-white rounded-2xl px-6 py-4 shadow-xl mb-5">
             <SuzukiLogo className="h-8 w-auto" />
@@ -69,8 +64,7 @@ export function AdminLoginView() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-card rounded-xl shadow-2xl p-8 relative">
-          <div className="decoration absolute top-0 left-8 right-8 h-1 rounded-b-full bg-gradient-to-r from-transparent via-suzuki-red to-transparent" />
+        <div className="bg-white rounded-xl shadow-2xl p-8">
           <form onSubmit={onSubmit} className="space-y-5">
             <div>
               <label htmlFor="login-email" className="block text-sm font-medium mb-2">

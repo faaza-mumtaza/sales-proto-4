@@ -13,7 +13,7 @@ import { CookieConsent } from "./cookie-consent";
  */
 export function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-background">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-1 w-full">{children}</main>
       <div className="mt-auto">

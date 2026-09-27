@@ -45,8 +45,8 @@ export function ArticleToc({
                 item.level === 3 ? "pl-6" : "pl-3"
               } ${
                 isActive
-                  ? "border-suzuki-red text-suzuki-red font-semibold bg-suzuki-red/5 dark:bg-suzuki-red/15"
-                  : "border-border text-muted-foreground hover:text-suzuki-navy dark:hover:text-white hover:border-suzuki-navy/40 dark:hover:border-white/40"
+                  ? "border-suzuki-red text-suzuki-red font-semibold bg-suzuki-red/5"
+                  : "border-border text-muted-foreground hover:text-suzuki-navy hover:border-suzuki-navy/40"
               }`}
             >
               <span
@@ -68,7 +68,7 @@ export function ArticleToc({
   if (variant === "sidebar") {
     return (
       <nav aria-label="Daftar isi artikel" className="toc-sidebar">
-        <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-suzuki-navy dark:text-foreground mb-3">
+        <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-suzuki-navy mb-3">
           <ListTree className="w-3.5 h-3.5 text-suzuki-red" aria-hidden />
           Daftar Isi
         </p>
@@ -79,7 +79,7 @@ export function ArticleToc({
 
   return (
     <details className="toc-inline group/details rounded-xl border border-border bg-card overflow-hidden">
-      <summary className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-suzuki-navy dark:text-foreground cursor-pointer select-none list-none hover:bg-muted/50 transition-colors">
+      <summary className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-suzuki-navy cursor-pointer select-none list-none hover:bg-muted/50 transition-colors">
         <ListTree className="w-4 h-4 text-suzuki-red shrink-0" aria-hidden />
         Daftar Isi ({items.length} bagian)
         <ChevronRight

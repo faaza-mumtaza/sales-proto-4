@@ -44,7 +44,7 @@
       "name": "Promo Terbaru",
       "short_name": "Promo",
       "description": "Promo dan penawaran terbaru Suzuki BSB",
-      "url": "/#/promo",
+      "url": "/#/artikel?tipe=PROMO",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {

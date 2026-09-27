@@ -20,14 +20,9 @@ export function MobilView() {
 
   return (
     <SiteLayout>
-      <section className="bg-suzuki-navy py-16 text-white relative overflow-hidden">
-        <div className="decoration absolute -top-20 -right-20 w-72 h-72 rounded-full bg-suzuki-red/10 blur-3xl" />
-        <div className="container mx-auto px-4 text-center relative">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 flex items-center justify-center gap-4">
-            <span className="inline-block w-10 h-1.5 rounded-full bg-suzuki-red" aria-hidden />
-            Katalog Mobil Suzuki
-            <span className="inline-block w-10 h-1.5 rounded-full bg-suzuki-red" aria-hidden />
-          </h1>
+      <section className="bg-suzuki-navy py-16 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">Katalog Mobil Suzuki</h1>
           <p className="text-white/70 max-w-2xl mx-auto">
             Temukan mobil Suzuki impian Anda. Dari SUV tangguh hingga city car efisien —
             semua bergaransi resmi dan bisa di-test drive.

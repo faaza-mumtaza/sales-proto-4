@@ -81,7 +81,7 @@ export function QuickViewDialog({
         </div>
 
         <div className="p-6 overflow-y-auto scroll-thin">
-          <h2 className="text-xl sm:text-2xl font-bold text-suzuki-navy dark:text-foreground leading-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-suzuki-navy leading-tight">
             {car.nama}
           </h2>
           {car.deskripsi && (
@@ -118,7 +118,7 @@ export function QuickViewDialog({
               {specs.map((s) => (
                 <div key={s.label} className="flex items-baseline justify-between gap-3 text-sm">
                   <dt className="text-muted-foreground shrink-0">{s.label}</dt>
-                  <dd className="font-medium text-suzuki-navy dark:text-foreground text-right">{s.value}</dd>
+                  <dd className="font-medium text-suzuki-navy text-right">{s.value}</dd>
                 </div>
               ))}
             </dl>
@@ -160,7 +160,7 @@ export function QuickViewDialog({
                 className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
                   selected
                     ? "bg-suzuki-red text-white border-suzuki-red"
-                    : "text-suzuki-navy dark:text-foreground border-border hover:border-suzuki-navy dark:hover:border-white/40 hover:bg-muted/60"
+                    : "text-suzuki-navy border-border hover:border-suzuki-navy hover:bg-muted/60"
                 }`}
               >
                 {selected ? (

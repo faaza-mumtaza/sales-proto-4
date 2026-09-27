@@ -83,7 +83,7 @@ export function ShareButtons({ title, url }: { title: string; url: string }) {
         title="Salin tautan"
         className={`inline-flex items-center justify-center gap-2 h-10 px-4 rounded-full border text-sm font-medium transition-all active:scale-95 ${
           copied
-            ? "bg-green-50 dark:bg-green-950/60 border-green-300 dark:border-green-900 text-green-700 dark:text-green-300"
+            ? "bg-green-50 border-green-300 text-green-700"
             : "bg-card border-border text-foreground hover:border-suzuki-red/40 hover:text-suzuki-red"
         }`}
       >

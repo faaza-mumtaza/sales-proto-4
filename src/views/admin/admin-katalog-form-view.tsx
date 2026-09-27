@@ -31,7 +31,7 @@ export function AdminKatalogFormView({ carId }: { carId?: string }) {
             <ArrowLeft className="w-4 h-4" aria-hidden />
             Kembali ke Katalog
           </Link>
-          <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground">
+          <h1 className="text-2xl font-bold text-suzuki-navy">
             {isEdit ? "Edit Mobil" : "Tambah Mobil Baru"}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -42,18 +42,18 @@ export function AdminKatalogFormView({ carId }: { carId?: string }) {
         </div>
 
         {isEdit && isLoading ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
+          <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat data mobil…
           </div>
         ) : isEdit && (isError || !car) ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center">
+          <div className="bg-white rounded-xl border border-border p-8 text-center">
             <p className="text-muted-foreground text-sm mb-3">Mobil tidak ditemukan.</p>
             <Link to="/admin/katalog" className="text-suzuki-red underline text-sm">
               Kembali ke katalog
             </Link>
           </div>
         ) : (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-6 md:p-8">
+          <div className="bg-white rounded-xl border border-border p-6 md:p-8">
             <CarForm initial={car} />
           </div>
         )}

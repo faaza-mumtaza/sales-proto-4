@@ -16,10 +16,10 @@ import { DateRangeFilter, EMPTY_RANGE, inRange, isRangeActive, type DateRange } 
 const STATUSES = ["PENDING", "CONFIRMED", "DONE", "CANCELLED"] as const;
 
 const STATUS_STYLE: Record<string, string> = {
-  PENDING: "bg-orange-100 dark:bg-orange-950/70 dark:text-orange-300 text-orange-800",
-  CONFIRMED: "bg-blue-100 dark:bg-blue-950/70 dark:text-blue-300 text-blue-800",
-  DONE: "bg-green-100 dark:bg-green-950/70 dark:text-green-300 text-green-800",
-  CANCELLED: "bg-red-100 dark:bg-red-950/70 dark:text-red-300 text-red-700",
+  PENDING: "bg-orange-100 text-orange-800",
+  CONFIRMED: "bg-blue-100 text-blue-800",
+  DONE: "bg-green-100 text-green-800",
+  CANCELLED: "bg-red-100 text-red-700",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -160,7 +160,7 @@ export function AdminTestDriveView() {
     <AdminShell>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground">Booking Test Drive</h1>
+          <h1 className="text-2xl font-bold text-suzuki-navy">Booking Test Drive</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Kelola jadwal test drive dari pengunjung website — konfirmasi, batalkan, atau tandai selesai.
           </p>
@@ -191,7 +191,7 @@ export function AdminTestDriveView() {
             <button
               onClick={() => setFilter("all")}
               className={`px-4 py-1.5 rounded-full text-sm transition-colors ${
-                filter === "all" ? "bg-suzuki-red text-white font-medium" : "bg-white dark:bg-card border border-border text-muted-foreground hover:text-suzuki-navy dark:hover:text-white"
+                filter === "all" ? "bg-suzuki-red text-white font-medium" : "bg-white border border-border text-muted-foreground hover:text-suzuki-navy"
               }`}
             >
               Semua
@@ -201,7 +201,7 @@ export function AdminTestDriveView() {
                 key={s}
                 onClick={() => setFilter(s)}
                 className={`px-4 py-1.5 rounded-full text-sm transition-colors ${
-                  filter === s ? "bg-suzuki-red text-white font-medium" : "bg-white dark:bg-card border border-border text-muted-foreground hover:text-suzuki-navy dark:hover:text-white"
+                  filter === s ? "bg-suzuki-red text-white font-medium" : "bg-white border border-border text-muted-foreground hover:text-suzuki-navy"
                 }`}
               >
                 {STATUS_LABEL[s]}
@@ -210,7 +210,7 @@ export function AdminTestDriveView() {
           </div>
           <button
             onClick={exportCsv}
-            className="sm:ml-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white dark:bg-card text-sm text-suzuki-navy dark:text-foreground font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
+            className="sm:ml-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border bg-white text-sm text-suzuki-navy font-medium hover:border-suzuki-red/40 hover:text-suzuki-red transition-colors"
           >
             <Download className="w-4 h-4" aria-hidden />
             Export CSV
@@ -218,7 +218,7 @@ export function AdminTestDriveView() {
         </div>
 
         {/* Filter rentang tanggal jadwal (memengaruhi daftar & export CSV) */}
-        <div className="bg-white dark:bg-card rounded-lg border border-border px-3.5 py-2.5">
+        <div className="bg-white rounded-lg border border-border px-3.5 py-2.5">
           <DateRangeFilter
             value={dateRange}
             onChange={setDateRange}
@@ -248,25 +248,25 @@ export function AdminTestDriveView() {
         />
 
         {isLoading ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
+          <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat booking…
           </div>
         ) : isError ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center">
+          <div className="bg-white rounded-xl border border-border p-8 text-center">
             <p className="text-muted-foreground text-sm mb-2">Gagal memuat booking.</p>
             <button onClick={() => void refetch()} className="text-suzuki-red underline text-sm">
               Coba lagi
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-10 text-center">
+          <div className="bg-white rounded-xl border border-border p-10 text-center">
             <Calendar className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
             <p className="text-muted-foreground text-sm">
               Tidak ada booking yang cocok dengan filter.
             </p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-card rounded-xl border border-border overflow-hidden">
+          <div className="bg-white rounded-xl border border-border overflow-hidden">
             {/* Tabel (tablet ke atas) */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="min-w-[860px] w-full text-sm" aria-label="Tabel booking test drive">
@@ -309,7 +309,7 @@ export function AdminTestDriveView() {
                         />
                       </td>
                       <td className="px-4 py-3">
-                        <p className="font-medium text-suzuki-navy dark:text-foreground">{t.nama_lengkap}</p>
+                        <p className="font-medium text-suzuki-navy">{t.nama_lengkap}</p>
                         <p className="text-xs text-muted-foreground flex flex-col gap-0.5 mt-1">
                           <span className="inline-flex items-center gap-1">
                             <Phone className="w-3 h-3" aria-hidden />
@@ -367,7 +367,7 @@ export function AdminTestDriveView() {
                             </a>
                             <button
                               onClick={() => void onDelete(t.id)}
-                              className="p-1.5 text-muted-foreground hover:text-suzuki-red rounded-lg hover:bg-red-50 dark:hover:bg-red-950/60 transition-colors"
+                              className="p-1.5 text-muted-foreground hover:text-suzuki-red rounded-lg hover:bg-red-50 transition-colors"
                               title="Hapus booking"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -397,7 +397,7 @@ export function AdminTestDriveView() {
                         aria-label={`Pilih booking ${t.nama_lengkap}`}
                         className="w-4 h-4 shrink-0 cursor-pointer"
                       />
-                      <p className="font-medium text-suzuki-navy dark:text-foreground truncate">{t.nama_lengkap}</p>
+                      <p className="font-medium text-suzuki-navy truncate">{t.nama_lengkap}</p>
                     </div>
                     <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium shrink-0 ${STATUS_STYLE[t.status]}`}>
                       {STATUS_LABEL[t.status]}

@@ -68,7 +68,7 @@ interface SearchResponse {
 const QUICK_LINKS = [
   { to: "/", label: "Beranda", icon: Home, hint: "Halaman utama" },
   { to: "/mobil", label: "Katalog Mobil", icon: LayoutGrid, hint: "Semua model Suzuki" },
-  { to: "/promo", label: "Promo Terbaru", icon: Tag, hint: "Penawaran bulan ini" },
+  { to: "/artikel?tipe=PROMO", label: "Promo Terbaru", icon: Tag, hint: "Penawaran bulan ini" },
   { to: "/artikel", label: "Artikel & Berita", icon: Newspaper, hint: "Info terbaru dealer" },
   { to: "/tentang-kami", label: "Tentang Kami", icon: Info, hint: "Profil dealer BSB" },
   { to: "/kontak", label: "Kontak & Test Drive", icon: Phone, hint: "Hubungi sales kami" },
@@ -76,8 +76,8 @@ const QUICK_LINKS = [
 
 const TIPE_BADGE: Record<string, string> = {
   PROMO: "bg-suzuki-red/10 text-suzuki-red",
-  BERITA: "bg-suzuki-navy/10 dark:bg-white/5 text-suzuki-navy dark:text-foreground",
-  KEGIATAN: "bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300",
+  BERITA: "bg-suzuki-navy/10 text-suzuki-navy",
+  KEGIATAN: "bg-emerald-100 text-emerald-700",
 };
 
 export function SearchCommand({
@@ -223,7 +223,7 @@ export function SearchCommand({
                           </span>
                         )}
                         <span className="min-w-0 flex-1">
-                          <span className="block font-medium text-suzuki-navy dark:text-foreground truncate">
+                          <span className="block font-medium text-suzuki-navy truncate">
                             {c.nama}
                           </span>
                           <span className="block text-xs text-muted-foreground truncate">
@@ -253,7 +253,7 @@ export function SearchCommand({
                           <Newspaper className="w-4 h-4 text-muted-foreground" aria-hidden />
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block font-medium text-suzuki-navy dark:text-foreground truncate">
+                          <span className="block font-medium text-suzuki-navy truncate">
                             {a.judul}
                           </span>
                           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -295,7 +295,7 @@ export function SearchCommand({
                     >
                       <l.icon className="w-4 h-4 text-muted-foreground" aria-hidden />
                       <span className="flex-1">
-                        <span className="block font-medium text-suzuki-navy dark:text-foreground">{l.label}</span>
+                        <span className="block font-medium text-suzuki-navy">{l.label}</span>
                         <span className="block text-xs text-muted-foreground">{l.hint}</span>
                       </span>
                       <kbd className="search-kbd">Enter</kbd>

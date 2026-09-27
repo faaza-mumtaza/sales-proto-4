@@ -40,9 +40,9 @@ interface FaqAdmin {
 }
 
 const KATEGORI_WARNA: Record<string, string> = {
-  umum: "bg-suzuki-navy/10 dark:bg-white/10 text-suzuki-navy dark:text-foreground",
+  umum: "bg-suzuki-navy/10 text-suzuki-navy",
   pembelian: "bg-suzuki-red/10 text-suzuki-red",
-  purnajual: "bg-green-100 dark:bg-green-950/70 dark:text-green-300 text-green-700",
+  purnajual: "bg-green-100 text-green-700",
 };
 
 interface FormState {
@@ -272,7 +272,7 @@ export function AdminFaqView() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-suzuki-navy dark:text-foreground">FAQ (Pertanyaan Umum)</h1>
+            <h1 className="text-2xl font-bold text-suzuki-navy">FAQ (Pertanyaan Umum)</h1>
             <p className="text-muted-foreground text-sm mt-1">
               Kelola daftar pertanyaan umum yang tampil di halaman Kontak website.
             </p>
@@ -308,12 +308,12 @@ export function AdminFaqView() {
                 (s.id === "all" && filterKategori === "all") ||
                 (s.id === "published" && filterKategori === "__published__") ||
                 (s.id === "hidden" && filterKategori === "__hidden__")
-                  ? "border-suzuki-red/50 bg-white dark:bg-card shadow-sm ring-1 ring-suzuki-red/30"
-                  : "border-border bg-white/60 dark:bg-white/5 hover:border-suzuki-navy/30"
+                  ? "border-suzuki-red/50 bg-white shadow-sm ring-1 ring-suzuki-red/30"
+                  : "border-border bg-white/60 hover:border-suzuki-navy/30"
               }`}
               aria-pressed={s.id === "all" ? filterKategori === "all" : s.id === "published" ? filterKategori === "__published__" : filterKategori === "__hidden__"}
             >
-              <p className="text-2xl font-bold text-suzuki-navy dark:text-foreground">{s.n}</p>
+              <p className="text-2xl font-bold text-suzuki-navy">{s.n}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
             </button>
           ))}
@@ -328,7 +328,7 @@ export function AdminFaqView() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari pertanyaan / jawaban…"
               aria-label="Cari FAQ"
-              className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm bg-white dark:bg-card focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
+              className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-suzuki-red/50"
             />
           </div>
           <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter kategori FAQ">
@@ -340,7 +340,7 @@ export function AdminFaqView() {
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all active:scale-95 ${
                   (k === "all" && filterKategori === "all") || filterKategori === k
                     ? "bg-suzuki-navy text-white border-suzuki-navy"
-                    : "bg-white dark:bg-card text-muted-foreground border-border hover:border-suzuki-navy/40 hover:text-suzuki-navy dark:hover:text-white"
+                    : "bg-white text-muted-foreground border-border hover:border-suzuki-navy/40 hover:text-suzuki-navy"
                 }`}
               >
                 {k === "all" ? "Semua Kategori" : (FAQ_KATEGORI_LABEL[k] ?? k)}
@@ -369,18 +369,18 @@ export function AdminFaqView() {
 
         {/* Daftar */}
         {isLoading ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
+          <div className="bg-white rounded-xl border border-border p-8 text-center text-muted-foreground text-sm">
             Memuat FAQ…
           </div>
         ) : isError ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-8 text-center">
+          <div className="bg-white rounded-xl border border-border p-8 text-center">
             <p className="text-muted-foreground text-sm mb-2">Gagal memuat FAQ.</p>
             <button onClick={() => void refetch()} className="text-suzuki-red underline text-sm">
               Coba lagi
             </button>
           </div>
         ) : visible.length === 0 ? (
-          <div className="bg-white dark:bg-card rounded-xl border border-border p-10 text-center">
+          <div className="bg-white rounded-xl border border-border p-10 text-center">
             <HelpCircle className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" aria-hidden />
             <p className="text-muted-foreground text-sm">
               {faqs.length === 0
@@ -391,7 +391,7 @@ export function AdminFaqView() {
         ) : (
           <>
             {/* Header pilih-semua dengan status indeterminate */}
-            <div className="flex items-center gap-3 bg-white dark:bg-card rounded-xl border border-border px-4 py-3">
+            <div className="flex items-center gap-3 bg-white rounded-xl border border-border px-4 py-3">
               <input
                 type="checkbox"
                 checked={sel.allSelected}
@@ -402,11 +402,11 @@ export function AdminFaqView() {
                 aria-label="Pilih semua FAQ"
                 className="w-4 h-4 cursor-pointer"
               />
-              <span className="text-sm font-medium text-suzuki-navy dark:text-foreground">
+              <span className="text-sm font-medium text-suzuki-navy">
                 Pilih semua ({visible.length} FAQ)
               </span>
             </div>
-            <Accordion type="multiple" className="bg-white dark:bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+            <Accordion type="multiple" className="bg-white rounded-xl border border-border shadow-sm overflow-hidden">
               {visible.map((f) => {
                 const idxGlobal = sortedAll.findIndex((x) => x.id === f.id);
                 const isSel = sel.selected.has(f.id);
@@ -430,7 +430,7 @@ export function AdminFaqView() {
                       <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0 flex-col sm:flex-row">
                         <span className="flex items-center gap-2 shrink-0">
                           <span
-                            className="text-xs font-bold w-8 h-8 rounded-lg bg-muted text-suzuki-navy dark:text-foreground flex items-center justify-center"
+                            className="text-xs font-bold w-8 h-8 rounded-lg bg-muted text-suzuki-navy flex items-center justify-center"
                             aria-hidden
                             title={`Urutan ke-${f.urutan}`}
                           >
@@ -440,12 +440,12 @@ export function AdminFaqView() {
                             {FAQ_KATEGORI_LABEL[f.kategori] ?? f.kategori}
                           </span>
                           {!f.is_published && (
-                            <span className="text-[11px] px-2 py-0.5 rounded-full font-medium bg-amber-100 dark:bg-amber-950/70 dark:text-amber-300 text-amber-700">
+                            <span className="text-[11px] px-2 py-0.5 rounded-full font-medium bg-amber-100 text-amber-700">
                               Disembunyikan
                             </span>
                           )}
                         </span>
-                        <span className="font-semibold text-suzuki-navy dark:text-foreground text-sm truncate text-left">
+                        <span className="font-semibold text-suzuki-navy text-sm truncate text-left">
                           {f.pertanyaan}
                         </span>
                       </div>
@@ -457,7 +457,7 @@ export function AdminFaqView() {
                       <div className="flex flex-wrap gap-2 pl-4">
                         <button
                           onClick={() => openEdit(f)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border text-suzuki-navy dark:text-foreground hover:bg-muted text-xs font-medium rounded-full transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border text-suzuki-navy hover:bg-muted text-xs font-medium rounded-full transition-colors"
                         >
                           <Pencil className="w-3.5 h-3.5" aria-hidden />
                           Edit
@@ -466,7 +466,7 @@ export function AdminFaqView() {
                           onClick={() => void onToggle(f)}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
                             f.is_published
-                              ? "border border-amber-200 dark:border-amber-900 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/60"
+                              ? "border border-amber-200 text-amber-700 hover:bg-amber-50"
                               : "bg-green-600 text-white hover:bg-green-700"
                           }`}
                         >
@@ -486,7 +486,7 @@ export function AdminFaqView() {
                           onClick={() => void onMove(f, -1)}
                           disabled={idxGlobal === 0}
                           title="Naikkan urutan"
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 border border-border text-muted-foreground hover:text-suzuki-navy dark:hover:text-white hover:bg-muted text-xs rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 border border-border text-muted-foreground hover:text-suzuki-navy hover:bg-muted text-xs rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                           <ArrowUp className="w-3.5 h-3.5" aria-hidden />
                         </button>
@@ -494,14 +494,14 @@ export function AdminFaqView() {
                           onClick={() => void onMove(f, 1)}
                           disabled={idxGlobal === sortedAll.length - 1}
                           title="Turunkan urutan"
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 border border-border text-muted-foreground hover:text-suzuki-navy dark:hover:text-white hover:bg-muted text-xs rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 border border-border text-muted-foreground hover:text-suzuki-navy hover:bg-muted text-xs rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           >
                           <ArrowDown className="w-3.5 h-3.5" aria-hidden />
                         </button>
                         <button
                           onClick={() => void onDelete(f)}
                           title="Hapus FAQ"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/60 text-xs font-medium rounded-full transition-colors ml-auto"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 text-xs font-medium rounded-full transition-colors ml-auto"
                         >
                           <Trash2 className="w-3.5 h-3.5" aria-hidden />
                           Hapus
@@ -523,7 +523,7 @@ export function AdminFaqView() {
             </DialogHeader>
             <form onSubmit={onSubmit} className="space-y-4">
               <div>
-                <label htmlFor="faq-kategori" className="text-sm font-medium text-suzuki-navy dark:text-foreground mb-1.5 block">
+                <label htmlFor="faq-kategori" className="text-sm font-medium text-suzuki-navy mb-1.5 block">
                   Kategori
                 </label>
                 <Select value={form.kategori} onValueChange={(v) => setForm((f) => ({ ...f, kategori: v }))}>
@@ -540,7 +540,7 @@ export function AdminFaqView() {
                 </Select>
               </div>
               <div>
-                <label htmlFor="faq-pertanyaan" className="text-sm font-medium text-suzuki-navy dark:text-foreground mb-1.5 block">
+                <label htmlFor="faq-pertanyaan" className="text-sm font-medium text-suzuki-navy mb-1.5 block">
                   Pertanyaan <span className="text-suzuki-red">*</span>
                 </label>
                 <input
@@ -555,7 +555,7 @@ export function AdminFaqView() {
                 <p className="text-xs text-muted-foreground mt-1">{form.pertanyaan.length}/200 karakter</p>
               </div>
               <div>
-                <label htmlFor="faq-jawaban" className="text-sm font-medium text-suzuki-navy dark:text-foreground mb-1.5 block">
+                <label htmlFor="faq-jawaban" className="text-sm font-medium text-suzuki-navy mb-1.5 block">
                   Jawaban <span className="text-suzuki-red">*</span>
                 </label>
                 <textarea
@@ -572,7 +572,7 @@ export function AdminFaqView() {
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex-1">
-                  <label htmlFor="faq-urutan" className="text-sm font-medium text-suzuki-navy dark:text-foreground mb-1.5 block">
+                  <label htmlFor="faq-urutan" className="text-sm font-medium text-suzuki-navy mb-1.5 block">
                     Urutan tampil
                   </label>
                   <input
@@ -596,7 +596,7 @@ export function AdminFaqView() {
                 </label>
               </div>
               {error && (
-                <p role="alert" className="text-sm text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900 rounded-lg px-3 py-2">
+                <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                   {error}
                 </p>
               )}

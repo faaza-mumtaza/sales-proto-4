@@ -28,21 +28,21 @@ export function CarCard({ car, hot = false }: { car: Mobil; hot?: boolean }) {
   }
 
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-xl hover:shadow-suzuki-navy/10 hover:-translate-y-1 transition-all duration-300 group flex flex-col card-accent">
+    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all group flex flex-col">
       {/* Quick view — pratinjau cepat tanpa pindah halaman */}
       <QuickViewDialog car={car} open={quickOpen} onOpenChange={setQuickOpen} />
       <div className="relative p-4 pb-0">
-        <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full shadow-sm">
+        <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full">
           {car.kategori_label}
         </span>
         {car.is_new && (
-          <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-xs font-semibold rounded-full shadow-sm">
+          <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-xs font-semibold rounded-full">
             NEW
           </span>
         )}
         {/* Badge mobil paling dicari — berdasarkan permintaan test drive nyata */}
         {hot && (
-          <span className="absolute bottom-16 left-4 z-10 inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide text-white bg-gradient-to-r from-suzuki-red to-orange-500 shadow-lg shadow-suzuki-red/30">
+          <span className="absolute bottom-16 left-4 z-10 inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide text-white bg-suzuki-red shadow-sm">
             <Flame className="w-3.5 h-3.5" aria-hidden />
             Paling Diminati
             {demand > 0 && <span className="font-extrabold">· {demand}×</span>}
@@ -54,9 +54,9 @@ export function CarCard({ car, hot = false }: { car: Mobil; hot?: boolean }) {
           aria-pressed={selected}
           aria-label={selected ? `Keluarkan ${car.nama} dari perbandingan` : `Bandingkan ${car.nama} dengan mobil lain`}
           title={selected ? "Keluarkan dari perbandingan" : "Bandingkan mobil ini"}
-          className={`absolute bottom-3 right-7 z-10 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold border transition-all duration-300 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0 ${
+          className={`absolute bottom-3 right-7 z-10 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold border transition-colors md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 ${
             selected
-              ? "bg-suzuki-red text-white border-suzuki-red shadow-sm shadow-suzuki-red/40 scale-105"
+              ? "bg-suzuki-red text-white border-suzuki-red"
               : "bg-white/90 backdrop-blur text-suzuki-navy border-border hover:border-suzuki-red/50 hover:text-suzuki-red"
           }`}
         >
@@ -72,26 +72,24 @@ export function CarCard({ car, hot = false }: { car: Mobil; hot?: boolean }) {
           }}
           aria-label={`Pratinjau cepat ${car.nama}`}
           title="Pratinjau cepat"
-          className="absolute bottom-3 left-4 z-10 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold border bg-white/90 backdrop-blur text-suzuki-navy border-border hover:border-suzuki-red/50 hover:text-suzuki-red transition-all duration-300 md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 focus-visible:opacity-100 focus-visible:translate-y-0"
+          className="absolute bottom-3 left-4 z-10 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-semibold border bg-white/90 backdrop-blur text-suzuki-navy border-border hover:border-suzuki-red/50 hover:text-suzuki-red transition-colors md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100"
         >
           <Eye className="w-3.5 h-3.5" aria-hidden />
           <span className="hidden sm:inline">Pratinjau</span>
         </button>
-        <div className="relative h-48 flex items-center justify-center bg-[#E8E8E8] dark:bg-white/10 rounded-lg overflow-hidden">
+        <div className="relative h-48 flex items-center justify-center bg-[#E8E8E8] rounded-lg overflow-hidden">
           <img
             src={img}
             alt={car.nama}
             onError={() => setImgErr(true)}
             loading="lazy"
-            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
+            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
         </div>
       </div>
 
       <div className="p-4 pt-4 flex flex-col flex-1">
-        <h3 className="font-bold text-lg text-suzuki-navy dark:text-foreground mb-2 group-hover:text-suzuki-red transition-colors">
-          {car.nama}
-        </h3>
+        <h3 className="font-bold text-lg text-suzuki-navy mb-2">{car.nama}</h3>
         {car.warna.length > 0 && (
           <div className="flex items-center gap-1.5 mb-3" aria-label={`${car.warna.length} pilihan warna`}>
             {car.warna.slice(0, 5).map((w, i) => (

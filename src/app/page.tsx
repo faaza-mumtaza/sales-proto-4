@@ -13,7 +13,6 @@ import { MobilDetailView } from "@/views/public/mobil-detail-view";
 import { BandingkanView } from "@/views/public/bandingkan-view";
 import { ArtikelView } from "@/views/public/artikel-view";
 import { ArtikelDetailView } from "@/views/public/artikel-detail-view";
-import { PromoView } from "@/views/public/promo-view";
 import { TentangKamiView } from "@/views/public/tentang-kami-view";
 import { KontakView } from "@/views/public/kontak-view";
 import { NotFoundView } from "@/views/public/not-found-view";
@@ -40,155 +39,56 @@ function AppRoutes() {
 
   // ----- Admin (login berada DI LUAR shell terproteksi) -----
   if (seg1 === "admin") {
-    if (seg2 === "login")
-      return (
-        <div key="admin-login" className="page-enter">
-          <AdminLoginView />
-        </div>
-      );
-    if (seg2 === undefined)
-      return (
-        <div key="admin-dash" className="page-enter">
-          <AdminDashboardView />
-        </div>
-      );
+    if (seg2 === "login") return <AdminLoginView key="admin-login" />;
+    if (seg2 === undefined) return <AdminDashboardView key="admin-dash" />;
     if (seg2 === "katalog") {
-      if (seg3 === "tambah")
-        return (
-          <div key="admin-katalog-tambah" className="page-enter">
-            <AdminKatalogFormView />
-          </div>
-        );
+      if (seg3 === "tambah") return <AdminKatalogFormView key="admin-katalog-tambah" />;
       if (seg3) {
         // /admin/katalog/:id/edit
-        return (
-          <div key={`admin-katalog-${seg3}`} className="page-enter">
-            <AdminKatalogFormView key={seg3} carId={seg3} />
-          </div>
-        );
+        return <AdminKatalogFormView key={`admin-katalog-${seg3}`} carId={seg3} />;
       }
-      return (
-        <div key="admin-katalog" className="page-enter">
-          <AdminKatalogView />
-        </div>
-      );
+      return <AdminKatalogView key="admin-katalog" />;
     }
     if (seg2 === "artikel") {
-      if (seg3 === "tambah")
-        return (
-          <div key="admin-artikel-tambah" className="page-enter">
-            <AdminArtikelFormView />
-          </div>
-        );
+      if (seg3 === "tambah") return <AdminArtikelFormView key="admin-artikel-tambah" />;
       if (seg3) {
         // /admin/artikel/:id/edit
-        return (
-          <div key={`admin-artikel-${seg3}`} className="page-enter">
-            <AdminArtikelFormView key={seg3} artikelId={seg3} />
-          </div>
-        );
+        return <AdminArtikelFormView key={`admin-artikel-${seg3}`} artikelId={seg3} />;
       }
-      return (
-        <div key="admin-artikel" className="page-enter">
-          <AdminArtikelView />
-        </div>
-      );
+      return <AdminArtikelView key="admin-artikel" />;
     }
-    if (seg2 === "pesan")
-      return (
-        <div key="admin-pesan" className="page-enter">
-          <AdminPesanView />
-        </div>
-      );
-    if (seg2 === "test-drive")
-      return (
-        <div key="admin-td" className="page-enter">
-          <AdminTestDriveView />
-        </div>
-      );
-    if (seg2 === "servis")
-      return (
-        <div key="admin-servis" className="page-enter">
-          <AdminServisView />
-        </div>
-      );
-    if (seg2 === "testimoni")
-      return (
-        <div key="admin-testi" className="page-enter">
-          <AdminTestimoniView />
-        </div>
-      );
-    if (seg2 === "faq")
-      return (
-        <div key="admin-faq" className="page-enter">
-          <AdminFaqView />
-        </div>
-      );
-    return (
-      <div key="admin-dash-2" className="page-enter">
-        <AdminDashboardView />
-      </div>
-    );
+    if (seg2 === "pesan") return <AdminPesanView key="admin-pesan" />;
+    if (seg2 === "test-drive") return <AdminTestDriveView key="admin-td" />;
+    if (seg2 === "servis") return <AdminServisView key="admin-servis" />;
+    if (seg2 === "testimoni") return <AdminTestimoniView key="admin-testi" />;
+    if (seg2 === "faq") return <AdminFaqView key="admin-faq" />;
+    return <AdminDashboardView key="admin-dash-2" />;
   }
 
   // ----- Website publik -----
   switch (seg1) {
     case undefined:
-      return (
-        <div key="home" className="page-enter">
-          <HomeView />
-        </div>
-      );
+      return <HomeView key="home" />;
     case "mobil":
       return seg2 ? (
-        <div key={`mobil-${seg2}`} className="page-enter">
-          <MobilDetailView key={seg2} slug={seg2} />
-        </div>
+        <MobilDetailView key={`mobil-${seg2}`} slug={seg2} />
       ) : (
-        <div key="mobil" className="page-enter">
-          <MobilView />
-        </div>
+        <MobilView key="mobil" />
       );
     case "bandingkan":
-      return (
-        <div key="bandingkan" className="page-enter">
-          <BandingkanView />
-        </div>
-      );
+      return <BandingkanView key="bandingkan" />;
     case "artikel":
       return seg2 ? (
-        <div key={`artikel-${seg2}`} className="page-enter">
-          <ArtikelDetailView key={seg2} slug={seg2} />
-        </div>
+        <ArtikelDetailView key={`artikel-${seg2}`} slug={seg2} />
       ) : (
-        <div key="artikel" className="page-enter">
-          <ArtikelView />
-        </div>
-      );
-    case "promo":
-      return (
-        <div key="promo" className="page-enter">
-          <PromoView />
-        </div>
+        <ArtikelView key="artikel" />
       );
     case "tentang-kami":
-      return (
-        <div key="tentang" className="page-enter">
-          <TentangKamiView />
-        </div>
-      );
+      return <TentangKamiView key="tentang" />;
     case "kontak":
-      return (
-        <div key={`kontak-${route.query.toString()}`} className="page-enter">
-          <KontakView key={route.query.toString()} />
-        </div>
-      );
+      return <KontakView key={`kontak-${route.query.toString()}`} />;
     default:
-      return (
-        <div key="not-found" className="page-enter">
-          <NotFoundView />
-        </div>
-      );
+      return <NotFoundView key="not-found" />;
   }
 }
 
