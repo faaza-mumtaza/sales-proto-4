@@ -7,15 +7,30 @@ import { serializeMobil } from "@/lib/serializers";
 
 export const dynamic = "force-dynamic";
 
-/** GET /api/admin/cars — semua mobil (termasuk yang disembunyikan). */
+/** GET /api/admin/cars — semua mobil (termasuk yang disembunyikan).
+ *  Termasuk `jumlah_minat` (permintaan test drive nyata per mobil) untuk
+ *  insight permintaan di kolom "Minat". */
 export async function GET(req: NextRequest) {
   const denied = requireAdmin(req);
   if (denied) return denied;
   try {
-    const cars = await db.mobil.findMany({
-      orderBy: [{ urutan: "asc" }, { nama: "asc" }],
+    const [cars, demand] = await Promise.all([
+      db.mobil.findMany({
+        orderBy: [{ urutan: "asc" }, { nama: "asc" }],
+      }),
+      db.testDrive.groupBy({
+        by: ["mobil_id"],
+        where: { mobil_id: { not: null } },
+        _count: { _all: true },
+      }),
+    ]);
+    const demandMap = new Map(demand.map((d) => [d.mobil_id as string, d._count._all]));
+    return ok({
+      cars: cars.map((c) => ({
+        ...serializeMobil(c),
+        jumlah_minat: demandMap.get(c.id) ?? 0,
+      })),
     });
-    return ok({ cars: cars.map(serializeMobil) });
   } catch (e) {
     console.error("[api/admin/cars] GET error:", e);
     return fail("Gagal memuat katalog.", 500);

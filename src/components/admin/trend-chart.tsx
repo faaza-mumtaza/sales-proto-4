@@ -90,7 +90,7 @@ export function TrendChart({ data }: { data: TrendPoint[] }) {
                   {value === "pesan" ? "Pesan kontak" : "Booking test drive"}
                 </span>
               )}
-              iconType="rounded"
+              iconType="circle"
               iconSize={10}
             />
             <Bar dataKey="pesan" fill="#e32322" radius={[6, 6, 0, 0]} maxBarSize={28} />

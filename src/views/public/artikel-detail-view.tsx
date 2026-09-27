@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Tag, MessageCircle, Clock3 } from "lucide-react";
+import { Calendar, Tag, MessageCircle, Clock3, Printer } from "lucide-react";
 import { SiteLayout } from "@/components/site/site-layout";
 import { ArticleCard } from "@/components/site/article-card";
 import { Breadcrumb } from "@/components/site/breadcrumb";
@@ -154,7 +154,15 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
         ]}
       />
 
-      <div className="bg-muted py-4 border-b border-border/60">
+      {/* Header khusus cetak — hanya tampil saat print/PDF */}
+      <div className="print-header hidden" aria-hidden>
+        <p className="print-title">Suzuki BSB Semarang — Artikel &amp; Berita</p>
+        <p className="print-sub">
+          {a.judul} · {formatDateID(a.published_at ?? a.created_at)} · suzukibsb.id
+        </p>
+      </div>
+
+      <div className="bg-muted py-4 border-b border-border/60 no-print">
         <div className="container mx-auto px-4">
           <Breadcrumb
             items={[
@@ -187,7 +195,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
 
       <div className="container mx-auto px-4 py-12 max-w-6xl flex gap-10 items-start">
         {showToc && (
-          <aside className="hidden xl:block w-64 shrink-0 self-stretch">
+          <aside className="hidden xl:block w-64 shrink-0 self-stretch no-print">
             <div className="sticky top-24">
               <ArticleToc items={tocItems} activeId={activeId} variant="sidebar" />
             </div>
@@ -195,7 +203,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
         )}
         <article className="max-w-3xl flex-1 min-w-0 w-full">
         {showToc && (
-          <div className="xl:hidden mb-8">
+          <div className="xl:hidden mb-8 no-print">
             <ArticleToc items={tocItems} activeId={activeId} variant="inline" />
           </div>
         )}
@@ -224,7 +232,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
         <div ref={proseRef} className="prose-artikel" dangerouslySetInnerHTML={{ __html: tocHtml }} />
 
         {a.tags.length > 0 && (
-          <div className="mt-10 flex flex-wrap gap-2">
+          <div className="mt-10 flex flex-wrap gap-2 no-print">
             {a.tags.map((t) => (
               <span
                 key={t}
@@ -237,7 +245,7 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
           </div>
         )}
 
-        <div className="mt-10 border-t border-border pt-8 space-y-4">
+        <div className="mt-10 border-t border-border pt-8 space-y-4 no-print">
           <ShareButtons title={a.judul} url={shareUrl} />
           <div className="flex flex-wrap gap-3">
             <a
@@ -249,13 +257,21 @@ export function ArtikelDetailView({ slug }: { slug: string }) {
               <MessageCircle className="w-4 h-4" aria-hidden />
               Hubungi Sales
             </a>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-border bg-card text-foreground text-sm font-medium transition-all hover:border-suzuki-red/40 hover:text-suzuki-red hover:shadow-md active:scale-95"
+            >
+              <Printer className="w-4 h-4" aria-hidden />
+              Cetak / Simpan PDF
+            </button>
           </div>
         </div>
         </article>
       </div>
 
       {data?.related && data.related.length > 0 && (
-        <section className="py-12 bg-suzuki-light border-t border-border" aria-labelledby="judul-terkait">
+        <section className="py-12 bg-suzuki-light border-t border-border print-hide" aria-labelledby="judul-terkait">
           <div className="container mx-auto px-4">
             <h2 id="judul-terkait" className="text-2xl font-bold text-suzuki-navy dark:text-foreground mb-8 text-center flex items-center justify-center gap-4">
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />

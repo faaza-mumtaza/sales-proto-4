@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Search, ExternalLink, Eye, EyeOff, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ExternalLink, Eye, EyeOff, Download, Flame, ArrowUpDown, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPut } from "@/lib/api";
 import { Link, usePageMeta, navigate } from "@/lib/router";
@@ -15,6 +15,7 @@ export function AdminKatalogView() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [sortByDemand, setSortByDemand] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["admin", "mobil"],
@@ -52,14 +53,26 @@ export function AdminKatalogView() {
   const filtered = useMemo(() => {
     const all = data?.cars ?? [];
     const q = search.trim().toLowerCase();
-    if (!q) return all;
-    return all.filter(
-      (m) =>
-        m.nama.toLowerCase().includes(q) ||
-        m.kategori_label.toLowerCase().includes(q) ||
-        (m.harga_label ?? "").toLowerCase().includes(q),
+    const matched = q
+      ? all.filter(
+          (m) =>
+            m.nama.toLowerCase().includes(q) ||
+            m.kategori_label.toLowerCase().includes(q) ||
+            (m.harga_label ?? "").toLowerCase().includes(q),
+        )
+      : all;
+    if (!sortByDemand) return matched;
+    // Urutkan berdasarkan permintaan test drive nyata (desc), tie-break nama
+    return [...matched].sort(
+      (a, b) => (b.jumlah_minat ?? 0) - (a.jumlah_minat ?? 0) || a.nama.localeCompare(b.nama),
     );
-  }, [data, search]);
+  }, [data, search, sortByDemand]);
+
+  const topDemand = useMemo(() => {
+    const all = data?.cars ?? [];
+    const max = all.reduce((acc, m) => Math.max(acc, m.jumlah_minat ?? 0), 0);
+    return max >= 1 ? all.find((m) => (m.jumlah_minat ?? 0) === max) : undefined;
+  }, [data]);
 
   function exportCsv() {
     if (filtered.length === 0) {
@@ -76,6 +89,7 @@ export function AdminKatalogView() {
       { header: "Bahan Bakar", value: (m) => m.fuel ?? "" },
       { header: "Transmisi", value: (m) => m.transmission ?? "" },
       { header: "Jumlah Warna", value: (m) => m.warna.length },
+      { header: "Minat Test Drive", value: (m) => m.jumlah_minat ?? 0 },
       { header: "Tampil", value: (m) => (m.is_published ? "Ya" : "Tidak") },
       { header: "Urutan", value: (m) => m.urutan },
     ]);
@@ -155,12 +169,31 @@ export function AdminKatalogView() {
             <>
               {/* Tabel (tablet ke atas) */}
               <div className="hidden sm:block overflow-x-auto">
-                <table className="min-w-[760px] w-full text-sm" aria-label="Tabel katalog mobil">
+                <table className="min-w-[860px] w-full text-sm" aria-label="Tabel katalog mobil">
                   <thead className="bg-muted text-left">
                     <tr className="text-xs uppercase tracking-wide text-muted-foreground">
                       <th className="px-4 py-3">Mobil</th>
                       <th className="px-4 py-3">Kategori</th>
                       <th className="px-4 py-3">Harga</th>
+                      <th className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => setSortByDemand((v) => !v)}
+                          title={
+                            sortByDemand
+                              ? "Kembali ke urutan default (urutan katalog)"
+                              : "Urutkan berdasarkan permintaan test drive nyata"
+                          }
+                          className={`inline-flex items-center gap-1 uppercase tracking-wide transition-colors hover:text-suzuki-red ${sortByDemand ? "text-suzuki-red" : ""}`}
+                        >
+                          Minat
+                          {sortByDemand ? (
+                            <ArrowDown className="w-3 h-3" aria-hidden />
+                          ) : (
+                            <ArrowUpDown className="w-3 h-3" aria-hidden />
+                          )}
+                        </button>
+                      </th>
                       <th className="px-4 py-3">Urutan</th>
                       <th className="px-4 py-3">Status</th>
                       <th className="px-4 py-3 text-right">Aksi</th>
@@ -196,6 +229,25 @@ export function AdminKatalogView() {
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">{m.kategori_label}</td>
                         <td className="px-4 py-3 whitespace-nowrap">{m.harga_label ?? "—"}</td>
+                        <td className="px-4 py-3">
+                          {(m.jumlah_minat ?? 0) > 0 ? (
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                topDemand?.id === m.id
+                                  ? "bg-gradient-to-r from-suzuki-red to-orange-500 text-white shadow-sm"
+                                  : "bg-orange-50 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300"
+                              }`}
+                              title={`${m.jumlah_minat} permintaan test drive nyata melalui website`}
+                            >
+                              <Flame className="w-3.5 h-3.5" aria-hidden />
+                              {m.jumlah_minat}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground" title="Belum ada permintaan test drive">
+                              —
+                            </span>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-muted-foreground">{m.urutan}</td>
                         <td className="px-4 py-3">
                           <button
@@ -285,6 +337,21 @@ export function AdminKatalogView() {
                       <p className="text-xs text-muted-foreground mt-1 truncate">
                         {m.kategori_label} · {m.harga_label ?? "—"}
                       </p>
+                      {(m.jumlah_minat ?? 0) > 0 && (
+                        <p className="mt-1.5">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                              topDemand?.id === m.id
+                                ? "bg-gradient-to-r from-suzuki-red to-orange-500 text-white"
+                                : "bg-orange-50 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300"
+                          }`}
+                            title={`${m.jumlah_minat} permintaan test drive nyata melalui website`}
+                          >
+                            <Flame className="w-3 h-3" aria-hidden />
+                            {m.jumlah_minat} minat
+                          </span>
+                        </p>
+                      )}
                       <div className="mt-2.5 flex flex-wrap gap-2">
                         <Link
                           to={`/admin/katalog/${m.id}/edit`}

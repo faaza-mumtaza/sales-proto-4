@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@lib/router";
+import { Link } from "@/lib/router";
 import { WHATSAPP_NUMBER, INSTAGRAM_URL, waLink } from "@/lib/site-utils";
 import { SuzukiLogo } from "./header";
 import { NewsletterForm } from "./newsletter-form";

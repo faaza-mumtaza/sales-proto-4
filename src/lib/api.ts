@@ -17,7 +17,7 @@ export class ApiError extends Error {
 async function request<T extends object>(
   path: string,
   init?: RequestInit,
-): Promise<T> {
+): Promise<T & ApiResponse> {
   let res: Response;
   try {
     res = await fetch(path, {
@@ -38,7 +38,7 @@ async function request<T extends object>(
   if (!res.ok || !body?.ok) {
     throw new ApiError(body?.message ?? "Terjadi kesalahan. Coba lagi.", res.status);
   }
-  return body as T & ApiResponse;
+  return body as unknown as T & ApiResponse;
 }
 
 export function apiGet<T extends object>(path: string): Promise<T & ApiResponse> {

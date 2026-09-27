@@ -267,9 +267,29 @@
 }
 
 /* ---------------------------------------------------------------- */
-/* Print stylesheet — lembar spesifikasi mobil                      */
+/* Print stylesheet — lembar spesifikasi mobil & cetak artikel/PDF  */
 /* ---------------------------------------------------------------- */
 @media print {
+  /* Cetak SELALU terang: jika pengguna sedang dalam dark mode, kembalikan
+     semua token warna ke nilai terang supaya teks tetap gelap & terbaca
+     di kertas putih (html.dark lebih spesifik daripada .dark). */
+  html.dark {
+    --background: #ffffff;
+    --foreground: #1a2942;
+    --card: #f8fafc;
+    --card-foreground: #1a2942;
+    --popover: #ffffff;
+    --popover-foreground: #1a2942;
+    --secondary: #1a2942;
+    --secondary-foreground: #ffffff;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --suzuki-light: #f8fafc;
+    color-scheme: light;
+  }
+
   /* Sembunyikan semua elemen non-konten */
   header,
   footer,

@@ -42,9 +42,9 @@ export interface MobilDTO {
 export function serializeMobil<T extends Record<string, unknown>>(m: T): MobilDTO {
   return {
     ...(m as unknown as MobilDTO),
-    spesifikasi: safeParseArray(m.spesifikasi as string),
-    galeri_gambar: safeParseArray(m.galeri_gambar as string),
-    warna: safeParseArray(m.warna as string),
+    spesifikasi: safeParseArray<SpecItem>(m.spesifikasi as string),
+    galeri_gambar: safeParseArray<string>(m.galeri_gambar as string),
+    warna: safeParseArray<WarnaItem>(m.warna as string),
     created_at: (m.created_at as Date).toISOString(),
     updated_at: (m.updated_at as Date).toISOString(),
   };
@@ -70,7 +70,7 @@ export interface ArtikelDTO {
 export function serializeArtikel<T extends Record<string, unknown>>(a: T): ArtikelDTO {
   return {
     ...(a as unknown as ArtikelDTO),
-    tags: safeParseArray(a.tags as string),
+    tags: safeParseArray<string>(a.tags as string),
     published_at: (a.published_at as Date | null)?.toISOString() ?? null,
     scheduled_at: (a.scheduled_at as Date | null)?.toISOString() ?? null,
     created_at: (a.created_at as Date).toISOString(),
@@ -78,13 +78,13 @@ export function serializeArtikel<T extends Record<string, unknown>>(a: T): Artik
   };
 }
 
-export function safeParseArray(
+export function safeParseArray<T = unknown>(
   raw: string | null | undefined,
-): [] | string[] | SpecItem[] | WarnaItem[] {
+): T[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
   } catch {
     return [];
   }
