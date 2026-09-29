@@ -5,7 +5,7 @@ import sanitizeHtml from "sanitize-html";
 
 const OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: [
-    "p", "br", "hr", "h1", "h2", "h3", "h4", "strong", "b", "em", "i", "u",
+    "p", "br", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "b", "em", "i", "u",
     "s", "blockquote", "ul", "ol", "li", "a", "img", "figure", "figcaption",
     "code", "pre", "span", "div", "table", "thead", "tbody", "tr", "th", "td",
   ],
@@ -17,7 +17,7 @@ const OPTIONS: sanitizeHtml.IOptions = {
     figure: ["class"],
     figcaption: ["class"],
     p: ["class"],
-    h1: ["class"], h2: ["class"], h3: ["class"], h4: ["class"],
+    h1: ["class"], h2: ["class"], h3: ["class"], h4: ["class"], h5: ["class"], h6: ["class"],
   },
   allowedSchemes: ["http", "https", "mailto"],
   transformTags: {

@@ -19,7 +19,7 @@ import type { Artikel } from "@/lib/site-utils";
 
 const TIPTAP_EXTENSIONS = [
   StarterKit.configure({ link: false }),
-  Image.configure({ allowBase64: false }),
+  Image.configure({ allowBase64: true }),
   Link.configure({ openOnClick: false, autolink: true, linkOnPaste: true }),
 ];
 

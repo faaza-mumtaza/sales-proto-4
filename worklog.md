@@ -637,3 +637,27 @@ Stage Summary:
 - **Mode kerja baru (permanen)**: lazy senior developer — rungga tangga YAGNI, diff terkecil, tanpa dependensi/abstraksi baru, prefer deletion. Jangan tambahkan polish styling/animasi lagi kecuali diminta eksplisit.
 - File berubah: 50+ (mayoritas strip dark:/Reveal); dihapus: 5 file (promo-view, reveal, count-up, theme-toggle, theme-provider) + dep next-themes. globals.css -365 baris.
 - Catatan operasional: restart dev server SETELAH edit globals.css (stale) — stop → rm .next → start; hati-hati instance kembar di port 3000 (pkill next* bila EADDRINUSE).
+
+---
+Task ID: 14
+Agent: main (lazy-senior-dev mode)
+Task: Perbaiki paste behavior Tiptap di editor artikel admin (prioritas 1), lalu perkuat CSS prose halaman detail artikel publik (prioritas 2). Uji end-to-end paste konten ala suzuki.co.id (history 4x4).
+
+Work Log:
+- Riset sumber paste nyata: fetch suzuki.co.id halaman history → img pakai src absolut https://suzukicdn.com (bukan lazy-load data-src) → paste https-img memang bisa selamat end-to-end; base64 hanya dari sumber clipboard HTML khusus.
+- Edit `src/components/admin/artikel-editor.tsx` (1 baris): `Image.configure({ allowBase64: false })` → `allowBase64: true`.
+- Edit `src/lib/sanitize.ts`: tambah `h5`,`h6` ke allowedTags + allowedAttributes — sebelumnya StarterKit (heading level 1-6) menerima h5/h6 saat paste tapi sanitizer membuangnya saat simpan (mismatch editor vs DB).
+- Verifikasi sanitizer (skrip sekali-jalan): payload paste realistis → 3/3 img https selamat (src/alt/width/height), h5/h6 selamat, script/style-inline/javascript:/base64 dibuang, link diberi nofollow+noopener.
+- E2E agent-browser (session paste14): login admin → #/admin/artikel/tambah → dispatch ClipboardEvent('paste') dengan HTML suzuki-like (h1-h6 + 2 img https + 1 img base64 + figure + ul + link + hr + table + script) → editor: H1-H6 utuh, 3/3 img masuk (base64 kini masuk — sebelumnya dibuang), strong/em/ul/li/link/hr utuh, script/style ditolak schema, figure di-unwrap jadi img + paragraf caption, teks sel tabel jadi paragraf.
+- Simpan (DRAFT) → cek DB via prisma: konten tersimpan h1-h6 utuh, 2/2 img https + width/height, base64 dibuang (by design — security), ul/li/link(nofollow)/hr utuh, caption jadi <p>.
+- Round-trip: edit artikel via UI → konten DB muat balik ke Tiptap (6 heading, 2 img, ul, hr, caption OK) → set PUBLISHED → simpan.
+- Edit `src/app/globals.css` (.prose-artikel): + h4/h5/h6 (h6 uppercase muted), + `> :first-child { margin-top: 0 }`, p 0.9em→1em, img jadi display:block + margin 1.5em auto (centered) + radius 0.75→0.5rem, + figure/figcaption (caption centered kecil muted), + hr (border-top 1px var(--border), margin 2em). CSS hot-reload OK (tidak stale).
+- Verifikasi halaman publik #/artikel/uji-paste-tiptap-4x4: computed style img block+centered+radius 8px+max-w 100%, h6 uppercase 700, hr 1px, 2/2 gambar suzukicdn termuat (naturalWidth>0), mobile 375px no horizontal overflow. Screenshot desktop+mobile di /tmp/artikel-*.png.
+- Cleanup: artikel uji dihapus via UI admin (dialog confirm → toast "Artikel dihapus") — DB kembali bersih.
+- QA akhir: agent-browser errors = 0, dev.log bersih, `bun run lint` = 0 error.
+
+Stage Summary:
+- **Prioritas 1 TUNTAS**: paste dari website Suzuki kini selamat end-to-end — heading h1-h6 + img https (dengan width/height) + list/link/hr/figure-text masuk editor DAN tersimpan di DB. Perbaikan = 2 file, 3 baris efektif (allowBase64:true + h5/h6 sanitizer). TANPA handler paste custom, TANPA extension/dependency baru.
+- **Prioritas 2 TUNTAS**: .prose-artikel kini menata h4-h6, figure/figcaption, hr, img centered block radius 8px, spacing p/heading lebih lega, first-child tanpa margin atas. Tampilan editor (WYSIWYG) ikut konsisten karena pakai class yang sama.
+- **Batas perilaku (by design)**: img base64 kini TAMPIL di editor+preview tapi tetap DIBUANG sanitizer saat simpan (keamanan + anti-bloat DB). Jika user ingin base64 ikut tersimpan, tinggal longgarkan exclusiveFilter di sanitize.ts (data:image/* only) — belum dilakukan (tidak diminta, trade-off bloat).
+- Risiko/next: tidak ada regression (semua fitur artikel lama — TOC, share, print, status — tidak disentuh); table paste di-unwrap Tiptap jadi paragraf (tidak ada extension Table — sengaja, user melarang extension baru).

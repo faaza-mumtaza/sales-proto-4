@@ -120,8 +120,31 @@
   margin: 1.2em 0 0.4em;
   color: var(--suzuki-navy);
 }
+.prose-artikel h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.1em 0 0.35em;
+  color: var(--suzuki-navy);
+}
+.prose-artikel h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1em 0 0.3em;
+  color: var(--suzuki-navy);
+}
+.prose-artikel h6 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin: 1em 0 0.25em;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.prose-artikel > :first-child {
+  margin-top: 0;
+}
 .prose-artikel p {
-  margin: 0.9em 0;
+  margin: 1em 0;
 }
 .prose-artikel ul,
 .prose-artikel ol {
@@ -149,10 +172,28 @@
   font-style: italic;
 }
 .prose-artikel img {
-  border-radius: 0.75rem;
-  margin: 1.2em 0;
+  display: block;
+  margin: 1.5em auto;
   max-width: 100%;
   height: auto;
+  border-radius: 0.5rem;
+}
+.prose-artikel figure {
+  margin: 1.5em 0;
+}
+.prose-artikel figure img {
+  margin: 0 auto;
+}
+.prose-artikel figcaption {
+  margin-top: 0.5em;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+.prose-artikel hr {
+  margin: 2em 0;
+  border: none;
+  border-top: 1px solid var(--border);
 }
 .prose-artikel strong {
   font-weight: 700;
