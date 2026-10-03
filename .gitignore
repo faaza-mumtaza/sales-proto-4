@@ -60,3 +60,6 @@ db/uploads/
 # uploads & logs
 upload/
 dev.log
+
+# zscripts runtime
+.zscripts/*.pid
