@@ -661,3 +661,22 @@ Stage Summary:
 - **Prioritas 2 TUNTAS**: .prose-artikel kini menata h4-h6, figure/figcaption, hr, img centered block radius 8px, spacing p/heading lebih lega, first-child tanpa margin atas. Tampilan editor (WYSIWYG) ikut konsisten karena pakai class yang sama.
 - **Batas perilaku (by design)**: img base64 kini TAMPIL di editor+preview tapi tetap DIBUANG sanitizer saat simpan (keamanan + anti-bloat DB). Jika user ingin base64 ikut tersimpan, tinggal longgarkan exclusiveFilter di sanitize.ts (data:image/* only) — belum dilakukan (tidak diminta, trade-off bloat).
 - Risiko/next: tidak ada regression (semua fitur artikel lama — TOC, share, print, status — tidak disentuh); table paste di-unwrap Tiptap jadi paragraf (tidak ada extension Table — sengaja, user melarang extension baru).
+
+---
+Task ID: 15
+Agent: main (lazy-senior-dev mode)
+Task: Push project ke GitHub repo baru faaza-mumtaza/sales-proto-4.
+
+Work Log:
+- Cek status git: repo lokal sudah di branch main, 16 commit, tanpa remote. Ketemu 3 file terlanjur tracked padahal sudah ada di .gitignore: .env (isinya cuma DATABASE_URL sqlite sandbox — bukan secret asli), db/custom.db (ada di 14 commit history), .zscripts/dev.pid.
+- Higienit: `git rm --cached` ketiganya + commit "chore: untrack runtime files" → HEAD tree bersih dari file runtime/rahasia.
+- Remote origin ditambahkan, ls-remote anonim OK (repo kosong terbaca).
+- Push: token PAT user (fine-grained, dipakai sekali inline via URL, TIDAK disimpan) → `main -> main` sukses, 17 commit, 380 file.
+- Bersih-bersih pasca-push: -u dengan URL ber-token sempat menulis token ke .git/config → langsung di-unset, fetch ulang, set tracking `main...origin/main` via origin normal → 0 kemunculan token di config lokal.
+- Verifikasi: origin/main HEAD tree = 0 file sensitif (.env/db/pid); rev-list 17 commit. GitHub API anonim rate-limited (403) → verifikasi via git ls-tree (otoritatif).
+- User disarankan revoke PAT karena token pernah muncul di chat.
+
+Stage Summary:
+- **Repo live: https://github.com/faaza-mumtaza/sales-proto-4 (branch main, 17 commit, 380 file, .git 41MB)**. HEAD bersih; history LAMA masih memuat blob .env & db/custom.db versi sandbox (bukan secret produksi — user memilih push apa adanya, momen purge riwayat masih mungkin dengan filter-repo bila suatu saat diminta).
+- Tracking lokal: main → origin/main. Remote origin tanpa kredensial (push/pull berikutnya butuh PAT lagi atau credential helper).
+- Catatan clone: tanpa .env & db/custom.db — clone perlu `cp .env.example .env`-style setup (DATABASE_URL) + `bun run db:push` + seed/restore db/uploads via scripts/restore-uploads.py.
