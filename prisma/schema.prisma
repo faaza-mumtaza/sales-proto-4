@@ -1,7 +1,10 @@
 // Suzuki Dealer Website — Prisma Schema
-// SQLite di sandbox dev. Untuk production (Supabase/Vercel):
-//   1. Ganti provider ke "postgresql" dan DATABASE_URL ke Supabase connection string.
-//   2. Field JSON string (spesifikasi, galeri_gambar, tags) bisa dimigrasi ke tipe native (Json, String[]).
+// TERHUBUNG KE SUPABASE POSTGRES (production) — sejak Task 18, dipulihkan
+// ulang di Task 19 setelah reset sandbox.
+//   - DATABASE_URL di .env → Supabase pooler (lihat .env.example & README §10).
+//   - JANGAN jalankan `bun run db:push` terhadap Supabase — akan menganggap
+//     kolom legacy (artikel.is_published, author_id) sebagai drift & ingin
+//     menghapusnya. Perubahan schema → edit docs/supabase-setup.sql (idempoten).
 // Catatan: field memakai snake_case mengikuti kode legacy agar porting UI minim perubahan.
 
 generator client {
@@ -9,7 +12,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

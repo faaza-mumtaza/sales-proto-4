@@ -680,3 +680,30 @@ Stage Summary:
 - **Repo live: https://github.com/faaza-mumtaza/sales-proto-4 (branch main, 17 commit, 380 file, .git 41MB)**. HEAD bersih; history LAMA masih memuat blob .env & db/custom.db versi sandbox (bukan secret produksi — user memilih push apa adanya, momen purge riwayat masih mungkin dengan filter-repo bila suatu saat diminta).
 - Tracking lokal: main → origin/main. Remote origin tanpa kredensial (push/pull berikutnya butuh PAT lagi atau credential helper).
 - Catatan clone: tanpa .env & db/custom.db — clone perlu `cp .env.example .env`-style setup (DATABASE_URL) + `bun run db:push` + seed/restore db/uploads via scripts/restore-uploads.py.
+
+---
+Task ID: 19
+Agent: main (Z.ai Code)
+Task: Diagnose & fix "tidak bisa login admin meski sudah membuat akun email+password di Supabase" — ternyata insiden reset sandbox + akun dibuat di sistem auth yang salah
+
+Work Log:
+- **Diagnosis berlapis** (laporan user: tidak bisa login ke menu admin):
+  1. Tabel `admins` via Prisma → error `no such table: auth.users` (format error SQLite!) saat cek auth.users → indikasi client malah nyambung SQLite.
+  2. Fakta terkumpul: `.env` ter-rollback ke `file:...custom.db`; `prisma/schema.prisma` provider kembali `sqlite`; git history BERUBAH TOTAL (commit Task 16-18 hilang, HEAD = snapshot era Task 15 + auto-commit UUID); worklog terpotong di Task 15; README.md & docs/ & .env.example TIDAK ADA; `db/custom.db` ada tapi SEMUA tabel kosong; IP sandbox berubah 21.0.12.54 → 21.0.2.178; cron job webDevReview hilang.
+  3. **Kesimpulan: SANDBOX DI-RESET/RE-PROVISION** dan direstore dari repo GitHub (state Task 15). Commit lokal Task 16-18 (README handover, setup SQL, koneksi Supabase) hilang permanen karena tidak pernah di-push (PAT GitHub lama terekspos & di-revoke). dev.log: puluhan POST /api/admin/login 401 lalu 429 (rate-limit 10x/15mnt) — percobaan user dipenuhi kegagalan karena app nyambung ke SQLite kosong (admins = 0 baris → semua kredensial ditolak).
+- **Inspeksi Supabase live** (setelah flip provider + generate): 9 tabel tetap utuh, artikel 3 (PUBLISHED) + mobil 5, fix enum artikel_tipe (→text) bertahan, akun seed admin@suzukibsb.id MASIH ADA (hash scrypt sama persis) — Supabase tidak terdampak reset. **Temuan kunci: `auth.users` (Supabase Auth) berisi 1 akun `naufalsuzuki.bsb@gmail.com` dibuat 2026-10-04 14:37** → inilah akun yang user buat (menu Authentication → Users), sistem yang TIDAK dipakai aplikasi (app pakai tabel `public.admins` + scrypt).
+- **Akar masalah login (3 lapis)**: (1) sandbox reset → app terputus dari Supabase & nyambung ke SQLite kosong → semua login 401; (2) akun user dibuat di Supabase Auth, bukan di tabel `admins` — tak akan pernah dikenali app; (3) spam percobaan → rate-limit 429 memperparah kebingungan.
+- **Fix eksekusi**:
+  - `.env` → DATABASE_URL Supabase pooler 5432 (password ter-encode, catatan jebakan env var).
+  - `prisma/schema.prisma` → provider postgresql (+ komentar larangan db:push).
+  - `bun run db:generate`; kill dev server (proses boot lama) → start ulang dengan `unset DATABASE_URL` (sekaligus menghapus rate-limit in-memory).
+  - Tulis ulang `scripts/seed-supabase.ts` versi pulihan: **CREATE-ONLY** (tidak pernah menimpa password yang sudah diganti) — menjamin 2 akun: `admin@suzukibsb.id` (default, sudah ada → dilewati) + `naufalsuzuki.bsb@gmail.com` (BARU dibuat, password sementara `GantiSaya#2026`, hash via hashPassword app).
+  - Pulihkan artefak hilang: `docs/supabase-setup.sql` (versi final termasuk A6 enum fix, header dicatat "sudah dijalankan"), `.env.example`, `README.md` (ditulis ulang — versi Task 16 hilang permanen; ditandai jelas sebagai rewrite + changelog rekap Task 16-18).
+- **Verifikasi**: seed → admins 2 baris; POST /api/admin/login OK untuk KEDUA akun (owner + default); `/api/cars` 5 mobil Supabase; `GET /` 200. Verifikasi UI via agent-browser menyusul di langkah berikutnya (login via form + dashboard + mobile).
+- **Dokumentasi**: README baru (§5 tabel akun admin, §8 runbook Supabase + larangan db:push, §9 catatan insiden reset, §10 changelog lengkap termasuk rekap Task 16-18) + worklog ini. Cron webDevReview dibuat ulang.
+
+Stage Summary:
+- **Login admin BERES**: akun owner `naufalsuzuki.bsb@gmail.com` kini aktif di sistem auth yang benar (password sementara `GantiSaya#2026` — WAJIB diganti via tombol "Ganti Password" di panel admin), plus akun default `admin@suzukibsb.id` tetap berfungsi.
+- App kembali LIVE di atas Supabase; seluruh artefak Task 16-18 yang hilang dipulihkan (README ditulis ulang, bukan rekonstruksi persis — versi lama hilang permanen).
+- **Pelajaran insiden (penting untuk agent berikutnya)**: sandbox bisa di-reset kapan pun → (1) commit & push ke GitHub segera setelah tiap fase (commit lokal = bisa hilang); (2) data hidup harus di Supabase (eksternal), bukan file lokal; (3) setelah reset, gejala khasnya: IP berubah, git history berubah, .env/schema ter-rollback, worklog terpotong — pulihkan dengan urutan: .env → provider → db:generate → unset DATABASE_URL → restart → `bun scripts/seed-supabase.ts` (create-only, aman); (4) JANGAN pernah balik DATABASE_URL ke SQLite lokal; (5) user mengetahui password sementara via chat — ingatkan ganti segera.
+- Risiko tersisa: push GitHub butuh PAT baru (yang lama terekspos & di-revoke); tabel interaksi (pesan/testimoni/faq/dll) masih kosong menunggu konten asli; password DB & akun pernah muncul di chat (password DB sudah di-reset user — jangan dibagikan lagi).
