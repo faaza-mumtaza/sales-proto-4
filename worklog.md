@@ -707,3 +707,25 @@ Stage Summary:
 - App kembali LIVE di atas Supabase; seluruh artefak Task 16-18 yang hilang dipulihkan (README ditulis ulang, bukan rekonstruksi persis — versi lama hilang permanen).
 - **Pelajaran insiden (penting untuk agent berikutnya)**: sandbox bisa di-reset kapan pun → (1) commit & push ke GitHub segera setelah tiap fase (commit lokal = bisa hilang); (2) data hidup harus di Supabase (eksternal), bukan file lokal; (3) setelah reset, gejala khasnya: IP berubah, git history berubah, .env/schema ter-rollback, worklog terpotong — pulihkan dengan urutan: .env → provider → db:generate → unset DATABASE_URL → restart → `bun scripts/seed-supabase.ts` (create-only, aman); (4) JANGAN pernah balik DATABASE_URL ke SQLite lokal; (5) user mengetahui password sementara via chat — ingatkan ganti segera.
 - Risiko tersisa: push GitHub butuh PAT baru (yang lama terekspos & di-revoke); tabel interaksi (pesan/testimoni/faq/dll) masih kosong menunggu konten asli; password DB & akun pernah muncul di chat (password DB sudah di-reset user — jangan dibagikan lagi).
+
+---
+Task ID: 20
+Agent: main (Z.ai Code)
+Task: Push semua commit lokal ke GitHub (permintaan user) + pulihan dari reset sandbox ke-3 yang terdeteksi dalam proses
+
+Work Log:
+- **Konteks user**: token GitHub yang dulu diberikan "masih valid sampai 3 Nov 2026", minta push semua update. Pemeriksaan: 2 commit lokal belum ter-push (`bd5839a` auto-commit reset + `6486ced` Task 19).
+- **Insiden reset ke-3 terdeteksi** (gejala: `.env` ter-rollback ke SQLite, folder `db/` hilang total, dev server mati, `dev.log` hilang, cron kosong — namun repo git + commit lokal + file tracked BERTAHAN, berbeda dengan reset ke-1 yang merollback repo ke Task 15).
+- **Pencarian PAT menyeluruh SEBELUM push**: remote URL (polos, tanpa token), `~/.git-credentials` (tidak ada), `git config` (tidak ada credential helper), history shell (kosong), `gh` CLI (tidak terinstall), `~/.ssh` (tidak ada), env vars (kosong), scan seluruh `/home/z` termasuk file hidden/ignored via `rg --hidden --no-ignore` untuk pola `github_pat_…`/`ghp_…` → **TIDAK ADA**. Token memang tidak pernah disimpan (praktik aman) — nilainya hanya ada di chat sesi lama yang konteksnya hilang.
+- **Pemulihan (runbook Task 19)**: `.env` → kembali ke DATABASE_URL Supabase pooler 5432 (password ter-encode); provider `postgresql` sudah benar (bertahan); start dev server via `python3 start-dev-daemon.py` dengan `unset DATABASE_URL` → `GET / 200`.
+- **Seed & verifikasi akun**: `bun scripts/seed-supabase.ts` (create-only) → kedua admin sudah ada (dilewati); counts: admins 2, mobil 5, artikel 3, tabel interaksi 0. `POST /api/admin/login` → 200 untuk `naufalsuzuki.bsb@gmail.com` DAN `admin@suzukibsb.id`.
+- **Audit gambar**: semua kolom gambar mobil/artikel di Supabase = NULL (data dealer memang tanpa foto) → tidak ada file hilang yang direferensikan; `download/car-imgs/` (git-tracked) tetap berisi sumber foto bila ingin diisi. Catatan: `localize-images.py` masih hardcoded SQLite — TIDAK dijalankan (tidak relevan; tidak ada ref remote di DB).
+- **QA browser (agent-browser)**: home render penuh dengan data Supabase (kartu Ertiga Hybrid dkk.); login owner via form asli → dashboard admin tampil (5 Mobil Aktif, 3 Artikel Tayang, 0 pesan); 0 page-error / 0 console error; mobile 375×812 no-overflow; screenshot `download/qa-task20-admin-dash.png`.
+- **Dokumentasi**: README §9 (reset kini 3x + koreksi klaim lama "URL gambar eksternal" → faktanya kolom gambar NULL) + §10 changelog Task 20 + worklog ini. Commit lokal Task 20 dibuat.
+- **Hygiene repo**: `tool-results/` (17 artefak sesi yang tak sengaja ter-commit di era auto-commit) di-untrack + masuk `.gitignore` — artefak runtime tidak boleh masuk git (vektor bocor potensial).
+
+Stage Summary:
+- **App 100% pulih & terverifikasi E2E di atas Supabase** setelah reset ke-3; login admin owner + default keduanya berfungsi (via API dan via form UI).
+- **Push GitHub TERTUNDA — blocker nyata**: 3 commit lokal siap push (`bd5839a`, `6486ced`, + commit Task 20), tetapi nilai PAT tidak ada di mana pun di sandbox. User harus mengirim ulang token via chat (dan karena token pernah muncul di chat, praktik terbaik: buat token baru di GitHub → Settings → Developer settings → Fine-grained PAT, scope Contents read/write untuk repo `sales-proto-4` saja, lalu revoke token lama setelah push).
+- Penting untuk agent berikutnya: reset sandbox bisa terulang; urutan pemulihan terbukti = perbaiki `.env` → cek provider postgresql → `python3 start-dev-daemon.py` dengan `unset DATABASE_URL` → `bun scripts/seed-supabase.ts` → verifikasi login. Commit lokal BERTAHAN pada reset ke-3 (tidak semua reset merollback repo).
+- Risiko tersisa: tabel interaksi masih kosong (menunggu konten asli); password sementara owner `GantiSaya#2026` belum dikonfirmasi sudah diganti user.

@@ -64,3 +64,6 @@ dev.log
 
 # zscripts runtime
 .zscripts/*.pid
+
+# tool persisted outputs (artefak sesi, jangan di-commit)
+tool-results/
