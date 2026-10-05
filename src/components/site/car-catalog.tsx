@@ -331,7 +331,8 @@ export function CarCatalog({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {/* 2 kolom di layar kecil — meniru grid kartu mobile suzuki.co.id */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {shown.map((c) => (
                   <CarCard key={c.slug} car={c} hot={c.slug === hotSlug} />
               ))}

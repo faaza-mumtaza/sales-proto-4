@@ -54,7 +54,11 @@ prisma/schema.prisma        # 9 model (@@map ke nama tabel legacy snake_case)
 docs/supabase-setup.sql     # DDL sumber kebenaran Supabase (idempoten)
 scripts/seed-servis.ts      # seed demo booking servis (opsional)
 scripts/seed-supabase.ts    # pastikan akun admin ada (create-only, aman diulang)
+scripts/fix-car-data.ts     # Task 22: sinkronkan harga_label + isi foto mobil
+                            # dari /car-imgs (idempoten, aman diulang)
 scripts/restore-uploads.py  # pulihkan db/uploads dari backup (jika ada)
+public/car-imgs/            # foto mobil statis (git-tracked, reset-proof) —
+                            # dipakai kolom gambar_utama "/car-imgs/..."
 src/lib/                    # db, auth, password, storage, rate-limit, captcha,
                             # serializers (JSON-string ↔ tampilan), validations (zod)
 src/app/api/                # cars, articles, search, contact, test-drive,
@@ -72,6 +76,12 @@ src/views/                  # seluruh halaman publik + admin (hash router)
 Field JSON-string (`tags`, `spesifikasi`, `galeri_gambar`, `warna`)
 disimpan sebagai **teks JSON** juga di Postgres (keputusan Task 17 — nol
 perubahan kode aplikasi; parser di `src/lib/serializers.ts`).
+
+**`mobil_katalog.harga_label` = kolom turunan** (Task 22): API admin
+SELALU menurunkannya dari `harga_mulai` saat simpan; semua tampilan
+memakai angka `harga_mulai` dulu (helper `carHarga()` di site-utils).
+Label hanya fallback custom saat harga kosong — tidak ada input form
+untuknya lagi.
 
 Kolom legacy yang sengaja dibiarkan di tabel `artikel` (jangan dihapus
 tanpa backup): `is_published`, `author_id`.
@@ -100,6 +110,9 @@ Ganti password setelah login pertama. Rate limit login: 10 percobaan /
   CRUD `admin/cars|articles|faqs|testimonials`, `GET admin/messages|
   test-drives|service-bookings|newsletter`, `POST /api/admin/upload`,
   `POST /api/admin/change-password`.
+- Catatan Task 22: PUT/POST `admin/cars` menurunkan `harga_label` dari
+  `harga_mulai` (anti label basi). `imageRef` validasi menerima URL https,
+  `/api/files/...` (upload), dan `/car-imgs/...` (foto statis dealer).
 
 ## 7. Environment
 
@@ -146,10 +159,11 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
   reset ke-3) & tidak dipakai. Jangan pindah `DATABASE_URL` kembali ke
   SQLite.
 - Gambar upload lama (`db/uploads/`) ikut hilang saat reset — namun data
-  Supabase tidak terdampak: kolom gambar mobil/artikel memang **NULL**
-  (data dealer belum punya foto), UI menampilkan placeholder. Sumber foto
-  mobil tersimpan aman di `download/car-imgs/` (git-tracked) bila suatu
-  saat ingin diisi.
+  Supabase tidak terdampak. **Task 22**: foto mobil kini terisi — sumber
+  `download/car-imgs/` disalin ke `public/car-imgs/` (git-tracked, tahan
+  reset) dan kolom `gambar_utama` diisi path `/car-imgs/...` lewat
+  `scripts/fix-car-data.ts`. Upload admin (db/uploads) tetap menang: skrip
+  hanya mengisi kolom yang NULL.
 - `typescript.ignoreBuildErrors: true` di next.config (sisa masa porting).
 
 ### 9.1 Kredensial Git (PAT GitHub) — lokasi & pemulihan (Task 21)
@@ -189,6 +203,7 @@ outputnya ke chat, worklog, atau file ter-commit.
 
 | Tanggal | Task | Ringkasan |
 |---|---|---|
+| 2026-10-05 | 22 | **Fix bug harga + redesign kartu mobile ala suzuki.co.id**: (1) harga diubah admin tidak tampil di situs/preview — akar masalah `harga_label` basi terkirim ulang dari form; kini label SELALU diturunkan server dari `harga_mulai`, tampilan pakai angka dulu (`carHarga()`), data lama dimigrasi (`scripts/fix-car-data.ts`); (2) kartu mobil didesain ulang mobile-first: grid 2 kolom di HP, foto full-bleed 4:3, nama uppercase, label "MULAI" cukup sekali (sebelumnya ganda), seluruh kartu clickable, tombol panah bulat; (3) foto mobil asli terisi dari `public/car-imgs/`; (4) FAB di HP kini hanya WhatsApp (tidak menutupi kartu); (5) titik warna kartu hanya tampil bila ≥2 warna. Diverifikasi E2E: ubah harga → preview + situs publik langsung benar. |
 | 2026-10-05 | 21 | **Push GitHub sukses + persistensi token**: PAT baru (tanpa expiry) disimpan 3 lapis (remote URL `.git/config`, `~/.git-credentials`, `local-github-token` — lihat §9.1). Temuan saat push: commit Task 16 ternyata sudah ada di GitHub sejak sebelum reset → merge `5d66f88` mengembalikan route `/api/admin/upload`, fix gitignore `/upload/`, dan entry worklog Task 16. |
 | 2026-10-05 | 20 | **Pulihan reset sandbox ke-3** (`.env` ter-rollback ke SQLite, `db/` hilang, server mati) → koneksi Supabase dipulihkan, dev server hidup lagi, verifikasi E2E ulang (login owner + default 200, dashboard data live via browser, mobile 375px no-overflow, 0 error). **Push GitHub masih tertunda**: 3 commit lokal siap, tetapi PAT tidak pernah disimpan di disk (aman) — menunggu token dikirim ulang via chat. |
 | 2026-10-04 | 19 | **Pulihan insiden reset sandbox**: repo ter-rollback ke state Task 15 (koneksi Supabase hilang, SQLite lokal kosong) → penyebab login admin gagal total. Pulihkan koneksi Supabase, daftarkan akun owner `naufalsuzuki.bsb@gmail.com` (auth custom, bukan Supabase Auth), tulis ulang README/setup SQL/.env.example/seed script. Semua terverifikasi E2E. |

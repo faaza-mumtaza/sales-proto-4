@@ -7,18 +7,17 @@ import { AlertTriangle, Inbox, SearchX } from "lucide-react";
 export function CardSkeleton() {
   return (
     <div className="bg-card rounded-xl border border-border overflow-hidden">
-      <div className="p-4 pb-0">
-        <div className="h-48 rounded-lg bg-muted animate-pulse" />
-      </div>
-      <div className="p-4 space-y-3">
-        <div className="h-5 w-3/4 bg-muted rounded animate-pulse" />
+      {/* Mengikuti bentuk kartu mobil: foto full-bleed rasio 4:3. */}
+      <div className="aspect-[4/3] bg-muted animate-pulse" />
+      <div className="p-3 sm:p-4 space-y-3">
+        <div className="h-4 w-3/4 bg-muted rounded animate-pulse" />
         <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
         <div className="flex items-end justify-between pt-2">
           <div className="space-y-2">
-            <div className="h-3 w-20 bg-muted rounded animate-pulse" />
-            <div className="h-5 w-28 bg-muted rounded animate-pulse" />
+            <div className="h-3 w-10 bg-muted rounded animate-pulse" />
+            <div className="h-4 w-28 bg-muted rounded animate-pulse" />
           </div>
-          <div className="h-9 w-20 bg-muted rounded-full animate-pulse" />
+          <div className="hidden sm:block h-11 w-11 bg-muted rounded-full animate-pulse" />
         </div>
       </div>
     </div>

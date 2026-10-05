@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { apiDelete, apiGet, apiPut } from "@/lib/api";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { AdminShell } from "./admin-shell";
-import type { Mobil } from "@/lib/site-utils";
+import { carHarga, type Mobil } from "@/lib/site-utils";
 import { buildCsv, downloadCsv, fileDatestamp } from "@/lib/csv";
 
 export function AdminKatalogView() {
@@ -335,7 +335,7 @@ export function AdminKatalogView() {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 truncate">
-                        {m.kategori_label} · {m.harga_label ?? "—"}
+                        {m.kategori_label} · {m.harga_mulai != null ? carHarga(m) : (m.harga_label ?? "—")}
                       </p>
                       {(m.jumlah_minat ?? 0) > 0 && (
                         <p className="mt-1.5">

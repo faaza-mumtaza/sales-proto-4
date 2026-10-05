@@ -22,16 +22,18 @@ export function FloatingButtons() {
   // Naikkan posisi saat bar perbandingan tampil (menghindari tumpang tindih)
   const compareBarVisible =
     slugs.length > 0 && route.segments[0] !== "bandingkan" && route.segments[0] !== "admin";
-  const bottomClass = compareBarVisible ? "bottom-24" : "bottom-6";
+  const bottomClass = compareBarVisible ? "bottom-24" : "bottom-5 sm:bottom-6";
 
   return (
-    <div className={`fixed ${bottomClass} right-6 z-40 flex flex-col gap-3 transition-all duration-300 no-print`}>
+    <div className={`fixed ${bottomClass} right-4 sm:right-6 z-40 flex flex-col gap-2.5 sm:gap-3 transition-all duration-300 no-print`}>
+      {/* Di layar kecil hanya WhatsApp yang tampil — tombol lain menutupi
+          kartu katalog & tetap tersedia lewat menu (kontak/servis). */}
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Kembali ke atas"
         title="Kembali ke atas"
-        className={`w-14 h-14 bg-suzuki-navy/90 hover:bg-suzuki-navy text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 focus-visible:ring-2 focus-visible:ring-suzuki-red/60 ${
+        className={`hidden sm:flex w-14 h-14 bg-suzuki-navy/90 hover:bg-suzuki-navy text-white rounded-full items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 focus-visible:ring-2 focus-visible:ring-suzuki-red/60 ${
           showTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
         }`}
       >
@@ -41,7 +43,7 @@ export function FloatingButtons() {
         to="/kontak?form=servis"
         aria-label="Booking servis bengkel"
         title="Booking Servis Bengkel"
-        className="w-14 h-14 bg-suzuki-navy/90 hover:bg-suzuki-red text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110"
+        className="hidden sm:flex w-14 h-14 bg-suzuki-navy/90 hover:bg-suzuki-red text-white rounded-full items-center justify-center shadow-lg transition-all duration-300 hover:scale-110"
       >
         <Wrench className="w-6 h-6" aria-hidden />
       </Link>
@@ -51,10 +53,10 @@ export function FloatingButtons() {
         )}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+        className="w-12 h-12 sm:w-14 sm:h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
         aria-label="Chat WhatsApp"
       >
-        <MessageCircle className="w-7 h-7" />
+        <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" />
       </a>
     </div>
   );

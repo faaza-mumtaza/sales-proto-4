@@ -771,3 +771,25 @@ Stage Summary:
 - **"Memory" AI = worklog.md + README.md yang ter-push** — bertahan dari semua reset sandbox. Aturan append per task sudah permanen (§10).
 - Ide task berikutnya: port bab berharga dari README Task 16 (`b9dc153`) — peta route (§5), alur kerja konten (§8), panduan kustomisasi (§9) — ke README saat ini yang lebih ringkas; lalu isi foto mobil dari `download/car-imgs/` bila user setuju.
 - Catatan keamanan: token tanpa expiry = risiko lebih besar bila bocor; hanya boleh ada di chat & file runtime lokal, TIDAK PERNAH di file ter-commit; `git remote -v` menampilkan token (jaga outputnya).
+
+---
+Task ID: 22
+Agent: main (Z.ai Code)
+Task: Fix bug "harga diubah di admin tapi tidak tampil di situs/preview" + redesign kartu mobil mobile-first ala suzuki.co.id (referensi user) + hilangkan "Mulai dari" ganda
+
+Work Log:
+- **Diagnosis bug harga (laporan user + 5 screenshot)**: form admin hanya mengedit `harga_mulai` (angka), tapi kartu publik/preview/detail/bandingkan merender `harga_label ?? formatPrice(harga_mulai)` — label duluan. Form mengirim ulang `harga_label` LAMA dari data awal (tidak ada inputnya di form) → PUT menyimpan harga baru + label basi. DB terbukti: Ertiga harga_mulai=15.700.000 (hasil edit user) tapi label masih "Mulai Rp. 258 Juta". Form edit menampilkan field angka → "tersimpan benar", tapi semua tampilan pakai label → "tidak ada yang berubah". Bonus: semua label lama berformat "Mulai Rp. X Juta" + caption kartu "Mulai dari" → kata "Mulai" TIGA KALI secara efektif (keluhan user "berulang dan tidak efektif").
+- **Fix root cause (3 lapis)**: (1) API PUT/POST `admin/cars` SELALU menurunkan `harga_label` dari `harga_mulai` (abaikan label dari klien saat angka ada); (2) form mengirim `harga_label: null` + preview memakai `formatPrice(harga_mulai)`; (3) semua tampilan dibalik prioritasnya ke angka dulu via helper baru `carHarga()` di site-utils (kartu, quick-view, detail, bandingkan, ringkasan admin).
+- **Migrasi data**: `scripts/fix-car-data.ts` (idempoten) — label 5 mobil disinkronkan ke harga terkini (tanpa kata "Mulai") + `gambar_utama` NULL diisi foto statis. Contoh hasil: Fronx "Mulai Rp. 265 Juta" → "Rp. 265.000.000", foto → /car-imgs/fronx-hybrid.png.
+- **Redesign kartu mobil ala suzuki.co.id** (Screenshot 4-5 user sebagai referensi): foto full-bleed aspect-4/3 (tanpa padding), badge kategori kecil, nama UPPERCASE line-clamp-2 min-height, caption "MULAI" kecil SEKALI + harga merah bold (angka, format penuh "Rp. 265.000.000" seperti referensi), tombol panah bulat navy→merah saat hover, seluruh kartu dapat diketuk (stretched link, ala referensi), tombol pratinjau/bandingkan jadi ikon melayang di pojok foto. Grid katalog+home+detail: `grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` (2 kolom di HP — persis referensi mobile).
+- **Foto mobil terisi**: 10 foto `download/car-imgs/` (git-tracked, 1.8MB) disalin ke `public/car-imgs/` (statis, tahan reset sandbox); `imageRef` validasi diperluas menerima `/car-imgs/...`. Semua 5 mobil kini berfoto asli (sebelumnya placeholder logo — terlihat di screenshot user).
+- **FAB mobile**: screenshot user memperlihatkan 3 tombol melayang menutupi kartu. Di HP kini hanya WhatsApp (48px) yang tampil; scroll-atas & booking servis tampil di sm+ (booking servis tetap terjangkau via menu). Titik warna kartu kini hanya tampil bila ≥2 warna (1 titik terkesan glitch — screenshot 2 user & VLM sama-sama salah baca).
+- **E2E via agent-browser (viewport 390px + 1280px)**: login admin → edit Fronx 265jt → 267.5jt → PREVIEW langsung tampil "MULAI / Rp. 267.500.000" (bug user TIDAK terulang) → simpan → situs publik menampilkan Rp. 267.500.000 → kembalikan ke 265jt → detail "Harga mulai / Rp. 265.000.000" ✓. Quick-view & bandingkan ✓ angka terkini. Kartu clickable → navigasi detail ✓. Mobile: grid 2 kolom, foto asli, harga 1 baris (18px, no wrap), no horizontal overflow, 0 console error. Desktop: 4 kolom, 3 FAB tampil. Skeleton kartu disesuaikan bentuk baru.
+- **Hygiene**: `bun run lint` 0 error; dev.log bersih. README §3/§4/§6/§9 + changelog Task 22; worklog ini. Commit + push GitHub.
+
+Stage Summary:
+- **Bug harga RESOLVED tuntas** — harga yang diubah admin kini langsung tampil di preview edit, kartu, detail, quick-view, bandingkan, dan tabel admin. Mekanisme anti-regresi: label = kolom turunan server-side; tampilan selalu angka dulu.
+- **Kartu mobil mobile-first ala suzuki.co.id**: 2 kolom di HP, foto full-bleed, "MULAI" sekali, seluruh kartu tap-friendly, foto asli semua mobil.
+- **Data penting**: Ertiga harga_mulai = 15.700.000 (Rp 15,7 juta) — itu nilai yang user simpan sendiri saat mengedit (kemungkinan kurang satu nol dari 157 juta); SENGAJA tidak diubah (data user), tolong konfirmasi bila memang typo → edit lagi di admin.
+- Perilaku berubah (disengaja): FAB HP hanya WhatsApp; titik warna kartu butuh ≥2 warna; format harga kartu kini penuh ("Rp. 265.000.000") mengikuti referensi.
+- Next idea: galeri mobil masih kosong (hanya gambar utama) — bisa isi variasi warna/foto unit via admin; artikel 3 PROMO sudah tayang.

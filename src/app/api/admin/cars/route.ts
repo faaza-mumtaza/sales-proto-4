@@ -59,8 +59,13 @@ export async function POST(req: NextRequest) {
         kategori: d.kategori,
         kategori_label: d.kategori_label,
         harga_mulai: d.harga_mulai,
+        // Label harga SELALU diturunkan dari harga terbaru — tidak lagi
+        // memakai label lama dari klien (bug: harga diubah admin tapi kartu
+        // publik & preview masih menampilkan harga basi).
         harga_label:
-          d.harga_label ?? (d.harga_mulai ? `Rp. ${d.harga_mulai.toLocaleString("id-ID")}` : null),
+          d.harga_mulai != null
+            ? `Rp. ${d.harga_mulai.toLocaleString("id-ID")}`
+            : (d.harga_label ?? null),
         seater: d.seater,
         fuel: d.fuel,
         transmission: d.transmission,
@@ -111,8 +116,13 @@ export async function PUT(req: NextRequest) {
         kategori: d.kategori,
         kategori_label: d.kategori_label,
         harga_mulai: d.harga_mulai,
+        // Label harga SELALU diturunkan dari harga terbaru — tidak lagi
+        // memakai label lama dari klien (bug: harga diubah admin tapi kartu
+        // publik & preview masih menampilkan harga basi).
         harga_label:
-          d.harga_label ?? (d.harga_mulai ? `Rp. ${d.harga_mulai.toLocaleString("id-ID")}` : null),
+          d.harga_mulai != null
+            ? `Rp. ${d.harga_mulai.toLocaleString("id-ID")}`
+            : (d.harga_label ?? null),
         seater: d.seater,
         fuel: d.fuel,
         transmission: d.transmission,

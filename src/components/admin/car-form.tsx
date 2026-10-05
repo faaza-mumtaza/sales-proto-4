@@ -3,13 +3,13 @@
 import { useState } from "react";
 import slugify from "slugify";
 import { toast } from "sonner";
-import { Plus, Trash2, Eye, EyeOff, Save, Palette, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Save, Palette, Image as ImageIcon, ArrowRight } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiPost, apiPut } from "@/lib/api";
 import { ImageUploader, GalleryUploader } from "./image-uploader";
 import { WarnaImageInput } from "./warna-image-input";
 import { navigate } from "@/lib/router";
-import type { Mobil, SpecItem, WarnaItem } from "@/lib/site-utils";
+import { formatPrice, type Mobil, type SpecItem, type WarnaItem } from "@/lib/site-utils";
 
 function cleanSlug(value: string) {
   return slugify(value, { lower: true, strict: true });
@@ -52,7 +52,9 @@ export function CarForm({ initial }: { initial?: Mobil }) {
     kategori: (initial?.kategori as "passenger" | "commercial") ?? "passenger",
     kategori_label: initial?.kategori_label ?? "",
     harga_mulai: initial?.harga_mulai ?? null,
-    harga_label: initial?.harga_label ?? "",
+    // harga_label TIDAK lagi dibawa dari data lama — server yang menurunkan
+    // label dari harga terbaru saat simpan (mencegah label basi).
+    harga_label: null,
     seater: initial?.seater ?? null,
     fuel: initial?.fuel ?? "",
     transmission: initial?.transmission ?? "",
@@ -94,9 +96,8 @@ export function CarForm({ initial }: { initial?: Mobil }) {
         slug,
         kategori_label: form.kategori_label.trim(),
         harga_mulai: hargaMulai,
-        harga_label:
-          normalizeNullable(form.harga_label) ??
-          (hargaMulai ? `Rp. ${hargaMulai.toLocaleString("id-ID")}` : null),
+        // Null → server menurunkan label dari harga_mulai (single source of truth).
+        harga_label: null,
         seater: form.seater ? Number(form.seater) : null,
         urutan: Number(form.urutan) || 0,
         deskripsi: normalizeNullable(form.deskripsi),
@@ -481,41 +482,52 @@ export function CarForm({ initial }: { initial?: Mobil }) {
           <p className="text-xs font-semibold text-suzuki-red uppercase tracking-wide mb-4">
             Preview Kartu Mobil (tampilan publik)
           </p>
-          <div className="max-w-xs">
-            <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
-              <div className="relative p-4 pb-0">
-                <span className="absolute top-4 left-4 z-10 px-3 py-1 bg-suzuki-red text-white text-xs font-semibold rounded-full">
+          {/* Lebar kartu disimulasikan selaras kartu mobile di katalog (±2 kolom). */}
+          <div className="w-44 sm:w-56">
+            <div className="relative bg-card rounded-xl border border-border overflow-hidden shadow-sm">
+              <div className="relative aspect-[4/3] bg-[#E8E8E8]">
+                <span className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-suzuki-red text-white text-[10px] font-semibold rounded-full">
                   {form.kategori_label || "KATEGORI"}
                 </span>
                 {form.is_new && (
-                  <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-suzuki-navy text-white text-xs font-semibold rounded-full">
+                  <span className="absolute top-2 right-2 z-10 px-2 py-0.5 bg-suzuki-navy text-white text-[10px] font-semibold rounded-full">
                     NEW
                   </span>
                 )}
-                <div className="h-48 flex items-center justify-center bg-[#E8E8E8] rounded-lg overflow-hidden">
-                  {form.gambar_utama ? (
-                    <img src={form.gambar_utama} alt="Preview" className="max-h-full max-w-full object-contain" />
-                  ) : (
-                    <span className="text-muted-foreground text-sm">Belum ada gambar</span>
-                  )}
-                </div>
+                {form.gambar_utama ? (
+                  <img
+                    src={form.gambar_utama}
+                    alt="Preview"
+                    className="absolute inset-0 w-full h-full object-contain p-3"
+                  />
+                ) : (
+                  <span className="absolute inset-0 flex items-center justify-center text-muted-foreground text-xs">
+                    Belum ada gambar
+                  </span>
+                )}
               </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg text-suzuki-navy mb-2">{form.nama || "Nama Mobil"}</h3>
-                <div className="flex gap-4 text-muted-foreground text-xs mb-4">
-                  {form.seater && <span>{form.seater} kursi</span>}
+              <div className="p-3 sm:p-4">
+                <h3 className="font-bold text-suzuki-navy text-sm sm:text-base uppercase leading-snug line-clamp-2 min-h-10 mb-2">
+                  {form.nama || "Nama Mobil"}
+                </h3>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground text-[11px] sm:text-xs mb-3">
+                  {form.seater != null && <span>{form.seater} kursi</span>}
                   {form.fuel && <span>{form.fuel}</span>}
                   {form.transmission && <span>{form.transmission}</span>}
                 </div>
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Mulai dari</p>
-                    <p className="font-bold text-suzuki-red">
-                      {form.harga_label ||
-                        (form.harga_mulai ? `Rp. ${form.harga_mulai.toLocaleString("id-ID")}` : "Hubungi sales")}
+                <div className="flex items-end justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Mulai</p>
+                    <p className="font-bold text-suzuki-red text-sm sm:text-base">
+                      {form.harga_mulai != null ? formatPrice(form.harga_mulai) : "Hubungi sales"}
                     </p>
                   </div>
-                  <span className="px-4 py-2 bg-suzuki-navy text-white text-sm rounded-full">Detail →</span>
+                  <span
+                    className="hidden sm:flex w-11 h-11 shrink-0 items-center justify-center bg-suzuki-navy text-white rounded-full"
+                    aria-hidden
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                  </span>
                 </div>
               </div>
             </div>
