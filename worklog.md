@@ -682,6 +682,27 @@ Stage Summary:
 - Catatan clone: tanpa .env & db/custom.db — clone perlu `cp .env.example .env`-style setup (DATABASE_URL) + `bun run db:push` + seed/restore db/uploads via scripts/restore-uploads.py.
 
 ---
+Task ID: 16
+Agent: main (lazy-senior-dev mode)
+Task: Buat dokumentasi handover lengkap (struktur/sistem/setup/customize/deploy) di dalam repo + aturan tracking permanen.
+
+Work Log:
+- **ATURAN PERMANEN BARU dari user**: SETIAP perubahan proyek WAJIB update (1) README.md bagian terdampak, (2) worklog.md, (3) tabel changelog README §14. README = kondisi terkini; worklog = sejarah. Berlaku juga untuk agent cron berikutnya!
+- **INSIDEN & PULIHKAN**: DB ter-reset kosong (semua tabel 0, mtime 06:21, diduga cron QA menjalankan db:push --accept-data-loss + restart daemon) & db/uploads/ kosong (ke-4x). Pulihkan: dev server stop → `git show ff20aea:db/custom.db > db/custom.db` (blob 143KB berisi data dari riwayat git) → `python3 scripts/restore-uploads.py` (24 file) → restart daemon → verifikasi: home 200, 10 mobil, 13 artikel, login admin OK, gambar serve 200. PELAJARAN: jangan jalankan db:push tanpa backup; dokumen README §11.2.
+- **Bug ditemukan & diperbaiki**: POST /api/admin/upload 404 — route tidak pernah ada, padahal image-uploader/warna-image-input/artikel-editor memanggilnya. Dibuat route baru (requireAdmin + validasi tipe/ukuran + saveUploadedImage). E2E terverifikasi: upload OK, file serve 200, tanpa sesi 401, tipe ditolak.
+- **Bug kedua**: route itu sempat TIDAK NONGOL di git status — ternyata pola gitignore `upload/` menangkap folder src/app/api/admin/upload/ juga. Fix: anchor jadi `/upload/` lalu commit route.
+- **README.md dibuat** (handover lengkap, bahasa Indonesia, gaya senior→junior): 14 bab — fitur, stack, arsitektur (hash router, pola API, pipeline sanitize artikel, auth HMAC+scrypt, upload storage, anti-spam 3 lapis, lazy publish), struktur folder beranotasi, peta route publik+admin, model data 9 tabel, setup lokal (+skrip buat admin pertama), alur kerja konten harian, panduan kustomisasi (identitas dealer, warna, halaman baru, API baru, modul admin baru, editor), checklist deploy produksi (Supabase+Vercel), operasional/pemulihan (backup, db:push warning, daemon), QA manual, 13 keputusan desain & alasan, aturan tracking + changelog.
+- **.env.example dibuat** + whitelist `!.env.example` dari pola .env*.
+- File sampah `--full-page` (sisa salah ketik perintah) dihapus.
+- Commit: 137d594 (docs) + 475529d (fix gitignore+upload route) → push GitHub sukses 6e2be5c..475529d.
+
+Stage Summary:
+- Repo GitHub kini punya README handover lengkap yang bisa dibaca langsung di halaman repo + .env.example + route upload yang berfungsi + gitignore yang benar.
+- Database & uploads pulih penuh dari insiden reset; site hidup normal.
+- PERINGATAN untuk agent cron berikutnya: (1) SELALU baca README §11 sebelum operasional DB; (2) db:push --accept-data-loss = BAHAYA data live; (3) setiap perubahan WAJIB update README+worklog+changelog; (4) db/uploads & db/custom.db adalah data live — setelah reset wajib jalankan restore-uploads.py.
+- Risiko tersisa: sandbox reset bisa terjadi lagi kapan pun — backup DB berkala (cp db/custom.db db/backup-YYYY-MM-DD.db); history git tidak lagi memuat custom.db (di-untrack Task 15) sehingga pemulihan berikutnya harus dari backup manual.
+
+---
 Task ID: 19
 Agent: main (Z.ai Code)
 Task: Diagnose & fix "tidak bisa login admin meski sudah membuat akun email+password di Supabase" — ternyata insiden reset sandbox + akun dibuat di sistem auth yang salah

@@ -59,7 +59,7 @@ db/*.db-journal
 db/uploads/
 
 # uploads & logs
-upload/
+/upload/
 dev.log
 
 # zscripts runtime
