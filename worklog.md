@@ -750,3 +750,24 @@ Stage Summary:
 - **Push GitHub TERTUNDA — blocker nyata**: 3 commit lokal siap push (`bd5839a`, `6486ced`, + commit Task 20), tetapi nilai PAT tidak ada di mana pun di sandbox. User harus mengirim ulang token via chat (dan karena token pernah muncul di chat, praktik terbaik: buat token baru di GitHub → Settings → Developer settings → Fine-grained PAT, scope Contents read/write untuk repo `sales-proto-4` saja, lalu revoke token lama setelah push).
 - Penting untuk agent berikutnya: reset sandbox bisa terulang; urutan pemulihan terbukti = perbaiki `.env` → cek provider postgresql → `python3 start-dev-daemon.py` dengan `unset DATABASE_URL` → `bun scripts/seed-supabase.ts` → verifikasi login. Commit lokal BERTAHAN pada reset ke-3 (tidak semua reset merollback repo).
 - Risiko tersisa: tabel interaksi masih kosong (menunggu konten asli); password sementara owner `GantiSaya#2026` belum dikonfirmasi sudah diganti user.
+
+---
+Task ID: 21
+Agent: main (Z.ai Code)
+Task: Push semua commit ke GitHub dengan PAT baru + bangun persistensi kredensial agar token/"memory" AI tidak hilang lagi
+
+Work Log:
+- User mengirim PAT baru (fine-grained, tanpa expiry) + minta solusi agar token tidak hilang lagi karena batas memori AI antar-sesi.
+- **Persistensi token 3 lapis** (nilai token TIDAK PERNAH di file ter-commit): (1) remote URL di `.git/config` — di-set via `git remote set-url` dengan nilai dibaca dari file sehingga token tidak pernah muncul di command shell; (2) `~/.git-credentials` (chmod 600) + `credential.helper=store` global; (3) `local-github-token` di root project (tertutup pola gitignore `local-*`, chmod 600). Verifikasi auth: `git ls-remote --heads origin` OK.
+- **TEMUAN SAAT MENYIAPKAN PUSH**: remote main = `b9dc153` ≠ tracking ref lokal (`6e2be5c`) → fetch → commit Task 16 (README handover 614 baris, .env.example, fix gitignore `/upload/`, route `/api/admin/upload`) TERNYATA SUDAH ADA di GitHub sejak sebelum reset ke-1 — kesimpulan Task 19 "hilang permanen karena tidak pernah di-push" KELIRU; reset #1 memulihkan snapshot lokal pra-push sehingga jejaknya hilang dari repo lokal. Divergence: remote +3 commit (Task 16), lokal +2 commit (Task 19-20), merge-base `bd5839a`.
+- **Merge `5d66f88`** (dipilih dibanding rebase agar hash commit yang direferensikan worklog tidak berubah): route `/api/admin/upload` kembali ada di lokal; `.gitignore` auto-merge (`/upload/` anchor remote + `tool-results/` lokal); konflik add/add README & .env.example diselesaikan memihak versi lokal Task 19 (otoritatif — Supabase live); konflik worklog diselesaikan kronologis (entry Task 16 dari remote disisipkan sebelum Task 19/20 via script python).
+- **Verifikasi pasca-merge**: `POST /api/admin/upload` tanpa sesi → 401 (bukan 404 — route hidup, guard auth bekerja); `GET /` 200; README/.gitignore/worklog dicek manual.
+- **Dokumentasi**: README narasi atas dikoreksi (Task 16 tidak hilang dari GitHub) + §9.1 baru (lokasi & prosedur pemulihan token) + changelog Task 21 + baris Task 16 dikoreksi + worklog ini.
+- **Push dieksekusi**: merge Task 16 + Task 19 + Task 20 + Task 21 naik ke GitHub.
+
+Stage Summary:
+- **Push GitHub BERHASIL — semua pekerjaan selamat permanen** (main = origin/main). Route upload kini ada di kedua sisi.
+- **Token tersedia lintas sesi**: 3 lokasi runtime + lokasinya didokumentasikan di README §9.1 yang ikut ter-push (baca saja sudah tahu di mana token berada — tanpa mengekspos nilainya). Fallback terakhir: token tanpa expiry tersimpan di akun GitHub user (bisa dikirim ulang kapan pun).
+- **"Memory" AI = worklog.md + README.md yang ter-push** — bertahan dari semua reset sandbox. Aturan append per task sudah permanen (§10).
+- Ide task berikutnya: port bab berharga dari README Task 16 (`b9dc153`) — peta route (§5), alur kerja konten (§8), panduan kustomisasi (§9) — ke README saat ini yang lebih ringkas; lalu isi foto mobil dari `download/car-imgs/` bila user setuju.
+- Catatan keamanan: token tanpa expiry = risiko lebih besar bila bocor; hanya boleh ada di chat & file runtime lokal, TIDAK PERNAH di file ter-commit; `git remote -v` menampilkan token (jaga outputnya).

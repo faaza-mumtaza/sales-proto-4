@@ -6,9 +6,11 @@ lengkap. Diporting dari repo lama `sales-proto-3` (TanStack Start + Supabase
 REST) ke **Next.js 16 fullstack + Prisma**.
 
 > **Dokumen ini ditulis ulang di Task 19** setelah reset sandbox menghapus
-> README versi Task 16 (commit lokal yang belum ter-push). Sejarah lengkap
-> ada di `worklog.md` (Task 1–15 utuh; Task 16–18 hilang bersama reset —
-> rekapnya di changelog bawah).
+> salinan lokalnya. Koreksi Task 21: commit Task 16 ternyata tetap aman di
+> GitHub (`b9dc153`) — reset hanya memulihkan snapshot lokal pra-push.
+> Versi ini tetap menjadi dokumen otoritatif (kondisi terkini: Supabase
+> live); README Task 16 (614 baris, kaya detail arsitektur/kustomisasi)
+> tersimpan di riwayat git. Sejarah lengkap: `worklog.md`.
 
 ## 1. Stack & Arsitektur
 
@@ -150,6 +152,34 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
   saat ingin diisi.
 - `typescript.ignoreBuildErrors: true` di next.config (sisa masa porting).
 
+### 9.1 Kredensial Git (PAT GitHub) — lokasi & pemulihan (Task 21)
+
+PAT fine-grained (tanpa expiry, scope Contents r/w repo ini) **tidak
+pernah boleh ditulis di file yang ter-commit**. Nilainya tersimpan di 3
+lokasi runtime sandbox — cukup satu selamat untuk tetap bisa push:
+
+1. `.git/config` — token tersemat di remote URL origin (paling tahan
+   reset; repo git terbukti bertahan di reset ke-3). Push langsung:
+   `git push origin main`.
+2. `~/.git-credentials` (chmod 600) + `credential.helper=store` global.
+3. `local-github-token` di root project (tertutup pola gitignore
+   `local-*`) — salinan nilai mentah untuk pemulihan manual.
+
+Jika ketiganya hilang sekaligus (reset total): minta user mengirim ulang
+token via chat (token tanpa expiry tersimpan permanen di akun GitHub
+user), lalu pulihkan:
+
+```bash
+# asumsi: nilai token tersimpan di file local-github-token
+git remote set-url origin "https://faaza-mumtaza:$(cat local-github-token)@github.com/faaza-mumtaza/sales-proto-4.git"
+printf 'https://faaza-mumtaza:%s@github.com\n' "$(cat local-github-token)" > ~/.git-credentials
+chmod 600 ~/.git-credentials local-github-token
+git config --global credential.helper store
+```
+
+PERINGATAN: `git remote -v` menampilkan token — jangan copy-paste
+outputnya ke chat, worklog, atau file ter-commit.
+
 ## 10. Pelacakan Proyek & Aturan Dokumentasi
 
 > Setiap perubahan WAJIB memperbarui: (1) bagian README terdampang,
@@ -159,11 +189,12 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
 
 | Tanggal | Task | Ringkasan |
 |---|---|---|
+| 2026-10-05 | 21 | **Push GitHub sukses + persistensi token**: PAT baru (tanpa expiry) disimpan 3 lapis (remote URL `.git/config`, `~/.git-credentials`, `local-github-token` — lihat §9.1). Temuan saat push: commit Task 16 ternyata sudah ada di GitHub sejak sebelum reset → merge `5d66f88` mengembalikan route `/api/admin/upload`, fix gitignore `/upload/`, dan entry worklog Task 16. |
 | 2026-10-05 | 20 | **Pulihan reset sandbox ke-3** (`.env` ter-rollback ke SQLite, `db/` hilang, server mati) → koneksi Supabase dipulihkan, dev server hidup lagi, verifikasi E2E ulang (login owner + default 200, dashboard data live via browser, mobile 375px no-overflow, 0 error). **Push GitHub masih tertunda**: 3 commit lokal siap, tetapi PAT tidak pernah disimpan di disk (aman) — menunggu token dikirim ulang via chat. |
 | 2026-10-04 | 19 | **Pulihan insiden reset sandbox**: repo ter-rollback ke state Task 15 (koneksi Supabase hilang, SQLite lokal kosong) → penyebab login admin gagal total. Pulihkan koneksi Supabase, daftarkan akun owner `naufalsuzuki.bsb@gmail.com` (auth custom, bukan Supabase Auth), tulis ulang README/setup SQL/.env.example/seed script. Semua terverifikasi E2E. |
 | 2026-10-04 | 18 | *(hilang saat reset — rekap)* Koneksi LIVE ke Supabase: setup SQL dieksekusi, fix enum `artikel.tipe` (P2032), provider flip postgresql, admin pertama tersalin, verifikasi E2E penuh |
 | 2026-10-04 | 17 | *(hilang saat reset — rekap)* Audit DB Supabase existing + skrip setup idempoten `docs/supabase-setup.sql` + runbook koneksi |
-| 2026-10-04 | 16 | *(hilang saat reset — rekap)* README handover + fix route upload 404 + pemulihan insiden DB kosong |
+| 2026-10-04 | 16 | README handover (14 bab) + fix route upload 404 + fix gitignore `/upload/` + pemulihan insiden DB kosong — **commit-nya ter-push ke GitHub (`b9dc153`)**; reset hanya menghapus salinan lokalnya, di-merge kembali di Task 21 |
 | 2026-10-04 | 15 | Push pertama ke GitHub (untrack file runtime; `main` = 17 commit) — satu-satunya commit yang bertahan setelah reset |
 | 2026-10-04 | 14 | Paste Tiptap: `allowBase64:true` + h5/h6 lolos sanitizer; CSS `.prose-artikel` diperkuat |
 | 2026-10-03 | 13 | Rollback styling/animasi ke gaya asli, tanpa dark mode, halaman promo dihapus |
