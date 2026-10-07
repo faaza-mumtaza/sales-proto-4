@@ -6,9 +6,11 @@ lengkap. Diporting dari repo lama `sales-proto-3` (TanStack Start + Supabase
 REST) ke **Next.js 16 fullstack + Prisma**.
 
 > **Dokumen ini ditulis ulang di Task 19** setelah reset sandbox menghapus
-> README versi Task 16 (commit lokal yang belum ter-push). Sejarah lengkap
-> ada di `worklog.md` (Task 1–15 utuh; Task 16–18 hilang bersama reset —
-> rekapnya di changelog bawah).
+> salinan lokalnya. Koreksi Task 21: commit Task 16 ternyata tetap aman di
+> GitHub (`b9dc153`) — reset hanya memulihkan snapshot lokal pra-push.
+> Versi ini tetap menjadi dokumen otoritatif (kondisi terkini: Supabase
+> live); README Task 16 (614 baris, kaya detail arsitektur/kustomisasi)
+> tersimpan di riwayat git. Sejarah lengkap: `worklog.md`.
 
 ## 1. Stack & Arsitektur
 
@@ -52,9 +54,12 @@ prisma/schema.prisma        # 9 model (@@map ke nama tabel legacy snake_case)
 docs/supabase-setup.sql     # DDL sumber kebenaran Supabase (idempoten)
 scripts/seed-servis.ts      # seed demo booking servis (opsional)
 scripts/seed-supabase.ts    # pastikan akun admin ada (create-only, aman diulang)
+scripts/fix-car-data.ts     # Task 22: sinkronkan harga_label + isi foto mobil
+                            # dari /car-imgs (idempoten, aman diulang)
 scripts/restore-uploads.py  # pulihkan db/uploads dari backup (jika ada)
-public/car-imgs/             # aset gambar mobil (statis, git-tracked) —
-                            # path /car-imgs/* dipakai kolom gambar_utama di DB
+scripts/ops-config.ts        # brankas PAT/konfig di Supabase (get/set) — lihat §9.1
+public/car-imgs/             # foto mobil statis (git-tracked, reset-proof) —
+                             # dipakai kolom gambar_utama "/car-imgs/..."
 src/lib/                    # db, auth, password, storage, rate-limit, captcha,
                             # serializers (JSON-string ↔ tampilan), validations (zod)
 src/app/api/                # cars, articles, search, contact, test-drive,
@@ -72,6 +77,12 @@ src/views/                  # seluruh halaman publik + admin (hash router)
 Field JSON-string (`tags`, `spesifikasi`, `galeri_gambar`, `warna`)
 disimpan sebagai **teks JSON** juga di Postgres (keputusan Task 17 — nol
 perubahan kode aplikasi; parser di `src/lib/serializers.ts`).
+
+**`mobil_katalog.harga_label` = kolom turunan** (Task 22): API admin
+SELALU menurunkannya dari `harga_mulai` saat simpan; semua tampilan
+memakai angka `harga_mulai` dulu (helper `carHarga()` di site-utils).
+Label hanya fallback custom saat harga kosong — tidak ada input form
+untuknya lagi.
 
 Kolom legacy yang sengaja dibiarkan di tabel `artikel` (jangan dihapus
 tanpa backup): `is_published`, `author_id`.
@@ -106,6 +117,9 @@ visual; counter reset saat menu ditutup / pindah halaman. Implementasi di
   CRUD `admin/cars|articles|faqs|testimonials`, `GET admin/messages|
   test-drives|service-bookings|newsletter`, `POST /api/admin/upload`,
   `POST /api/admin/change-password`.
+- Catatan Task 22: PUT/POST `admin/cars` menurunkan `harga_label` dari
+  `harga_mulai` (anti label basi). `imageRef` validasi menerima URL https,
+  `/api/files/...` (upload), dan `/car-imgs/...` (foto statis dealer).
 
 ## 7. Environment
 
@@ -141,24 +155,58 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
 
 ## 9. Catatan Operasional & Insiden
 
-- **Reset sandbox pernah 5x terjadi** (data lokal + commit lokal hilang;
-  IP mesin berubah). Yang selamat: **Supabase (eksternal)** dan repo GitHub.
-  Pelajaran: commit & push berkala; data penting di Supabase, bukan file
-  lokal sandbox. Setelah reset: pulihkan `.env`, flip provider, generate,
-  jalankan `scripts/seed-supabase.ts` (lihat Task 19 di worklog).
-  Reset #5 (Task 22) lebih ringan: git history + schema + worklog utuh,
-  hanya `.env` ter-rollback ke SQLite dan dev server mati → cukup tulis
-  ulang `.env`, `bun run db:generate`, `start-dev-daemon.py` (dengan
-  `unset DATABASE_URL`), lalu seed create-only.
+- **Reset sandbox pernah 6x terjadi** (terakhir: 2026-10-07, dua kali
+  dalam satu hari — gejala khas: `.env` ter-rollback ke SQLite, dev server
+  & cron mati; kadang repo git ikut ter-rollback ke snapshot lama, kadang
+  tidak). Yang selamat di SEMUA reset: **Supabase (eksternal)** dan repo
+  GitHub. Pelajaran: commit & push berkala; data penting di Supabase,
+  bukan file lokal sandbox. Setelah reset: pulihkan `.env` (URL pooler
+  Supabase), `bun run db:generate`, `python3 start-dev-daemon.py` (dengan
+  `unset DATABASE_URL`), lalu `bun scripts/seed-supabase.ts` (create-only).
+  Lihat Task 19/20 di worklog untuk runbook lengkap.
 - `db/custom.db` (SQLite) = artefak sandbox lama, sudah kosong & tidak
   dipakai. Jangan pindah `DATABASE_URL` kembali ke situ.
-- Gambar upload lama (`db/uploads/`) ikut hilang saat reset. Gambar mobil
-  kini aset statis **`public/car-imgs/`** (git-tracked, selamat dari reset);
-  kolom `gambar_utama` di Supabase memakai path `/car-imgs/*`. Artikel
-  `cover_image` masih NULL (belum ada konten). Skema validasi
-  `imageRef` (validations.ts) menerima `https://`, `/api/files/*`, dan
-  `/car-imgs/*`.
+- Gambar upload lama (`db/uploads/`) ikut hilang saat reset — namun data
+  Supabase tidak terdampak. Foto mobil kini terisi: `public/car-imgs/`
+  (git-tracked, tahan reset) dan kolom `gambar_utama` diisi path
+  `/car-imgs/...` lewat `scripts/fix-car-data.ts` (hanya mengisi kolom
+  NULL — upload admin tetap menang). Artikel `cover_image` masih NULL.
+  Skema validasi `imageRef` (validations.ts) menerima `https://`,
+  `/api/files/*`, dan `/car-imgs/*`.
 - `typescript.ignoreBuildErrors: true` di next.config (sisa masa porting).
+
+### 9.1 Kredensial Git (PAT GitHub) — brankas & pemulihan (diperbarui Task 23)
+
+PAT fine-grained (tanpa expiry, scope Contents r/w repo ini) **tidak
+pernah boleh ditulis di file yang ter-commit** (repo ini PUBLIC!).
+
+> **Sejarah singkat:** skema lama (Task 21 paralel) menyimpan token di
+> 3 lokasi *runtime* sandbox (remote URL `.git/config`,
+> `~/.git-credentials`, `local-github-token`). Semuanya **mati saat
+> reset sandbox #4–#6** — di dalam sandbox TIDAK ada lokasi yang tahan
+> reset. Sejak Task 23, brankas utamanya di Supabase (eksternal).
+
+1. **Brankas utama (tahan semua reset): tabel `ops_config` di Supabase**
+   (key `github_pat`). Cara ambil — setelah `.env` dipulihkan:
+   ```bash
+   unset DATABASE_URL && bun scripts/ops-config.ts get github_pat
+   ```
+   Lalu push sekali jalan (token tidak perlu diketik ulang di chat/file):
+   ```bash
+   TOKEN=$(bun scripts/ops-config.ts get github_pat)
+   git push "https://faaza-mumtaza:${TOKEN}@github.com/faaza-mumtaza/sales-proto-4.git" main
+   ```
+   Ganti rotasi token: `…ops-config.ts set github_pat <token-baru>`.
+2. **Kenyamanan (mati saat reset, boleh hilang):** `~/.git-credentials`
+   (chmod 600) + `credential.helper=store` global — push langsung
+   `git push origin main` selama sandbox hidup.
+3. **Fallback terakhir:** user mengirim ulang token via chat (nilai asli
+   tersimpan permanen di akun GitHub user).
+
+Catatan: token pernah muncul di chat — jika suatu saat direvoke,
+perbarui brankas (`ops-config.ts set github_pat <baru>`). Jangan
+pernah commit nilai token; `git remote -v` bisa menampilkan token bila
+tersemat di URL — hindari menaruhnya di remote URL.
 
 ## 10. Pelacakan Proyek & Aturan Dokumentasi
 
@@ -169,13 +217,16 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
 
 | Tanggal | Task | Ringkasan |
 |---|---|---|
-| 2026-10-07 | 22 | **Pulihan preview web (insiden #5, ringan)**: dev server mati + `.env` ter-rollback ke SQLite → preview user tidak muncul. Git/schema/worklog utuh (beda dari reset #4). Pulihkan: `.env` Supabase → `db:generate` → `start-dev-daemon.py` → seed create-only (2 admin utuh). Verifikasi E2E agent-browser: home render bersih, gerbang tersembunyi 5× ketuk logo (belum login → `#/admin/login`; sudah login → `#/admin`; menu tertutup/kurang dari 5× → tetap), login admin default → dashboard. Tanpa perubahan kode. |
-| 2026-10-07 | 21 | **Pulihan reset #4 + gerbang admin tersembunyi + 2 fix bug harga**: `.env` ter-rollback lagi → pulihkan koneksi Supabase + dev server. Fitur: 5× ketuk logo di menu mobile → `#/admin` (header.tsx, tanpa indikasi visual). Fix bug "harga tidak berubah di situs": (1) `harga_label` kini selalu turunan `harga_mulai` saat simpan (dulu label lama terus ditampilkan), (2) `imageRef` zod menolak path `/car-imgs/*` → SEMUA edit mobil gagal disimpan (toast "Referensi gambar tidak valid") — kini diterima, (3) preview form ikut angka live, (4) `refetchOnWindowFocus` diaktifkan. Aset mobil dipindah `download/car-imgs` → `public/car-imgs` (disajikan statis, selamat reset). Semua diverifikasi E2E via agent-browser. |
-| 2026-10-04 | 20 | *(hilang saat reset #4 — rekap)* Push 2 commit (Task 19) pakai PAT baru; uji persistence token — commit & entry worklog hilang saat reset berikutnya; PAT tidak tersisa di sandbox |
+| 2026-10-07 | 23 | **Brankas PAT di Supabase + merge garis waktu paralel**: token GitHub kini tersimpan di tabel `ops_config` Supabase (eksternal — tahan semua reset; skema 3-layer runtime lama terbukti mati saat reset #4–#6). Skrip `scripts/ops-config.ts` (get/set). Merge origin/main (garis waktu paralel sesi 5 Okt: Task 20/21/22 versi remote) dengan commit lokal (Task 21/22 versi lokal 7 Okt): konflik README/worklog disatukan kronologis, fix harga memihak mekanisme server-side (label = turunan `harga_mulai` di API), gerbang admin tersembunyi (header.tsx) tetap. Push semua. |
+| 2026-10-07 | 22-B | **Pulihan preview web (insiden #5, ringan)**: dev server mati + `.env` ter-rollback ke SQLite → preview user tidak muncul. Git/schema/worklog utuh (beda dari reset #4). Pulihkan: `.env` Supabase → `db:generate` → `start-dev-daemon.py` → seed create-only (2 admin utuh). Verifikasi E2E agent-browser: home render bersih, gerbang tersembunyi 5× ketuk logo (belum login → `#/admin/login`; sudah login → `#/admin`; menu tertutup/kurang dari 5× → tetap), login admin default → dashboard. Tanpa perubahan kode. |
+| 2026-10-07 | 21-B | **Pulihan reset #4 + gerbang admin tersembunyi**: 5× ketuk logo di menu mobile → `#/admin` (header.tsx, tanpa indikasi visual; counter reset saat menu tutup/ganti route, expiry 3 detik). Fix `imageRef` zod menerima `/car-imgs/*` (dulu SEMUA edit mobil gagal simpan), `refetchOnWindowFocus` diaktifkan. Aset `download/car-imgs` → `public/car-imgs`. Fix harga versi ini digantikan mekanisme server-side Task 22-A saat merge Task 23. |
+| 2026-10-05 | 22-A | **Fix bug harga + redesign kartu mobile ala suzuki.co.id**: (1) harga diubah admin tidak tampil di situs/preview — akar masalah `harga_label` basi terkirim ulang dari form; kini label SELALU diturunkan server dari `harga_mulai`, tampilan pakai angka dulu (`carHarga()`), data lama dimigrasi (`scripts/fix-car-data.ts`); (2) kartu mobil didesain ulang mobile-first: grid 2 kolom di HP, foto full-bleed 4:3, nama uppercase, label "MULAI" cukup sekali (sebelumnya ganda), seluruh kartu clickable, tombol panah bulat; (3) foto mobil asli terisi dari `public/car-imgs/`; (4) FAB di HP kini hanya WhatsApp (tidak menutupi kartu); (5) titik warna kartu hanya tampil bila ≥2 warna. Diverifikasi E2E: ubah harga → preview + situs publik langsung benar. |
+| 2026-10-05 | 21-A | **Push GitHub sukses + persistensi token (3-layer runtime — usang, lihat §9.1)**: PAT disimpan di remote URL `.git/config`, `~/.git-credentials`, `local-github-token`. Semuanya mati saat reset #4–#6 → diganti brankas Supabase (Task 23). Temuan saat push: commit Task 16 ternyata sudah ada di GitHub sejak sebelum reset → merge `5d66f88` mengembalikan route `/api/admin/upload`, fix gitignore `/upload/`, dan entry worklog Task 16. |
+| 2026-10-05 | 20 | **Pulihan reset sandbox ke-3** (`.env` ter-rollback ke SQLite, `db/` hilang, server mati) → koneksi Supabase dipulihkan, dev server hidup lagi, verifikasi E2E ulang (login owner + default 200, dashboard data live via browser, mobile 375px no-overflow, 0 error). Push GitHub saat itu masih tertunda menunggu PAT. |
 | 2026-10-04 | 19 | **Pulihan insiden reset sandbox**: repo ter-rollback ke state Task 15 (koneksi Supabase hilang, SQLite lokal kosong) → penyebab login admin gagal total. Pulihkan koneksi Supabase, daftarkan akun owner `naufalsuzuki.bsb@gmail.com` (auth custom, bukan Supabase Auth), tulis ulang README/setup SQL/.env.example/seed script. Semua terverifikasi E2E. |
 | 2026-10-04 | 18 | *(hilang saat reset — rekap)* Koneksi LIVE ke Supabase: setup SQL dieksekusi, fix enum `artikel.tipe` (P2032), provider flip postgresql, admin pertama tersalin, verifikasi E2E penuh |
 | 2026-10-04 | 17 | *(hilang saat reset — rekap)* Audit DB Supabase existing + skrip setup idempoten `docs/supabase-setup.sql` + runbook koneksi |
-| 2026-10-04 | 16 | *(hilang saat reset — rekap)* README handover + fix route upload 404 + pemulihan insiden DB kosong |
+| 2026-10-04 | 16 | README handover (14 bab) + fix route upload 404 + fix gitignore `/upload/` + pemulihan insiden DB kosong — **commit-nya ter-push ke GitHub (`b9dc153`)**; reset hanya menghapus salinan lokalnya, di-merge kembali di Task 21 |
 | 2026-10-04 | 15 | Push pertama ke GitHub (untrack file runtime; `main` = 17 commit) — satu-satunya commit yang bertahan setelah reset |
 | 2026-10-04 | 14 | Paste Tiptap: `allowBase64:true` + h5/h6 lolos sanitizer; CSS `.prose-artikel` diperkuat |
 | 2026-10-03 | 13 | Rollback styling/animasi ke gaya asli, tanpa dark mode, halaman promo dihapus |

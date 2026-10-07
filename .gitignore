@@ -59,11 +59,11 @@ db/*.db-journal
 db/uploads/
 
 # uploads & logs
-upload/
+/upload/
 dev.log
 
 # zscripts runtime
 .zscripts/*.pid
 
-# Artefak tool agent (hasil read besar, dsb.)
+# tool persisted outputs (artefak sesi, jangan di-commit)
 tool-results/

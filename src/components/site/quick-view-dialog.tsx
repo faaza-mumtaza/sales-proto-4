@@ -18,7 +18,7 @@ import { Users, Fuel, Settings, MessageCircle, ArrowRight, Scale, Check, Car } f
 import { Link } from "@/lib/router";
 import {
   CAR_FALLBACK_IMAGE,
-  formatPrice,
+  carHarga,
   waLink,
   type Mobil,
 } from "@/lib/site-utils";
@@ -147,9 +147,9 @@ export function QuickViewDialog({
           {/* Harga + CTA */}
           <div className="mt-6 pt-5 border-t border-border flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
-              <p className="text-xs text-muted-foreground">Harga mulai dari</p>
+              <p className="text-xs text-muted-foreground">Harga mulai</p>
               <p className="text-xl font-bold text-suzuki-red">
-                {car.harga_label ?? formatPrice(car.harga_mulai)}
+                {carHarga(car)}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">

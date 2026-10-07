@@ -13,6 +13,18 @@ export function formatPriceShort(price: number | null | undefined): string {
   return `Rp. ${juta.toLocaleString("id-ID", { maximumFractionDigits: 1 })} Juta`;
 }
 
+/** Harga tampilan untuk kartu/detail mobil: angka `harga_mulai` SELALU menang
+ *  bila ada (anti label basi), `harga_label` hanya fallback custom (mis.
+ *  "Hubungi Sales") saat angka kosong. */
+export function carHarga(car: {
+  harga_mulai: number | null;
+  harga_label: string | null;
+}): string {
+  return car.harga_mulai != null
+    ? formatPrice(car.harga_mulai)
+    : (car.harga_label ?? "Hubungi sales");
+}
+
 export function formatDateID(d: string | Date | null | undefined): string {
   if (!d) return "";
   const date = typeof d === "string" ? new Date(d) : d;

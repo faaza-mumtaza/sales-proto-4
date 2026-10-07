@@ -10,7 +10,7 @@ import { CreditSimulator } from "@/components/site/credit-simulator";
 import { Breadcrumb } from "@/components/site/breadcrumb";
 import { Link, usePageMeta, navigate } from "@/lib/router";
 import { apiGet } from "@/lib/api";
-import { CAR_FALLBACK_IMAGE, formatPrice, waLink, type Mobil } from "@/lib/site-utils";
+import { CAR_FALLBACK_IMAGE, carHarga, waLink, type Mobil } from "@/lib/site-utils";
 import { JsonLd } from "@/components/site/json-ld";
 import { carJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import { Lightbox, type LightboxImage } from "@/components/site/lightbox";
@@ -304,9 +304,9 @@ export function MobilDetailView({ slug }: { slug: string }) {
               )}
 
               <div className="bg-gradient-to-br from-suzuki-light to-white rounded-xl p-6 mb-6 border border-border">
-                <p className="text-sm text-muted-foreground mb-1">Harga mulai dari</p>
+                <p className="text-sm text-muted-foreground mb-1">Harga mulai</p>
                 <p className="text-3xl font-bold text-suzuki-red">
-                  {car.harga_label ?? formatPrice(car.harga_mulai)}
+                  {carHarga(car)}
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
                   * Harga OTR Semarang, dapat berubah sewaktu-waktu
@@ -415,7 +415,7 @@ export function MobilDetailView({ slug }: { slug: string }) {
               Mobil Suzuki Lainnya
               <span className="inline-block w-8 h-1.5 rounded-full bg-suzuki-red/70" aria-hidden />
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {related.map((c) => (
                   <CarCard key={c.slug} car={c} />
               ))}

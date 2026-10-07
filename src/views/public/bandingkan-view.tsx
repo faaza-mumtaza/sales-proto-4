@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Scale, X, Users, Fuel, Settings, Sparkles } from "lucide-react";
 import { Link, navigate, usePageMeta } from "@/lib/router";
 import { apiGet } from "@/lib/api";
-import { CAR_FALLBACK_IMAGE, formatPrice, waLink, type Mobil, type SpecItem } from "@/lib/site-utils";
+import { CAR_FALLBACK_IMAGE, carHarga, waLink, type Mobil, type SpecItem } from "@/lib/site-utils";
 import { SiteLayout } from "@/components/site/site-layout";
 import { SectionHeading } from "@/components/site/section-heading";
 import { CardSkeleton, ErrorState } from "@/components/site/states";
@@ -165,10 +165,10 @@ export function BandingkanView() {
                                   {c.kategori_label}
                                 </span>
                                 <h3 className="font-bold text-suzuki-navy text-base leading-snug">{c.nama}</h3>
-                                <p className="text-suzuki-red font-bold mt-1.5">
-                                  {c.harga_label ?? formatPrice(c.harga_mulai)}
+                                <p className="text-[11px] text-muted-foreground mt-0.5">Mulai</p>
+                                <p className="text-suzuki-red font-bold mt-0.5">
+                                  {carHarga(c)}
                                 </p>
-                                <p className="text-[11px] text-muted-foreground mt-0.5">harga mulai dari</p>
 
                                 <div className="flex flex-col gap-2 mt-4">
                                   <Link

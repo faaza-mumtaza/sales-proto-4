@@ -15,8 +15,8 @@ const nullableText = (max: number) =>
     z.string().trim().max(max).nullable(),
   );
 
-/** Gambar boleh URL absolut (https), path hasil upload (/api/files/...),
- *  atau aset statis dealer yang di-serve dari public/ (/car-imgs/...). */
+/** Gambar boleh URL absolut (https), path upload (/api/files/...), atau foto
+ *  statis bawaan dealer (/car-imgs/...). */
 const imageRef = z.preprocess(
   (value) =>
     value == null || (typeof value === "string" && value.trim() === "") ? null : value,
@@ -27,8 +27,7 @@ const imageRef = z.preprocess(
     .refine(
       (v) =>
         /^https?:\/\//i.test(v) ||
-        /^\/api\/files\/[a-zA-Z0-9._/-]+$/i.test(v) ||
-        /^\/car-imgs\/[a-zA-Z0-9._/-]+$/i.test(v),
+        /^\/(api\/files|car-imgs)\/[a-zA-Z0-9._/-]+$/i.test(v),
       "Referensi gambar tidak valid",
     )
     .nullable(),

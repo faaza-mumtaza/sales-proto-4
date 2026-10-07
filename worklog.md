@@ -682,6 +682,27 @@ Stage Summary:
 - Catatan clone: tanpa .env & db/custom.db — clone perlu `cp .env.example .env`-style setup (DATABASE_URL) + `bun run db:push` + seed/restore db/uploads via scripts/restore-uploads.py.
 
 ---
+Task ID: 16
+Agent: main (lazy-senior-dev mode)
+Task: Buat dokumentasi handover lengkap (struktur/sistem/setup/customize/deploy) di dalam repo + aturan tracking permanen.
+
+Work Log:
+- **ATURAN PERMANEN BARU dari user**: SETIAP perubahan proyek WAJIB update (1) README.md bagian terdampak, (2) worklog.md, (3) tabel changelog README §14. README = kondisi terkini; worklog = sejarah. Berlaku juga untuk agent cron berikutnya!
+- **INSIDEN & PULIHKAN**: DB ter-reset kosong (semua tabel 0, mtime 06:21, diduga cron QA menjalankan db:push --accept-data-loss + restart daemon) & db/uploads/ kosong (ke-4x). Pulihkan: dev server stop → `git show ff20aea:db/custom.db > db/custom.db` (blob 143KB berisi data dari riwayat git) → `python3 scripts/restore-uploads.py` (24 file) → restart daemon → verifikasi: home 200, 10 mobil, 13 artikel, login admin OK, gambar serve 200. PELAJARAN: jangan jalankan db:push tanpa backup; dokumen README §11.2.
+- **Bug ditemukan & diperbaiki**: POST /api/admin/upload 404 — route tidak pernah ada, padahal image-uploader/warna-image-input/artikel-editor memanggilnya. Dibuat route baru (requireAdmin + validasi tipe/ukuran + saveUploadedImage). E2E terverifikasi: upload OK, file serve 200, tanpa sesi 401, tipe ditolak.
+- **Bug kedua**: route itu sempat TIDAK NONGOL di git status — ternyata pola gitignore `upload/` menangkap folder src/app/api/admin/upload/ juga. Fix: anchor jadi `/upload/` lalu commit route.
+- **README.md dibuat** (handover lengkap, bahasa Indonesia, gaya senior→junior): 14 bab — fitur, stack, arsitektur (hash router, pola API, pipeline sanitize artikel, auth HMAC+scrypt, upload storage, anti-spam 3 lapis, lazy publish), struktur folder beranotasi, peta route publik+admin, model data 9 tabel, setup lokal (+skrip buat admin pertama), alur kerja konten harian, panduan kustomisasi (identitas dealer, warna, halaman baru, API baru, modul admin baru, editor), checklist deploy produksi (Supabase+Vercel), operasional/pemulihan (backup, db:push warning, daemon), QA manual, 13 keputusan desain & alasan, aturan tracking + changelog.
+- **.env.example dibuat** + whitelist `!.env.example` dari pola .env*.
+- File sampah `--full-page` (sisa salah ketik perintah) dihapus.
+- Commit: 137d594 (docs) + 475529d (fix gitignore+upload route) → push GitHub sukses 6e2be5c..475529d.
+
+Stage Summary:
+- Repo GitHub kini punya README handover lengkap yang bisa dibaca langsung di halaman repo + .env.example + route upload yang berfungsi + gitignore yang benar.
+- Database & uploads pulih penuh dari insiden reset; site hidup normal.
+- PERINGATAN untuk agent cron berikutnya: (1) SELALU baca README §11 sebelum operasional DB; (2) db:push --accept-data-loss = BAHAYA data live; (3) setiap perubahan WAJIB update README+worklog+changelog; (4) db/uploads & db/custom.db adalah data live — setelah reset wajib jalankan restore-uploads.py.
+- Risiko tersisa: sandbox reset bisa terjadi lagi kapan pun — backup DB berkala (cp db/custom.db db/backup-YYYY-MM-DD.db); history git tidak lagi memuat custom.db (di-untrack Task 15) sehingga pemulihan berikutnya harus dari backup manual.
+
+---
 Task ID: 19
 Agent: main (Z.ai Code)
 Task: Diagnose & fix "tidak bisa login admin meski sudah membuat akun email+password di Supabase" — ternyata insiden reset sandbox + akun dibuat di sistem auth yang salah
@@ -709,7 +730,49 @@ Stage Summary:
 - Risiko tersisa: push GitHub butuh PAT baru (yang lama terekspos & di-revoke); tabel interaksi (pesan/testimoni/faq/dll) masih kosong menunggu konten asli; password DB & akun pernah muncul di chat (password DB sudah di-reset user — jangan dibagikan lagi).
 
 ---
-Task ID: 21
+Task ID: 20
+Agent: main (Z.ai Code)
+Task: Push semua commit lokal ke GitHub (permintaan user) + pulihan dari reset sandbox ke-3 yang terdeteksi dalam proses
+
+Work Log:
+- **Konteks user**: token GitHub yang dulu diberikan "masih valid sampai 3 Nov 2026", minta push semua update. Pemeriksaan: 2 commit lokal belum ter-push (`bd5839a` auto-commit reset + `6486ced` Task 19).
+- **Insiden reset ke-3 terdeteksi** (gejala: `.env` ter-rollback ke SQLite, folder `db/` hilang total, dev server mati, `dev.log` hilang, cron kosong — namun repo git + commit lokal + file tracked BERTAHAN, berbeda dengan reset ke-1 yang merollback repo ke Task 15).
+- **Pencarian PAT menyeluruh SEBELUM push**: remote URL (polos, tanpa token), `~/.git-credentials` (tidak ada), `git config` (tidak ada credential helper), history shell (kosong), `gh` CLI (tidak terinstall), `~/.ssh` (tidak ada), env vars (kosong), scan seluruh `/home/z` termasuk file hidden/ignored via `rg --hidden --no-ignore` untuk pola `github_pat_…`/`ghp_…` → **TIDAK ADA**. Token memang tidak pernah disimpan (praktik aman) — nilainya hanya ada di chat sesi lama yang konteksnya hilang.
+- **Pemulihan (runbook Task 19)**: `.env` → kembali ke DATABASE_URL Supabase pooler 5432 (password ter-encode); provider `postgresql` sudah benar (bertahan); start dev server via `python3 start-dev-daemon.py` dengan `unset DATABASE_URL` → `GET / 200`.
+- **Seed & verifikasi akun**: `bun scripts/seed-supabase.ts` (create-only) → kedua admin sudah ada (dilewati); counts: admins 2, mobil 5, artikel 3, tabel interaksi 0. `POST /api/admin/login` → 200 untuk `naufalsuzuki.bsb@gmail.com` DAN `admin@suzukibsb.id`.
+- **Audit gambar**: semua kolom gambar mobil/artikel di Supabase = NULL (data dealer memang tanpa foto) → tidak ada file hilang yang direferensikan; `download/car-imgs/` (git-tracked) tetap berisi sumber foto bila ingin diisi. Catatan: `localize-images.py` masih hardcoded SQLite — TIDAK dijalankan (tidak relevan; tidak ada ref remote di DB).
+- **QA browser (agent-browser)**: home render penuh dengan data Supabase (kartu Ertiga Hybrid dkk.); login owner via form asli → dashboard admin tampil (5 Mobil Aktif, 3 Artikel Tayang, 0 pesan); 0 page-error / 0 console error; mobile 375×812 no-overflow; screenshot `download/qa-task20-admin-dash.png`.
+- **Dokumentasi**: README §9 (reset kini 3x + koreksi klaim lama "URL gambar eksternal" → faktanya kolom gambar NULL) + §10 changelog Task 20 + worklog ini. Commit lokal Task 20 dibuat.
+- **Hygiene repo**: `tool-results/` (17 artefak sesi yang tak sengaja ter-commit di era auto-commit) di-untrack + masuk `.gitignore` — artefak runtime tidak boleh masuk git (vektor bocor potensial).
+
+Stage Summary:
+- **App 100% pulih & terverifikasi E2E di atas Supabase** setelah reset ke-3; login admin owner + default keduanya berfungsi (via API dan via form UI).
+- **Push GitHub TERTUNDA — blocker nyata**: 3 commit lokal siap push (`bd5839a`, `6486ced`, + commit Task 20), tetapi nilai PAT tidak ada di mana pun di sandbox. User harus mengirim ulang token via chat (dan karena token pernah muncul di chat, praktik terbaik: buat token baru di GitHub → Settings → Developer settings → Fine-grained PAT, scope Contents read/write untuk repo `sales-proto-4` saja, lalu revoke token lama setelah push).
+- Penting untuk agent berikutnya: reset sandbox bisa terulang; urutan pemulihan terbukti = perbaiki `.env` → cek provider postgresql → `python3 start-dev-daemon.py` dengan `unset DATABASE_URL` → `bun scripts/seed-supabase.ts` → verifikasi login. Commit lokal BERTAHAN pada reset ke-3 (tidak semua reset merollback repo).
+- Risiko tersisa: tabel interaksi masih kosong (menunggu konten asli); password sementara owner `GantiSaya#2026` belum dikonfirmasi sudah diganti user.
+
+---
+Task ID: 21-A (paralel — garis waktu remote, ter-push 5 Okt)
+Agent: main (Z.ai Code)
+Task: Push semua commit ke GitHub dengan PAT baru + bangun persistensi kredensial agar token/"memory" AI tidak hilang lagi
+
+Work Log:
+- User mengirim PAT baru (fine-grained, tanpa expiry) + minta solusi agar token tidak hilang lagi karena batas memori AI antar-sesi.
+- **Persistensi token 3 lapis** (nilai token TIDAK PERNAH di file ter-commit): (1) remote URL di `.git/config` — di-set via `git remote set-url` dengan nilai dibaca dari file sehingga token tidak pernah muncul di command shell; (2) `~/.git-credentials` (chmod 600) + `credential.helper=store` global; (3) `local-github-token` di root project (tertutup pola gitignore `local-*`, chmod 600). Verifikasi auth: `git ls-remote --heads origin` OK.
+- **TEMUAN SAAT MENYIAPKAN PUSH**: remote main = `b9dc153` ≠ tracking ref lokal (`6e2be5c`) → fetch → commit Task 16 (README handover 614 baris, .env.example, fix gitignore `/upload/`, route `/api/admin/upload`) TERNYATA SUDAH ADA di GitHub sejak sebelum reset ke-1 — kesimpulan Task 19 "hilang permanen karena tidak pernah di-push" KELIRU; reset #1 memulihkan snapshot lokal pra-push sehingga jejaknya hilang dari repo lokal. Divergence: remote +3 commit (Task 16), lokal +2 commit (Task 19-20), merge-base `bd5839a`.
+- **Merge `5d66f88`** (dipilih dibanding rebase agar hash commit yang direferensikan worklog tidak berubah): route `/api/admin/upload` kembali ada di lokal; `.gitignore` auto-merge (`/upload/` anchor remote + `tool-results/` lokal); konflik add/add README & .env.example diselesaikan memihak versi lokal Task 19 (otoritatif — Supabase live); konflik worklog diselesaikan kronologis (entry Task 16 dari remote disisipkan sebelum Task 19/20 via script python).
+- **Verifikasi pasca-merge**: `POST /api/admin/upload` tanpa sesi → 401 (bukan 404 — route hidup, guard auth bekerja); `GET /` 200; README/.gitignore/worklog dicek manual.
+- **Dokumentasi**: README narasi atas dikoreksi (Task 16 tidak hilang dari GitHub) + §9.1 baru (lokasi & prosedur pemulihan token) + changelog Task 21 + baris Task 16 dikoreksi + worklog ini.
+- **Push dieksekusi**: merge Task 16 + Task 19 + Task 20 + Task 21 naik ke GitHub.
+
+Stage Summary:
+- **Push GitHub BERHASIL — semua pekerjaan selamat permanen** (main = origin/main). Route upload kini ada di kedua sisi.
+- **Token tersedia lintas sesi**: 3 lokasi runtime + lokasinya didokumentasikan di README §9.1 yang ikut ter-push (baca saja sudah tahu di mana token berada — tanpa mengekspos nilainya). Fallback terakhir: token tanpa expiry tersimpan di akun GitHub user (bisa dikirim ulang kapan pun).
+- **"Memory" AI = worklog.md + README.md yang ter-push** — bertahan dari semua reset sandbox. Aturan append per task sudah permanen (§10).
+- Ide task berikutnya: port bab berharga dari README Task 16 (`b9dc153`) — peta route (§5), alur kerja konten (§8), panduan kustomisasi (§9) — ke README saat ini yang lebih ringkas; lalu isi foto mobil dari `download/car-imgs/` bila user setuju.
+- Catatan keamanan: token tanpa expiry = risiko lebih besar bila bocor; hanya boleh ada di chat & file runtime lokal, TIDAK PERNAH di file ter-commit; `git remote -v` menampilkan token (jaga outputnya).
+
+Task ID: 21-B (paralel — garis waktu lokal, 7 Okt)
 Agent: main (Z.ai Code)
 Task: Pulihan reset sandbox #4 + gerbang admin tersembunyi (5x ketuk logo di menu mobile) + fix bug "harga mobil diubah di admin tapi situs tidak berubah" + aset gambar mobil 404
 
@@ -739,7 +802,29 @@ Stage Summary:
 - **Risiko tersisa**: (1) 2 commit (Task 19 + Task 21 yang akan di-commit) BELUM ter-push — PAT hilang lagi saat reset #4, user perlu mengirim PAT baru; (2) artikel cover_image NULL & tabel interaksi kosong menunggu konten; (3) sandbox bisa reset kapan pun — commit dilakukan sesegera mungkin.
 
 ---
-Task ID: 22
+Task ID: 22-A (paralel — garis waktu remote, ter-push 5 Okt)
+Agent: main (Z.ai Code)
+Task: Fix bug "harga diubah di admin tapi tidak tampil di situs/preview" + redesign kartu mobil mobile-first ala suzuki.co.id (referensi user) + hilangkan "Mulai dari" ganda
+
+Work Log:
+- **Diagnosis bug harga (laporan user + 5 screenshot)**: form admin hanya mengedit `harga_mulai` (angka), tapi kartu publik/preview/detail/bandingkan merender `harga_label ?? formatPrice(harga_mulai)` — label duluan. Form mengirim ulang `harga_label` LAMA dari data awal (tidak ada inputnya di form) → PUT menyimpan harga baru + label basi. DB terbukti: Ertiga harga_mulai=15.700.000 (hasil edit user) tapi label masih "Mulai Rp. 258 Juta". Form edit menampilkan field angka → "tersimpan benar", tapi semua tampilan pakai label → "tidak ada yang berubah". Bonus: semua label lama berformat "Mulai Rp. X Juta" + caption kartu "Mulai dari" → kata "Mulai" TIGA KALI secara efektif (keluhan user "berulang dan tidak efektif").
+- **Fix root cause (3 lapis)**: (1) API PUT/POST `admin/cars` SELALU menurunkan `harga_label` dari `harga_mulai` (abaikan label dari klien saat angka ada); (2) form mengirim `harga_label: null` + preview memakai `formatPrice(harga_mulai)`; (3) semua tampilan dibalik prioritasnya ke angka dulu via helper baru `carHarga()` di site-utils (kartu, quick-view, detail, bandingkan, ringkasan admin).
+- **Migrasi data**: `scripts/fix-car-data.ts` (idempoten) — label 5 mobil disinkronkan ke harga terkini (tanpa kata "Mulai") + `gambar_utama` NULL diisi foto statis. Contoh hasil: Fronx "Mulai Rp. 265 Juta" → "Rp. 265.000.000", foto → /car-imgs/fronx-hybrid.png.
+- **Redesign kartu mobil ala suzuki.co.id** (Screenshot 4-5 user sebagai referensi): foto full-bleed aspect-4/3 (tanpa padding), badge kategori kecil, nama UPPERCASE line-clamp-2 min-height, caption "MULAI" kecil SEKALI + harga merah bold (angka, format penuh "Rp. 265.000.000" seperti referensi), tombol panah bulat navy→merah saat hover, seluruh kartu dapat diketuk (stretched link, ala referensi), tombol pratinjau/bandingkan jadi ikon melayang di pojok foto. Grid katalog+home+detail: `grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` (2 kolom di HP — persis referensi mobile).
+- **Foto mobil terisi**: 10 foto `download/car-imgs/` (git-tracked, 1.8MB) disalin ke `public/car-imgs/` (statis, tahan reset sandbox); `imageRef` validasi diperluas menerima `/car-imgs/...`. Semua 5 mobil kini berfoto asli (sebelumnya placeholder logo — terlihat di screenshot user).
+- **FAB mobile**: screenshot user memperlihatkan 3 tombol melayang menutupi kartu. Di HP kini hanya WhatsApp (48px) yang tampil; scroll-atas & booking servis tampil di sm+ (booking servis tetap terjangkau via menu). Titik warna kartu kini hanya tampil bila ≥2 warna (1 titik terkesan glitch — screenshot 2 user & VLM sama-sama salah baca).
+- **E2E via agent-browser (viewport 390px + 1280px)**: login admin → edit Fronx 265jt → 267.5jt → PREVIEW langsung tampil "MULAI / Rp. 267.500.000" (bug user TIDAK terulang) → simpan → situs publik menampilkan Rp. 267.500.000 → kembalikan ke 265jt → detail "Harga mulai / Rp. 265.000.000" ✓. Quick-view & bandingkan ✓ angka terkini. Kartu clickable → navigasi detail ✓. Mobile: grid 2 kolom, foto asli, harga 1 baris (18px, no wrap), no horizontal overflow, 0 console error. Desktop: 4 kolom, 3 FAB tampil. Skeleton kartu disesuaikan bentuk baru.
+- **Hygiene**: `bun run lint` 0 error; dev.log bersih. README §3/§4/§6/§9 + changelog Task 22; worklog ini. Commit + push GitHub.
+
+Stage Summary:
+- **Bug harga RESOLVED tuntas** — harga yang diubah admin kini langsung tampil di preview edit, kartu, detail, quick-view, bandingkan, dan tabel admin. Mekanisme anti-regresi: label = kolom turunan server-side; tampilan selalu angka dulu.
+- **Kartu mobil mobile-first ala suzuki.co.id**: 2 kolom di HP, foto full-bleed, "MULAI" sekali, seluruh kartu tap-friendly, foto asli semua mobil.
+- **Data penting**: Ertiga harga_mulai = 15.700.000 (Rp 15,7 juta) — itu nilai yang user simpan sendiri saat mengedit (kemungkinan kurang satu nol dari 157 juta); SENGAJA tidak diubah (data user), tolong konfirmasi bila memang typo → edit lagi di admin.
+- Perilaku berubah (disengaja): FAB HP hanya WhatsApp; titik warna kartu butuh ≥2 warna; format harga kartu kini penuh ("Rp. 265.000.000") mengikuti referensi.
+- Next idea: galeri mobil masih kosong (hanya gambar utama) — bisa isi variasi warna/foto unit via admin; artikel 3 PROMO sudah tayang.
+
+---
+Task ID: 22-B (paralel — garis waktu lokal, 7 Okt)
 Agent: main (Z.ai Code)
 Task: Pulihkan "preview web tidak tampil" (insiden sandbox #5, varian ringan) + verifikasi menyeluruh gerbang admin tersembunyi & login
 
