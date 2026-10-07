@@ -737,3 +737,26 @@ Stage Summary:
 - **Aset mobil reset-proof**: `public/car-imgs/` git-tracked, disajikan statis.
 - **Tugas kartu mobile (pesan user sebelumnya)**: kondisi kartu saat ini diverifikasi VLM baik (proporsional, "Mulai dari" 1x per kartu); screenshot referensi user hilang saat reset & auto.suzuki.co.id memblokir scraping (919 byte) — redesign spekulatif ditunda; lanjutkan polish iteratif via cron webDevReview.
 - **Risiko tersisa**: (1) 2 commit (Task 19 + Task 21 yang akan di-commit) BELUM ter-push — PAT hilang lagi saat reset #4, user perlu mengirim PAT baru; (2) artikel cover_image NULL & tabel interaksi kosong menunggu konten; (3) sandbox bisa reset kapan pun — commit dilakukan sesegera mungkin.
+
+---
+Task ID: 22
+Agent: main (Z.ai Code)
+Task: Pulihkan "preview web tidak tampil" (insiden sandbox #5, varian ringan) + verifikasi menyeluruh gerbang admin tersembunyi & login
+
+Work Log:
+- **Diagnosis**: dev server mati (port 3000 tidak listen), `dev.log` hilang, `.env` ter-rollback ke `DATABASE_URL=file:...custom.db` (SQLite default), folder `db/` kosong. TAPI berbeda dari reset #4: git history utuh (HEAD = `1b45b7b` Task 21), `prisma/schema.prisma` tetap `provider = "postgresql"`, worklog tidak terpotong → insiden ringan (kemungkinan restart/provision sandbox yang meregenerasi `.env` dari template).
+- **Pemulihan (runbook ringan)**: tulis ulang `.env` dengan URL pooler Supabase (password ter-encode) → `bun run db:generate` → verifikasi koneksi via skrip prisma sekali jalan (admins 2, mobil 5, artikel 3 — Supabase utuh) → `unset DATABASE_URL && bun scripts/seed-supabase.ts` (create-only, aman) → `unset DATABASE_URL && python3 start-dev-daemon.py` → dev server READY port 3000, `GET / 200`.
+- **Verifikasi API**: `/api/cars` 200 — 5 mobil live dari Supabase (harga_label sinkron hasil fix Task 21).
+- **Verifikasi E2E agent-browser (iPhone 14 emulation)**:
+  - Home render bersih: judul "Suzuki BSB Semarang — Dealer Resmi Suzuki", zero page errors.
+  - Gerbang tersembunyi (kode Task 21, tanpa ubah kode): menu mobile terbuka + 5× klik logo cepat → `#/admin/login` (belum login) ✅; login `admin@suzukibsb.id` sukses → dashboard `#/admin` ✅; dari `#/mobil` + 5× klik logo saat sudah login → langsung `#/admin` ✅; 2× klik (kurang dari 5) → tetap ✅; menu tertutup + 4× klik logo → tetap (gerbang nonaktif) ✅.
+  - Catatan QA: klik via `agent-browser find text` beruntun bisa melewati expiry 3 detik antar-klik (overhead CLI) → gunakan `click @ref` langsung; bukan bug aplikasi (5 ketukan manusia nyata < 2 detik).
+  - Cleanup: cookies dibersihkan, browser ditutup.
+- **dev.log bersih**: semua request 200 (cars/articles/testimonials/admin login+me+stats), tanpa error runtime.
+- **Dokumentasi**: README §9 (reset #5 varian ringan + langkah pemulihan singkat) + §10 changelog Task 22. Tanpa perubahan kode aplikasi — tidak ada yang perlu commit ulang selain README (dilakukan di Task 22 ini... commit menyusul bersama push saat PAT tersedia).
+
+Stage Summary:
+- **Preview web HIDUP kembali**: dev server jalan di port 3000 di atas Supabase live; seluruh flow publik + admin berfungsi.
+- **Tidak ada perubahan kode** — insiden murni lingkungan (`.env` + proses mati). Pemulihan < 5 menit berkat runbook Task 19/21.
+- **Gerbang admin tersembunyi terkonfirmasi masih berfungsi penuh** di semua varian (belum login, sudah login, menu tertutup, kurang dari 5 ketukan).
+- **Risiko tersisa** (tidak berubah dari Task 21): 3 commit lokal belum ter-push (`bd5839a`, `6486ced`, `1b45b7b` + perubahan README Task 22) — PAT GitHub hilang saat reset #4, perlu PAT baru dari user untuk push; artikel `cover_image` NULL & tabel interaksi (pesan/testimoni/faq) kosong menunggu konten asli.

@@ -141,11 +141,15 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
 
 ## 9. Catatan Operasional & Insiden
 
-- **Reset sandbox pernah 4x terjadi** (data lokal + commit lokal hilang;
+- **Reset sandbox pernah 5x terjadi** (data lokal + commit lokal hilang;
   IP mesin berubah). Yang selamat: **Supabase (eksternal)** dan repo GitHub.
   Pelajaran: commit & push berkala; data penting di Supabase, bukan file
   lokal sandbox. Setelah reset: pulihkan `.env`, flip provider, generate,
   jalankan `scripts/seed-supabase.ts` (lihat Task 19 di worklog).
+  Reset #5 (Task 22) lebih ringan: git history + schema + worklog utuh,
+  hanya `.env` ter-rollback ke SQLite dan dev server mati → cukup tulis
+  ulang `.env`, `bun run db:generate`, `start-dev-daemon.py` (dengan
+  `unset DATABASE_URL`), lalu seed create-only.
 - `db/custom.db` (SQLite) = artefak sandbox lama, sudah kosong & tidak
   dipakai. Jangan pindah `DATABASE_URL` kembali ke situ.
 - Gambar upload lama (`db/uploads/`) ikut hilang saat reset. Gambar mobil
@@ -165,6 +169,7 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
 
 | Tanggal | Task | Ringkasan |
 |---|---|---|
+| 2026-10-07 | 22 | **Pulihan preview web (insiden #5, ringan)**: dev server mati + `.env` ter-rollback ke SQLite → preview user tidak muncul. Git/schema/worklog utuh (beda dari reset #4). Pulihkan: `.env` Supabase → `db:generate` → `start-dev-daemon.py` → seed create-only (2 admin utuh). Verifikasi E2E agent-browser: home render bersih, gerbang tersembunyi 5× ketuk logo (belum login → `#/admin/login`; sudah login → `#/admin`; menu tertutup/kurang dari 5× → tetap), login admin default → dashboard. Tanpa perubahan kode. |
 | 2026-10-07 | 21 | **Pulihan reset #4 + gerbang admin tersembunyi + 2 fix bug harga**: `.env` ter-rollback lagi → pulihkan koneksi Supabase + dev server. Fitur: 5× ketuk logo di menu mobile → `#/admin` (header.tsx, tanpa indikasi visual). Fix bug "harga tidak berubah di situs": (1) `harga_label` kini selalu turunan `harga_mulai` saat simpan (dulu label lama terus ditampilkan), (2) `imageRef` zod menolak path `/car-imgs/*` → SEMUA edit mobil gagal disimpan (toast "Referensi gambar tidak valid") — kini diterima, (3) preview form ikut angka live, (4) `refetchOnWindowFocus` diaktifkan. Aset mobil dipindah `download/car-imgs` → `public/car-imgs` (disajikan statis, selamat reset). Semua diverifikasi E2E via agent-browser. |
 | 2026-10-04 | 20 | *(hilang saat reset #4 — rekap)* Push 2 commit (Task 19) pakai PAT baru; uji persistence token — commit & entry worklog hilang saat reset berikutnya; PAT tidak tersisa di sandbox |
 | 2026-10-04 | 19 | **Pulihan insiden reset sandbox**: repo ter-rollback ke state Task 15 (koneksi Supabase hilang, SQLite lokal kosong) → penyebab login admin gagal total. Pulihkan koneksi Supabase, daftarkan akun owner `naufalsuzuki.bsb@gmail.com` (auth custom, bukan Supabase Auth), tulis ulang README/setup SQL/.env.example/seed script. Semua terverifikasi E2E. |
