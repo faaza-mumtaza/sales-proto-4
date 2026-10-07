@@ -170,3 +170,14 @@ model BookingServis {
   @@index([status, tanggal_diinginkan])
   @@map("booking_servis")
 }
+
+// Brankas konfigurasi operasional (PAT GitHub, dll) — Task 23.
+// Tabel dibuat via SQL idempoten (docs/supabase-setup.sql), BUKAN db:push.
+// Lihat README §9 "Brankas PAT GitHub" untuk prosedur pengambilan.
+model OpsConfig {
+  key        String   @id
+  value      String
+  updated_at DateTime @updatedAt
+
+  @@map("ops_config")
+}

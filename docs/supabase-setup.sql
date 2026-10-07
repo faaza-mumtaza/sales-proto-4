@@ -392,3 +392,14 @@ ALTER TABLE public.booking_servis         ENABLE ROW LEVEL SECURITY;
 -- 4. Audit policy pada tabel lama (warisan repo sales-proto-3):
 -- SELECT tablename, policyname, cmd, roles FROM pg_policies
 --  WHERE schemaname = 'public' ORDER BY tablename, policyname;
+
+-- ============================================================================
+-- OPS CONFIG (Task 23) — brankas PAT GitHub & konfigurasi operasional
+-- Dibuat otomatis oleh scripts/ops-config.ts (idempoten). Jangan simpan
+-- nilai rahasia di file git — hanya di tabel ini (DB eksternal).
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS ops_config (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

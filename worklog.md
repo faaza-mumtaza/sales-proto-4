@@ -845,3 +845,26 @@ Stage Summary:
 - **Tidak ada perubahan kode** — insiden murni lingkungan (`.env` + proses mati). Pemulihan < 5 menit berkat runbook Task 19/21.
 - **Gerbang admin tersembunyi terkonfirmasi masih berfungsi penuh** di semua varian (belum login, sudah login, menu tertutup, kurang dari 5 ketukan).
 - **Risiko tersisa** (tidak berubah dari Task 21): 3 commit lokal belum ter-push (`bd5839a`, `6486ced`, `1b45b7b` + perubahan README Task 22) — PAT GitHub hilang saat reset #4, perlu PAT baru dari user untuk push; artikel `cover_image` NULL & tabel interaksi (pesan/testimoni/faq) kosong menunggu konten asli.
+---
+Task ID: 23
+Agent: main (Z.ai Code)
+Task: Solusi permanen "token GitHub selalu hilang" — brankas PAT di Supabase + integrasi dua garis waktu paralel + push semua
+
+Work Log:
+- **Akar masalah permanen-token terjawab**: user mengirim ulang PAT (tanpa expiry) dan menyuruh mencari solusi agar tidak hilang LAGI. Investigasi menemukan garis waktu paralel: remote origin/main berisi Task 20/21/22 versi sesi 5 Okt (commit `9558bc7`, `e7ee56e`, `372f2b8`) yang sudah ter-push SEBELUM reset — termasuk skema "persistensi token 3 lapis" (remote URL `.git/config`, `~/.git-credentials`, `local-github-token`). **Skema itu terbukti GAGAL total**: ketiga lokasinya adalah runtime sandbox → semua mati saat reset #4–#6. Kesimpulan principle: DI DALAM sandbox tidak ada lokasi yang tahan reset; satu-satunya penyimpanan yang terbukti selamat 6× reset adalah Supabase (eksternal) dan repo GitHub itu sendiri.
+- **Brankas PAT (solusi baru, Layer 0)**: tabel `ops_config` (key TEXT PK, value TEXT, updated_at) di Supabase — DDL idempoten dieksekusi via skrip, terdokumentasi di `docs/supabase-setup.sql`. Skrip `scripts/ops-config.ts` (get/set). Token user disimpan: key `github_pat` (verifikasi get OK). Model `OpsConfig` ditambahkan ke `prisma/schema.prisma` + `bun run db:generate` (TANPA db:push — aturan Supabase).
+- **Insiden #6 real-time**: di tengah sesi ini `.env` tiba-tiba ter-rollback ke SQLite LAGI + dev server mati (bukti hidup betapa rapuhnya runtime sandbox). Pulih cepat: tulis ulang `.env` → simpan PAT ke brankas (ops-config.ts set sukses) → restart `start-dev-daemon.py` → GET / & /api/cars 200.
+- **Integrasi garis waktu paralel** (`git merge origin/main` → `17f7f61`): konflik 5 file diselesaikan:
+  - `.gitignore`, `validations.ts` (imageRef `/car-imgs/`): kedua sisi menulis fix identik → ambil versi remote.
+  - `car-form.tsx`: fix harga versi lokal (derive label di klien) DIGANTIKAN versi remote yang lebih kokoh (form kirim `harga_label: null`, server SELALU menurunkan label dari `harga_mulai` — anti-regresi) + preview versi redesign.
+  - `README.md`: §9 digabung (reset kini 6×), §9.1 DITULIS ULANG (brankas Supabase = layer utama + sejarah kegagalan 3-layer runtime), changelog union dengan label paralel (-A remote / -B lokal).
+  - `worklog.md`: union kronologis via script python, entry paralel di-relabel 21-A/21-B, 22-A/22-B.
+- **Layer kenyamanan**: `credential.helper=store` global + `~/.git-credentials` (chmod 600) — push tinggal `git push origin main` selama sandbox hidup (diperbolehkan hilang saat reset).
+- **Push**: semua commit (merge + Task 23) naik dengan token dari brankas — token tidak pernah diketik ulang di file ter-commit (repo PUBLIC; diverifikasi tidak ada nilai token di tree).
+- Verifikasi pasca-merge: lint bersih, dev server jalan, E2E gerbang tersembunyi + kartu redesign + harga live (lihat baris verifikasi Task 22-B/22-A — dire-verify setelah merge).
+
+Stage Summary:
+- **Token GitHub kini aman permanen**: brankas `ops_config` di Supabase — selamat dari reset sandbox, pergantian sesi AI, dan kehabisan memori. Prosedur pengambilan didokumentasikan di README §9.1 yang ikut ter-push (agen masa depan tinggal: pulihkan .env → `bun scripts/ops-config.ts get github_pat` → push). Fallback terakhir: user kirim ulang (token tersimpan di akun GitHub user).
+- **Dua garis waktu menyatu**: fitur terbaik keduanya hidup berdampingan — gerbang admin tersembunyi (21-B) + mekanisme harga server-side & redesign kartu mobile (22-A) + foto mobil + route upload.
+- **Semua commit ter-push** — tidak ada lagi pekerjaan yang menggantung hanya di sandbox.
+- Risiko/next: (1) token pernah muncul di chat — bila suatu saat di-revoke user, update brankas via `ops-config.ts set`; (2) harga Ertiga di DB saat ini 157 juta (hasil test restore 22-B) — konfirmasi user bila memang harus 15,7 juta; (3) galeri mobil masih 1 foto per unit, artikel cover NULL; (4) cron webDevReview aktif tiap 15 menit — agen berikutnya BACA worklog ini dulu sebelum mengubah apa pun agar tidak bikin garis waktu paralel baru.
