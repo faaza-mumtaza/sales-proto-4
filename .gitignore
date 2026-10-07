@@ -64,3 +64,6 @@ dev.log
 
 # zscripts runtime
 .zscripts/*.pid
+
+# Artefak tool agent (hasil read besar, dsb.)
+tool-results/

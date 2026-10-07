@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Link, useHashRoute } from "@/lib/router";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { Link, navigate, useHashRoute } from "@/lib/router";
 import { Menu, X, Search } from "lucide-react";
 import { SearchCommand } from "./search-command";
 
@@ -58,6 +58,29 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const route = useHashRoute();
 
+  // Akses tersembunyi admin: saat menu mobile terbuka, 5x klik logo
+  // berturut-turut (maks. 3 detik antar klik) → #/admin. Guard sesi di
+  // AdminShell/AdminLoginView yang mengarahkan ke login atau dashboard.
+  const logoTap = useRef({ count: 0, at: 0 });
+
+  // Reset penghitung saat menu ditutup / dibuka ulang / pindah halaman
+  useEffect(() => {
+    logoTap.current = { count: 0, at: 0 };
+  }, [open, route.path]);
+
+  function onLogoTap(e: MouseEvent) {
+    if (!open) return; // hanya aktif di menu mobile (desktop: hamburger hidden)
+    e.preventDefault(); // telan klik agar tidak navigasi ke home
+    const now = Date.now();
+    const expired = now - logoTap.current.at > 3000;
+    logoTap.current = { count: expired ? 1 : logoTap.current.count + 1, at: now };
+    if (logoTap.current.count >= 5) {
+      logoTap.current = { count: 0, at: 0 };
+      setOpen(false);
+      navigate("/admin");
+    }
+  }
+
   // Shortcut keyboard global: Ctrl/Cmd + K membuka pencarian situs
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -78,7 +101,12 @@ export function Header() {
       <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center shrink-0" aria-label="Beranda Suzuki BSB">
+          <Link
+            to="/"
+            className="flex items-center shrink-0"
+            aria-label="Beranda Suzuki BSB"
+            onClick={onLogoTap}
+          >
             <SuzukiLogo />
           </Link>
 

@@ -707,3 +707,33 @@ Stage Summary:
 - App kembali LIVE di atas Supabase; seluruh artefak Task 16-18 yang hilang dipulihkan (README ditulis ulang, bukan rekonstruksi persis — versi lama hilang permanen).
 - **Pelajaran insiden (penting untuk agent berikutnya)**: sandbox bisa di-reset kapan pun → (1) commit & push ke GitHub segera setelah tiap fase (commit lokal = bisa hilang); (2) data hidup harus di Supabase (eksternal), bukan file lokal; (3) setelah reset, gejala khasnya: IP berubah, git history berubah, .env/schema ter-rollback, worklog terpotong — pulihkan dengan urutan: .env → provider → db:generate → unset DATABASE_URL → restart → `bun scripts/seed-supabase.ts` (create-only, aman); (4) JANGAN pernah balik DATABASE_URL ke SQLite lokal; (5) user mengetahui password sementara via chat — ingatkan ganti segera.
 - Risiko tersisa: push GitHub butuh PAT baru (yang lama terekspos & di-revoke); tabel interaksi (pesan/testimoni/faq/dll) masih kosong menunggu konten asli; password DB & akun pernah muncul di chat (password DB sudah di-reset user — jangan dibagikan lagi).
+
+---
+Task ID: 21
+Agent: main (Z.ai Code)
+Task: Pulihan reset sandbox #4 + gerbang admin tersembunyi (5x ketuk logo di menu mobile) + fix bug "harga mobil diubah di admin tapi situs tidak berubah" + aset gambar mobil 404
+
+Work Log:
+- **Deteksi reset #4**: worklog terpotong di Task 19 (entry Task 20 hilang), commit `9558bc7` (Task 20) hilang dari git history, `.env` ter-rollback ke SQLite, IP berubah 21.0.2.178 → 21.0.22.205, dev server mati (preview user tidak muncul). PAT GitHub tidak tersisa di mana pun (remote URL polos, tidak ada ~/.git-credentials).
+- **Pulihan runbook**: .env → DATABASE_URL Supabase pooler; `bun run db:generate`; start `start-dev-daemon.py` (unset DATABASE_URL); `bun scripts/seed-supabase.ts` (create-only) → 2 akun admin utuh; GET / 200; /api/cars live dari Supabase (5 mobil).
+- **Gerbang admin tersembunyi** (permintaan user): di `src/components/site/header.tsx` — state `logoTap` (useRef {count, at}), efek reset pada `[open, route.path]`, handler `onLogoTap` di Link logo: hanya aktif saat menu mobile terbuka, preventDefault (menelan klik agar tidak navigasi home), expiry 3 detik antar klik, capai 5 → `setOpen(false)` + `navigate("/admin")`. Branching login-vs-dashboard diserahkan ke guard existing (AdminShell redirect ke /admin/login jika belum auth; AdminLoginView redirect ke /admin jika sudah auth). Desktop tak terdampak (tombol hamburger `md:hidden` → `open` tak pernah true). Tanpa indikasi visual apa pun.
+- **Fix bug harga** (laporan user sebelumnya): akar masalah GANDA:
+  1. `car-form.tsx` onSubmit: `harga_label: normalizeNullable(form.harga_label) ?? (derived)` — form tidak punya input harga_label, jadi string label LAMA selalu tersimpan & dirender kartu publik (`harga_label ?? formatPrice`) meski `harga_mulai` baru tersimpan. Fix: label SELALU diturunkan dari `harga_mulai` (`Rp. ${n.toLocaleString("id-ID")}`).
+  2. **Blokir total yang baru ketemu saat E2E**: `imageRef` zod (validations.ts) hanya menerima `https://` atau `/api/files/*` — data mobil memakai `/car-imgs/*` → SEMUA PUT /api/admin/cars DITOLAK ("Referensi gambar tidak valid") → edit mobil sama sekali tidak tersimpan. Fix: regex menerima `/car-imgs/[a-zA-Z0-9._/-]+`.
+  3. Preview form (line ~514) merender `form.harga_label ||` dulu → tampil label lama; fix: ikuti `form.harga_mulai` live.
+  4. `page.tsx` QueryClient: `refetchOnWindowFocus: false` → view yang sedang mounted menampilkan data basi tanpa batas (ubah harga di tab/device lain tak terlihat); diaktifkan `true`.
+- **Fix aset gambar 404**: dev.log penuh `GET /car-imgs/* 404`. File ada di `download/car-imgs/` (git-tracked) tapi tak ada penyaji path `/car-imgs/*` (tidak ada symlink public/ — tidak dibolehkan sandbox; tak ada rewrite). Fix termalas: `git mv download/car-imgs public/car-imgs` → disajikan statis native, path DB langsung cocok, selamat reset berikutnya (git-tracked). Artikel cover_image semua NULL (tidak ada dependensi lain).
+- **Verifikasi E2E (agent-browser, iPhone 14 emulation)**:
+  - Gerbang: menu terbuka + 5x klik logo cepat → `#/admin/login` (belum login) ✅; login temp admin → dari #/mobil gerbang 5x → `#/admin` dashboard langsung ✅; menu tertutup 5x klik → home normal ✅; desktop 5x klik → tetap di home ✅; menu ditutup-dibuka (reset counter) + 2x klik → tidak navigasi ✅; gap >3 detik antar batch → counter expire ✅.
+  - Harga: edit Ertiga 157jt → 123jt → preview live "Rp. 123.000.000" ✅ → simpan (PUT 200) → DB `{"harga_mulai":123000000,"harga_label":"Rp. 123.000.000"}` ✅ → kartu publik #/mobil menampilkan "Rp. 123.000.000" ✅ → harga dikembalikan 157jt, DB pulih ✅.
+  - Gambar: `/car-imgs/*` 200 (byte cocok), path salah 404, VLM konfirmasi kartu mobile render foto benar, "Mulai dari" sekali per kartu, tanpa visual bug.
+  - Cleanup: admin temp `temp-e2e@test.local` dibuat & dihapus (2 akun asli utuh), cookies dibersihkan.
+- **Dokumentasi**: README §3 (public/car-imgs), §5 (akses tersembunyi), §9 (reset 4x + fakta gambar baru + imageRef), §10 changelog Task 21 + rekap Task 20 (hilang). Lint bersih.
+
+Stage Summary:
+- **Preview hidup kembali**: app LIVE di Supabase, seluruh flow admin (login → edit → simpan) berfungsi.
+- **Gerbang tersembunyi aktif**: 5x ketuk logo di menu mobile → `#/admin`; guard sesi menangani login/dashboard; desktop & menu-tertutup tidak terdampak; tanpa jejak visual.
+- **Bug harga solved end-to-end**: simpan mobil yang tadinya SELALU gagal (imageRef) kini berhasil; label harga selalu sinkron dengan angka; preview live; situs publik langsung menampilkan harga baru.
+- **Aset mobil reset-proof**: `public/car-imgs/` git-tracked, disajikan statis.
+- **Tugas kartu mobile (pesan user sebelumnya)**: kondisi kartu saat ini diverifikasi VLM baik (proporsional, "Mulai dari" 1x per kartu); screenshot referensi user hilang saat reset & auto.suzuki.co.id memblokir scraping (919 byte) — redesign spekulatif ditunda; lanjutkan polish iteratif via cron webDevReview.
+- **Risiko tersisa**: (1) 2 commit (Task 19 + Task 21 yang akan di-commit) BELUM ter-push — PAT hilang lagi saat reset #4, user perlu mengirim PAT baru; (2) artikel cover_image NULL & tabel interaksi kosong menunggu konten; (3) sandbox bisa reset kapan pun — commit dilakukan sesegera mungkin.

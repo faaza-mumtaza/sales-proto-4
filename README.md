@@ -53,6 +53,8 @@ docs/supabase-setup.sql     # DDL sumber kebenaran Supabase (idempoten)
 scripts/seed-servis.ts      # seed demo booking servis (opsional)
 scripts/seed-supabase.ts    # pastikan akun admin ada (create-only, aman diulang)
 scripts/restore-uploads.py  # pulihkan db/uploads dari backup (jika ada)
+public/car-imgs/             # aset gambar mobil (statis, git-tracked) —
+                            # path /car-imgs/* dipakai kolom gambar_utama di DB
 src/lib/                    # db, auth, password, storage, rate-limit, captcha,
                             # serializers (JSON-string ↔ tampilan), validations (zod)
 src/app/api/                # cars, articles, search, contact, test-drive,
@@ -86,6 +88,12 @@ password yang sudah diganti):
 
 Ganti password setelah login pertama. Rate limit login: 10 percobaan /
 15 menit / IP.
+
+**Akses tersembunyi admin** (mobile saja): buka menu hamburger → ketuk
+logo Suzuki 5× berturut-turut (maks. 3 detik antar ketukan) → diarahkan ke
+`#/admin` (guard sesi yang menentukan login vs dashboard). Tanpa indikasi
+visual; counter reset saat menu ditutup / pindah halaman. Implementasi di
+`src/components/site/header.tsx` (`onLogoTap`).
 
 ## 6. API (ringkas)
 
@@ -133,16 +141,19 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
 
 ## 9. Catatan Operasional & Insiden
 
-- **Reset sandbox pernah 2x terjadi** (data lokal + commit lokal hilang;
+- **Reset sandbox pernah 4x terjadi** (data lokal + commit lokal hilang;
   IP mesin berubah). Yang selamat: **Supabase (eksternal)** dan repo GitHub.
   Pelajaran: commit & push berkala; data penting di Supabase, bukan file
   lokal sandbox. Setelah reset: pulihkan `.env`, flip provider, generate,
   jalankan `scripts/seed-supabase.ts` (lihat Task 19 di worklog).
 - `db/custom.db` (SQLite) = artefak sandbox lama, sudah kosong & tidak
   dipakai. Jangan pindah `DATABASE_URL` kembali ke situ.
-- Gambar upload lama (`db/uploads/`) ikut hilang saat reset; artikel/mobil
-  di Supabase memakai URL gambar eksternal (CMS dealer) sehingga tidak
-  terdampak.
+- Gambar upload lama (`db/uploads/`) ikut hilang saat reset. Gambar mobil
+  kini aset statis **`public/car-imgs/`** (git-tracked, selamat dari reset);
+  kolom `gambar_utama` di Supabase memakai path `/car-imgs/*`. Artikel
+  `cover_image` masih NULL (belum ada konten). Skema validasi
+  `imageRef` (validations.ts) menerima `https://`, `/api/files/*`, dan
+  `/car-imgs/*`.
 - `typescript.ignoreBuildErrors: true` di next.config (sisa masa porting).
 
 ## 10. Pelacakan Proyek & Aturan Dokumentasi
@@ -154,6 +165,8 @@ reset sandbox). Project `wyznuuqpglhddojfwhpw` (ap-south-1).
 
 | Tanggal | Task | Ringkasan |
 |---|---|---|
+| 2026-10-07 | 21 | **Pulihan reset #4 + gerbang admin tersembunyi + 2 fix bug harga**: `.env` ter-rollback lagi → pulihkan koneksi Supabase + dev server. Fitur: 5× ketuk logo di menu mobile → `#/admin` (header.tsx, tanpa indikasi visual). Fix bug "harga tidak berubah di situs": (1) `harga_label` kini selalu turunan `harga_mulai` saat simpan (dulu label lama terus ditampilkan), (2) `imageRef` zod menolak path `/car-imgs/*` → SEMUA edit mobil gagal disimpan (toast "Referensi gambar tidak valid") — kini diterima, (3) preview form ikut angka live, (4) `refetchOnWindowFocus` diaktifkan. Aset mobil dipindah `download/car-imgs` → `public/car-imgs` (disajikan statis, selamat reset). Semua diverifikasi E2E via agent-browser. |
+| 2026-10-04 | 20 | *(hilang saat reset #4 — rekap)* Push 2 commit (Task 19) pakai PAT baru; uji persistence token — commit & entry worklog hilang saat reset berikutnya; PAT tidak tersisa di sandbox |
 | 2026-10-04 | 19 | **Pulihan insiden reset sandbox**: repo ter-rollback ke state Task 15 (koneksi Supabase hilang, SQLite lokal kosong) → penyebab login admin gagal total. Pulihkan koneksi Supabase, daftarkan akun owner `naufalsuzuki.bsb@gmail.com` (auth custom, bukan Supabase Auth), tulis ulang README/setup SQL/.env.example/seed script. Semua terverifikasi E2E. |
 | 2026-10-04 | 18 | *(hilang saat reset — rekap)* Koneksi LIVE ke Supabase: setup SQL dieksekusi, fix enum `artikel.tipe` (P2032), provider flip postgresql, admin pertama tersalin, verifikasi E2E penuh |
 | 2026-10-04 | 17 | *(hilang saat reset — rekap)* Audit DB Supabase existing + skrip setup idempoten `docs/supabase-setup.sql` + runbook koneksi |

@@ -94,9 +94,10 @@ export function CarForm({ initial }: { initial?: Mobil }) {
         slug,
         kategori_label: form.kategori_label.trim(),
         harga_mulai: hargaMulai,
-        harga_label:
-          normalizeNullable(form.harga_label) ??
-          (hargaMulai ? `Rp. ${hargaMulai.toLocaleString("id-ID")}` : null),
+        // Label harga SELALU diturunkan dari angka — jika tidak, label lama
+        // akan terus tersimpan & ditampilkan di situs padahal admin sudah
+        // mengubah harga (bug: kartu publik merender harga_label).
+        harga_label: hargaMulai ? `Rp. ${hargaMulai.toLocaleString("id-ID")}` : null,
         seater: form.seater ? Number(form.seater) : null,
         urutan: Number(form.urutan) || 0,
         deskripsi: normalizeNullable(form.deskripsi),
@@ -511,8 +512,10 @@ export function CarForm({ initial }: { initial?: Mobil }) {
                   <div>
                     <p className="text-xs text-muted-foreground">Mulai dari</p>
                     <p className="font-bold text-suzuki-red">
-                      {form.harga_label ||
-                        (form.harga_mulai ? `Rp. ${form.harga_mulai.toLocaleString("id-ID")}` : "Hubungi sales")}
+                      {/* Live: ikuti angka yang sedang diedit (bukan label lama) */}
+                      {form.harga_mulai
+                        ? `Rp. ${form.harga_mulai.toLocaleString("id-ID")}`
+                        : form.harga_label || "Hubungi sales"}
                     </p>
                   </div>
                   <span className="px-4 py-2 bg-suzuki-navy text-white text-sm rounded-full">Detail →</span>

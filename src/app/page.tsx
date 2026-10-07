@@ -99,7 +99,10 @@ export default function Page() {
         defaultOptions: {
           queries: {
             staleTime: 30_000,
-            refetchOnWindowFocus: false,
+            // Refetch saat window kembali difokuskan — harga/data bisa diubah
+            // admin dari tab atau device lain; tanpa ini view yang sedang
+            // mounted menampilkan data basi tanpa batas waktu.
+            refetchOnWindowFocus: true,
             retry: 1,
           },
         },
